@@ -1,0 +1,129 @@
+declare module sky {
+	interface ISkyList {
+		results:Object;
+		getResults(query:Object, offset?:Number):void;
+		getNext(offset:Number):void;
+		getPrevious(offset:Number):void;
+		empty():void;
+	}
+	interface ISkyListFactory {
+		createInstance(token:string, instancePreferences?: ISkyListPreferences):ng.IPromise<ISkyList>;
+		getInstance(token:string):ng.IPromise<ISkyList>;
+	}
+	interface ISkyListPreferences {
+		api?:string;
+		limit?:number;
+		pagination?:boolean;
+		debounceTime?:number;
+	}
+	interface ISkyListMergedPreferences {
+		api:string;
+		limit:number;
+		pagination:boolean;
+		debounceTime:number;
+	}
+}
+
+(function() {
+	'use strict';
+	
+	angular.module('skyList').factory('skyList',skyListFactory);	
+	
+	skyListFactory.$inject = ['$http','$q','$timeout'];
+	
+	function skyListFactory($http, $q, $timeout:ng.ITimeoutService):sky.ISkyListFactory {
+		var factory = this;
+		factory.instances = {};	
+		factory.deferreds = {};
+		
+		return {
+			createInstance(token, instancePreferences: sky.ISkyListPreferences = {}) {
+				if(factory.instances[token]) {
+					throw new Error('Instance with token: "'+name+'" already exists. Use getInstance(token: string) to get existing instance.');
+				}
+				
+				// Create the instance
+				factory.instances[token] = new SkyList(instancePreferences);
+				
+				// Handle async get'ers
+				if(!factory.deferreds[token]) {
+					var deferred = $q.defer()
+					factory.deferreds[token]=deferred;
+				}
+				factory.deferreds[token].resolve(factory.instances[token]);
+					
+				return factory.deferreds[token].promise;			
+			},
+			getInstance(token: string) {
+				if (!factory.deferreds[token]) { 
+					var deferred = $q.defer()
+					factory.deferreds[token]=deferred;
+				}		
+				return factory.deferreds[token].promise;
+			}
+		}
+
+		function SkyList(instancePreferences:sky.ISkyListPreferences) {
+			var _this = this;
+			_this.results = {
+				pagination:{
+					total:0	
+				},
+				items:[]
+			};
+			var defaultPreferences = {
+				api:'/umbraco/api/News/GetNews/',
+				limit:10,
+				pagination:false,
+				debounceTime:200
+			};
+			
+			var currentOffset: number = 0;
+			var preferences: sky.ISkyListMergedPreferences = angular.extend(defaultPreferences, instancePreferences);
+			var currentQuery: Object;
+			
+			var debounceTimer:ng.IPromise<any>;			
+				
+			_this.getResults = function(query:Object = {}, offset:number = 0) {
+				currentQuery = query;
+				currentOffset = offset;
+								
+				$timeout.cancel(debounceTimer);
+				debounceTimer = $timeout(function() {
+					$http({
+						method:'GET',
+						url:preferences.api,
+						params: angular.extend({
+							limit: preferences.limit,
+							offset: currentOffset
+						},query)
+					}).then(function(res) {
+						_this.results.pagination = res.data.pagination;
+						
+						if(offset === 0 || preferences.pagination) {
+							_this.results.items = res.data.data;
+						} else {
+							_this.results.items = _this.results.items.concat(res.data.data);
+						}
+					});
+				
+				},preferences.debounceTime);	
+				
+			};
+			
+			_this.empty = function() {
+				_this.results.items = [];
+				_this.results.pagination.total=0;		
+			};
+			
+			_this.getNext = function() {
+				return _this.getResults(currentQuery, currentOffset + preferences.limit);
+			};
+			
+			_this.getPrevious = function() {
+				return _this.getResults(currentQuery, Math.max(currentOffset - preferences.limit,0));
+			};	
+		} 
+	}
+	
+})();

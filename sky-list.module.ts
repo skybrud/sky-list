@@ -1,5 +1,6 @@
-/* global angular */
-(function () {
+(function() {
 	'use strict';
-	angular.module('skyList',[]);
+	
+	angular.module('skyList',[]);	
+	
 })();
