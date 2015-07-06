@@ -33,32 +33,33 @@ declare module sky {
 	
 	function skyListFactory($http, $q, $timeout:ng.ITimeoutService):sky.ISkyListFactory {
 		var factory = this;
-		factory.instances = {};	
 		factory.deferreds = {};
 		
 		return {
 			createInstance(token, instancePreferences: sky.ISkyListPreferences = {}) {
-				if(factory.instances[token]) {
+				// Create a deferred if not exists
+				if(!factory.deferreds[token]) {
+					factory.deferreds[token] = $q.defer();
+				}
+				
+				// Throw error if it has already been resolved
+				if(factory.deferreds[token].promise.$$state.status == 1) {
 					throw new Error('Instance with token: "'+name+'" already exists. Use getInstance(token: string) to get existing instance.');
 				}
-				
-				// Create the instance
-				factory.instances[token] = new SkyList(instancePreferences);
-				
-				// Handle async get'ers
-				if(!factory.deferreds[token]) {
-					var deferred = $q.defer()
-					factory.deferreds[token]=deferred;
-				}
-				factory.deferreds[token].resolve(factory.instances[token]);
+
+				// Resolve the deferred with a new instance
+				factory.deferreds[token].resolve(new SkyList(instancePreferences));
 					
+				// Return the promise of the deferred
 				return factory.deferreds[token].promise;			
 			},
 			getInstance(token: string) {
+				// Create a deferred if not exists
 				if (!factory.deferreds[token]) { 
-					var deferred = $q.defer()
-					factory.deferreds[token]=deferred;
+					factory.deferreds[token] = $q.defer();
 				}		
+				
+				// Return the promise of the deferred
 				return factory.deferreds[token].promise;
 			}
 		}
