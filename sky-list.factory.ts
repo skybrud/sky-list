@@ -9,6 +9,7 @@ declare module sky {
 	interface ISkyListFactory {
 		createInstance(token:string, instancePreferences?: ISkyListPreferences):ng.IPromise<ISkyList>;
 		getInstance(token:string):ng.IPromise<ISkyList>;
+		killInstance(token: string): void;
 	}
 	interface ISkyListPreferences {
 		api?:string;
@@ -61,6 +62,10 @@ declare module sky {
 				
 				// Return the promise of the deferred
 				return factory.deferreds[token].promise;
+			},
+			killInstance(token: string) {
+				delete factory.instances[token];
+				delete factory.deferreds[token];
 			}
 		}
 
