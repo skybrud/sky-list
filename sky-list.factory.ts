@@ -89,6 +89,7 @@ declare module sky {
 			var currentQuery: Object;
 			
 			var debounceTimer:ng.IPromise<any>;			
+			var canceler: ng.IDeferred<any> = $q.defer();
 				
 			_this.getResults = function(query:Object = {}, offset:number = 0) {
 				currentQuery = query;
@@ -96,9 +97,16 @@ declare module sky {
 								
 				$timeout.cancel(debounceTimer);
 				debounceTimer = $timeout(function() {
+					// Cancel last request by resolving the canceler
+					canceler.resolve();
+
+					// Create and reassign new canceler
+					canceler = $q.defer();
+
 					$http({
 						method:'GET',
 						url:preferences.api,
+						timeout:canceler.promise, /* use canceler-promise as timeout argument to allow later cancelation of $http */
 						params: angular.extend({
 							limit: preferences.limit,
 							offset: currentOffset
