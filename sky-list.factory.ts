@@ -1,38 +1,38 @@
 declare module sky {
 	interface ISkyList {
-		results:Object;
-		getResults(query:Object, offset?:Number):void;
-		getNext(offset:Number):void;
-		getPrevious(offset:Number):void;
-		empty():void;
+		results: Object;
+		getResults(query: Object, offset?: Number): void;
+		getNext(offset: Number): void;
+		getPrevious(offset: Number): void;
+		empty(): void;
 	}
 	interface ISkyListFactory {
-		createInstance(token:string, instancePreferences?: ISkyListPreferences):ng.IPromise<ISkyList>;
-		getInstance(token:string):ng.IPromise<ISkyList>;
+		createInstance(token: string, instancePreferences?: ISkyListPreferences): ng.IPromise<ISkyList>;
+		getInstance(token: string): ng.IPromise<ISkyList>;
 		killInstance(token: string): void;
 	}
 	interface ISkyListPreferences {
-		api?:string;
-		limit?:number;
-		pagination?:boolean;
-		debounceTime?:number;
+		api?: string;
+		limit?: number;
+		pagination?: boolean;
+		debounceTime?: number;
 	}
 	interface ISkyListMergedPreferences {
-		api:string;
-		limit:number;
-		pagination:boolean;
-		debounceTime:number;
+		api: string;
+		limit: number;
+		pagination: boolean;
+		debounceTime: number;
 	}
 }
 
 (function() {
 	'use strict';
 	
-	angular.module('skyList').factory('skyList',skyListFactory);	
+	angular.module('skyList').factory('skyList', skyListFactory);	
 	
-	skyListFactory.$inject = ['$http','$q','$timeout'];
+	skyListFactory.$inject = ['$http', '$q', '$timeout'];
 	
-	function skyListFactory($http, $q, $timeout:ng.ITimeoutService):sky.ISkyListFactory {
+	function skyListFactory($http, $q, $timeout: ng.ITimeoutService): sky.ISkyListFactory {
 		var factory = this;
 		factory.deferreds = {};
 		
@@ -45,7 +45,7 @@ declare module sky {
 				
 				// Throw error if it has already been resolved
 				if(factory.deferreds[token].promise.$$state.status == 1) {
-					throw new Error('Instance with token: "'+name+'" already exists. Use getInstance(token: string) to get existing instance.');
+					throw new Error('Instance with token: "' + name + '" already exists. Use getInstance(token: string) to get existing instance.');
 				}
 
 				// Resolve the deferred with a new instance
@@ -69,29 +69,29 @@ declare module sky {
 			}
 		}
 
-		function SkyList(instancePreferences:sky.ISkyListPreferences) {
+		function SkyList(instancePreferences: sky.ISkyListPreferences) {
 			var _this = this;
 			_this.results = {
-				pagination:{
-					total:0	
+				pagination: {
+					total: 0	
 				},
-				items:[]
+				items: []
 			};
 			var defaultPreferences = {
-				api:'/umbraco/api/News/GetNews/',
-				limit:10,
-				pagination:false,
-				debounceTime:200
+				api: '/umbraco/api/News/GetNews/',
+				limit: 10,
+				pagination: false,
+				debounceTime: 200
 			};
 			
 			var currentOffset: number = 0;
 			var preferences: sky.ISkyListMergedPreferences = angular.extend(defaultPreferences, instancePreferences);
 			var currentQuery: Object;
 			
-			var debounceTimer:ng.IPromise<any>;			
+			var debounceTimer: ng.IPromise<any>;			
 			var canceler: ng.IDeferred<any> = $q.defer();
 				
-			_this.getResults = function(query:Object = {}, offset:number = 0) {
+			_this.getResults = function(query: Object = {}, offset: number = 0) {
 				currentQuery = query;
 				currentOffset = offset;
 								
@@ -104,13 +104,13 @@ declare module sky {
 					canceler = $q.defer();
 
 					$http({
-						method:'GET',
-						url:preferences.api,
-						timeout:canceler.promise, /* use canceler-promise as timeout argument to allow later cancelation of $http */
+						method: 'GET',
+						url: preferences.api,
+						timeout: canceler.promise, /* use canceler-promise as timeout argument to allow later cancelation of $http */
 						params: angular.extend({
 							limit: preferences.limit,
 							offset: currentOffset
-						},query)
+						}, query)
 					}).then(function(res) {
 						_this.results.pagination = res.data.pagination;
 						
@@ -121,13 +121,13 @@ declare module sky {
 						}
 					});
 				
-				},preferences.debounceTime);	
+				}, preferences.debounceTime);	
 				
 			};
 			
 			_this.empty = function() {
 				_this.results.items = [];
-				_this.results.pagination.total=0;		
+				_this.results.pagination.total = 0;		
 			};
 			
 			_this.getNext = function() {
@@ -135,7 +135,7 @@ declare module sky {
 			};
 			
 			_this.getPrevious = function() {
-				return _this.getResults(currentQuery, Math.max(currentOffset - preferences.limit,0));
+				return _this.getResults(currentQuery, Math.max(currentOffset - preferences.limit, 0));
 			};	
 		} 
 	}
