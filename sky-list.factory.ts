@@ -75,6 +75,7 @@ declare module sky {
 				pagination: {
 					total: 0	
 				},
+				loading:false,
 				items: []
 			};
 			var defaultPreferences = {
@@ -94,6 +95,8 @@ declare module sky {
 			_this.getResults = function(query: Object = {}, offset: number = 0) {
 				currentQuery = query;
 				currentOffset = offset;
+				
+				_this.results.loading = true;
 								
 				$timeout.cancel(debounceTimer);
 				debounceTimer = $timeout(function() {
@@ -113,7 +116,7 @@ declare module sky {
 						}, query)
 					}).then(function(res) {
 						_this.results.pagination = res.data.pagination;
-						
+						_this.results.loading = false;
 						if(offset === 0 || preferences.pagination) {
 							_this.results.items = res.data.data;
 						} else {
