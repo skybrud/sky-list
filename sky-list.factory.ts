@@ -130,7 +130,9 @@ declare module sky {
 			
 			_this.empty = function() {
 				_this.results.items = [];
-				_this.results.pagination.total = 0;		
+				_this.results.pagination.total = 0;
+				//When emptying the list, also cancel existing requests
+				canceler.resolve();
 			};
 			
 			_this.getNext = function() {
