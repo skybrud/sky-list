@@ -97,7 +97,8 @@ declare module sky {
 				currentOffset = offset;
 				
 				_this.results.loading = true;
-								
+				_this.results.hasRun;
+				
 				$timeout.cancel(debounceTimer);
 				debounceTimer = $timeout(function() {
 					// Cancel last request by resolving the canceler
@@ -116,12 +117,14 @@ declare module sky {
 						}, query)
 					}).then(function(res) {
 						_this.results.pagination = res.data.pagination;
-						_this.results.loading = false;
 						if(offset === 0 || preferences.pagination) {
 							_this.results.items = res.data.data;
 						} else {
 							_this.results.items = _this.results.items.concat(res.data.data);
 						}
+					}).finally(function(){
+						_this.results.loading = false;
+						_this.results.hasRun = true;
 					});
 				
 				}, preferences.debounceTime);	
