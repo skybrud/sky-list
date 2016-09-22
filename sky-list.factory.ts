@@ -124,7 +124,7 @@
 
 			// Increment offset
 			this.nextPage = () => {
-				return this.getResults(this.query, this.offset + preferences.limit);
+				return this.getResults(this.offset + preferences.limit);
 			}
 
 			// Cancel request
