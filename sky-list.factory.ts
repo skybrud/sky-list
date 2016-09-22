@@ -1,151 +1,138 @@
-declare module sky {
-	interface ISkyList {
-		results: Object;
-		getResults(query: Object, offset?: Number): void;
-		getNext(offset: Number): void;
-		getPrevious(offset: Number): void;
-		empty(): void;
-	}
-	interface ISkyListFactory {
-		createInstance(token: string, instancePreferences?: ISkyListPreferences): ng.IPromise<ISkyList>;
-		getInstance(token: string): ng.IPromise<ISkyList>;
-		killInstance(token: string): void;
-	}
-	interface ISkyListPreferences {
-		api?: string;
-		limit?: number;
-		pagination?: boolean;
-		debounceTime?: number;
-	}
-	interface ISkyListMergedPreferences {
-		api: string;
-		limit: number;
-		pagination: boolean;
-		debounceTime: number;
-	}
-}
-
 (function() {
 	'use strict';
-	
-	angular.module('skyList').factory('skyList', skyListFactory);	
-	
-	skyListFactory.$inject = ['$http', '$q', '$timeout'];
-	
-	function skyListFactory($http, $q, $timeout: ng.ITimeoutService): sky.ISkyListFactory {
+
+	angular.module('skyList').factory('skyList',skyListFactory);
+
+	skyListFactory.$inject = ['$http','$q','$timeout', 'skyPath'];
+
+	function skyListFactory($http, $q, $timeout, skyPath) {
 		var factory = this;
+		factory.instances = {};
 		factory.deferreds = {};
-		
+
 		return {
-			createInstance(token, instancePreferences: sky.ISkyListPreferences = {}) {
-				// Create a deferred if not exists
-				if(!factory.deferreds[token]) {
-					factory.deferreds[token] = $q.defer();
-				}
-				
-				// Throw error if it has already been resolved
-				if(factory.deferreds[token].promise.$$state.status == 1) {
-					throw new Error('Instance with token: "' + name + '" already exists. Use getInstance(token: string) to get existing instance.');
+			createInstance(token, instancePreferences = {}) {
+				if(factory.instances[token]) {
+					throw new Error('Instance with token: "'+name+'" already exists. Use getInstance(token: string) to get existing instance.');
 				}
 
-				// Resolve the deferred with a new instance
-				factory.deferreds[token].resolve(new SkyList(instancePreferences));
-					
-				// Return the promise of the deferred
-				return factory.deferreds[token].promise;			
-			},
-			getInstance(token: string) {
-				// Create a deferred if not exists
-				if (!factory.deferreds[token]) { 
-					factory.deferreds[token] = $q.defer();
-				}		
-				
-				// Return the promise of the deferred
+				// Create the instance
+				factory.instances[token] = new SkyList(instancePreferences);
+
+				// Handle async get'ers
+				if(!factory.deferreds[token]) {
+					var deferred = $q.defer()
+					factory.deferreds[token]=deferred;
+				}
+				factory.deferreds[token].resolve(factory.instances[token]);
+
 				return factory.deferreds[token].promise;
 			},
-			killInstance(token: string) {
-				delete factory.instances[token];
-				delete factory.deferreds[token];
+			getInstance(token: string) {
+				if (!factory.deferreds[token]) {
+					var deferred = $q.defer()
+					factory.deferreds[token]=deferred;
+				}
+				return factory.deferreds[token].promise;
 			}
 		}
 
-		function SkyList(instancePreferences: sky.ISkyListPreferences) {
-			var _this = this;
-			_this.results = {
-				pagination: {
-					total: 0	
-				},
-				loading:false,
-				items: []
+		function SkyList(instancePreferences) {
+			// Default
+			const defaultPreferences = {
+				api:'/umbraco/api/News/GetNews/',
+				limit:10,
+				pagination:false,
+				debounceTime:200
 			};
-			var defaultPreferences = {
-				api: '/umbraco/api/News/GetNews/',
-				limit: 10,
-				pagination: false,
-				debounceTime: 200
-			};
-			
-			var currentOffset: number = 0;
-			var preferences: sky.ISkyListMergedPreferences = angular.extend(defaultPreferences, instancePreferences);
-			var currentQuery: Object;
-			
-			var debounceTimer: ng.IPromise<any>;			
-			var canceler: ng.IDeferred<any> = $q.defer();
-				
-			_this.getResults = function(query: Object = {}, offset: number = 0) {
-				currentQuery = query;
-				currentOffset = offset;
-				
-				_this.results.loading = true;
-				_this.results.hasRun;
-				
-				$timeout.cancel(debounceTimer);
-				debounceTimer = $timeout(function() {
-					// Cancel last request by resolving the canceler
-					canceler.resolve();
 
-					// Create and reassign new canceler
-					canceler = $q.defer();
+			// List preferences
+			const preferences = angular.extend(defaultPreferences, instancePreferences);
+
+			// Used to cancel the request
+			let cancel = $q.defer()
+
+			let debounceTimer;
+
+			// List query
+			this.query = {};
+
+			// The current offset
+			this.offset = 0;
+
+			// Result object
+			this.results = {
+				pagination:{
+					total:0
+				},
+				items:[]
+			};
+
+			/**
+			 * Fetch results based on the current query and offset.
+			 *
+			 * @param {number} [optional] offset
+			 * @return {promise}
+			 */
+			this.getResults = (offset = 0) => {
+				// Cancel any ongoing requests
+				this.cancel();
+
+				// set the offset
+				this.offset = offset;
+
+				// Endpoint
+				let url = skyPath.get() + preferences.api;
+
+				// Merged params
+				let params = angular.extend({
+					limit: preferences.limit,
+					offset: this.offset,
+				}, this.query);
+
+				// Cancel any queued requests
+				$timeout.cancel(this.debounce);
+				this.debounce = $timeout(() => {
 
 					$http({
 						method: 'GET',
-						url: preferences.api,
-						timeout: canceler.promise, /* use canceler-promise as timeout argument to allow later cancelation of $http */
-						params: angular.extend({
-							limit: preferences.limit,
-							offset: currentOffset
-						}, query)
-					}).then(function(res) {
-						_this.results.pagination = res.data.pagination;
-						if(offset === 0 || preferences.pagination) {
-							_this.results.items = res.data.data;
+						url: url,
+						params: params,
+						timeout: cancel.promise,
+					}).then((res) => {
+
+						// Update pagination
+						this.results.pagination = res.data.pagination;
+
+						// Either replace items or cancat
+						if(this.offset === 0 || preferences.pagination) {
+							this.results.items = res.data.data;
 						} else {
-							_this.results.items = _this.results.items.concat(res.data.data);
+							this.results.items = this.results.items.concat(res.data.data);
 						}
-					}).finally(function(){
-						_this.results.loading = false;
-						_this.results.hasRun = true;
 					});
-				
-				}, preferences.debounceTime);	
-				
-			};
-			
-			_this.empty = function() {
-				_this.results.items = [];
-				_this.results.pagination.total = 0;
-				//When emptying the list, also cancel existing requests
-				canceler.resolve();
-			};
-			
-			_this.getNext = function() {
-				return _this.getResults(currentQuery, currentOffset + preferences.limit);
-			};
-			
-			_this.getPrevious = function() {
-				return _this.getResults(currentQuery, Math.max(currentOffset - preferences.limit, 0));
-			};	
-		} 
+
+				}, preferences.debounceTime);
+
+			}
+
+			// Reset list
+			this.empty = () => {
+				this.results.items = [];
+				this.results.pagination.total=0;
+			}
+
+			// Increment offset
+			this.nextPage = () => {
+				return this.getResults(this.query, this.offset + preferences.limit);
+			}
+
+			// Cancel request
+			this.cancel = () => {
+				cancel.resolve();
+				cancel = $q.defer();
+			}
+		}
 	}
-	
+
 })();
