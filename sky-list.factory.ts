@@ -34,6 +34,10 @@
 					factory.deferreds[token]=deferred;
 				}
 				return factory.deferreds[token].promise;
+			},
+			killInstance(token: string) {
+				delete factory.deferreds[token];
+				delete factory.instances[token];
 			}
 		}
 
