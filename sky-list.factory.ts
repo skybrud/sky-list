@@ -3,9 +3,9 @@
 
 	angular.module('skyList').factory('skyList',skyListFactory);
 
-	skyListFactory.$inject = ['$http','$q','$timeout', 'skyPath'];
+	skyListFactory.$inject = ['$http','$q','$timeout', 'skyPath', '$location'];
 
-	function skyListFactory($http, $q, $timeout, skyPath) {
+	function skyListFactory($http, $q, $timeout, skyPath, $location) {
 		var factory = this;
 		factory.instances = {};
 		factory.deferreds = {};
@@ -114,6 +114,8 @@
 						} else {
 							this.results.items = this.results.items.concat(res.data.data);
 						}
+
+						$location.search(this.query);
 					});
 
 				}, preferences.debounceTime);
