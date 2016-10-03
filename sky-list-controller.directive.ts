@@ -4,7 +4,7 @@
 	angular.module('skyList').directive('skyListController', skyListControllerDirective);
 
 	function skyListControllerDirective(skyList) {
-		return {
+		let directive = {
 			restrict: 'A',
 			bindToController: {
 				'list': '@skyListController',
@@ -20,5 +20,7 @@
 				this.query = instance.query;
 			});
 		}
+
+		return directive;
 	}
 })();
