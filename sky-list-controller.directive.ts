@@ -3,6 +3,8 @@
 
 	angular.module('skyList').directive('skyListController', skyListControllerDirective);
 
+	skyListControllerDirective.$inject = ['skyList'];
+
 	function skyListControllerDirective(skyList) {
 		let directive = {
 			restrict: 'A',
