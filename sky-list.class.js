@@ -4,7 +4,7 @@ import queryUtilities from './utilities/queryUtilities';
 // Default
 const defaultConfig = {
 	api: '/umbraco/api/SiteSearchApi/Search/',
-	debounceTime: 200,
+	debounce: 200,
 	pagination: false,
 	urlParams: true,
 };
@@ -55,7 +55,7 @@ export default class SkyList {
 	* @param {number} [optional] offset
 	* @return {promise}
 	*/
-	fetch(offset) {
+	_fetch(offset) {
 		// Cancel last request
 		this.cancel();
 
@@ -104,24 +104,24 @@ export default class SkyList {
 					resolve(this.results);
 				}, () => {
 				});
-			}, this.preferences.debounceTime);
+			}, this.preferences.debounce);
 		});
 		return promise;
 	}
 
 	// Next page
-	fetchNext() {
+	next() {
 		return this.fetch(this.params.offset + this.params.limit);
 	}
 
 	// Previous page
-	fetchPrevious() {
+	previous() {
 		return this.fetch(Math.max(0, this.params.offset - this.params.limit));
 	}
 
 	// Update list
 	update() {
-		this.fetch();
+		this._fetch();
 	}
 
 	// Reset list

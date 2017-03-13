@@ -1,12 +1,61 @@
 # sky-list
+> Simple js module with shared list methods used by sky-news, sky-search, etc.
 
-Angular-module with shared list-methods used by sky-news, sky-search, etc.
+## Dependencies
+- [axios](https://github.com/mzabriskie/axios)
 
-Use `createInstance(key:String, preferences:prefsObj)` to create instance of skyList. This (and `getInstance(key)`) will return a promise that resolves to the service-instance, that you can then call methods on and bind to your view. 
-Remember to use `killInstance(key)` to cleanup when the consumer-directive is destroyed. 
+## Usage
+Use `new skyList( [config], [params] )` to create instance. If no config or params supplied the defaults are:
+``` js
+// Default configuration
+{
+    // API endpoint
+	api: '/umbraco/api/SiteSearchApi/Search/',
+	// Debounce concurrent requests by ms
+	debounce: 200,
+	// Append to list if false. Use pagination if true (exchange all items in list on next() or previous()
+	pagination: false,
+	// Keep url query parameters updated
+	urlParams: true,
+};
 
-Find example usage in [skyNews](https://github.com/skybrud/sky-news), or see TSdefinitions or source for further documentation.
+// Default parameters
+{
+    keywords: ''
+};
+```
+**Examples:**
+``` js
+// Custom config and parameters
+const list = new skyList({
+    api: '/lookAtThatGloriousEndpoint/',
+    debounce: 400,
+    pagination: true,
+    urlParams: true,
+},{
+    keywords: '',
+    stayClassy: false,
+});
 
-### Credits
+// Update params
+list.params.keyword = 'lamp';
+list.params.stayClassy = true;
 
+// Trigger update
+list.update();
+
+// Get items here
+list.results.items;
+```
+Find more example of usage and Vue integration in [skySearch](https://github.com/skybrud/sky-search).
+
+## Methods
+The `SkyList` class exposes these methods:
+- `update()` - Fetches list (based on `list.params`)
+- `next()` - Fetches next items in list
+- `previous()` - Fetches previous items in list (only applicable when `pagination:true`)
+- `reset()` - Clear list contents and revert to initial state
+- `cancel()` - Cancel previous request
+
+# Credits
 This module is made by the Frontenders at [skybrud.dk](http://www.skybrud.dk/). Feel free to use it in any way you want. Feedback, questions and bugreports should be posted as issues. Pull-requests appreciated!
