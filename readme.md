@@ -5,7 +5,7 @@
 - [axios](https://github.com/mzabriskie/axios)
 
 ## Usage
-Use `new skyList( [config], [params] )` to create instance. If no config or params supplied the defaults are:
+Use `new SkyList( [config], [params] )` to create instance. If no config or params supplied the defaults are:
 ``` js
 // Default configuration
 {
@@ -26,8 +26,10 @@ Use `new skyList( [config], [params] )` to create instance. If no config or para
 ```
 **Examples:**
 ``` js
+import SkyList from 'sky-list.class';
+
 // Custom config and parameters
-const list = new skyList({
+const list = new SkyList({
     api: '/lookAtThatGloriousEndpoint/',
     debounce: 400,
     pagination: true,
