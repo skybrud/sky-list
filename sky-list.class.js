@@ -1,32 +1,41 @@
 import axios from 'axios';
+import queryUtilities from './utilities/queryUtilities';
 
 // Default
-const defaultPreferences = {
+const defaultConfig = {
 	api: '/umbraco/api/SiteSearchApi/Search/',
-	limit: 10,
-	pagination: false,
 	debounceTime: 200,
+	pagination: false,
+	urlParams: true,
+};
+
+const defaultParameters = {
+	offset: 0,
+	limit: 10,
 };
 
 export default class SkyList {
 
-	constructor(instancePreferences) {
+	constructor(instanceConfig, instanceParameters) {
 		// List preferences
-		this.preferences = Object.assign(defaultPreferences, instancePreferences);
+		this.preferences = Object.assign({}, defaultConfig, instanceConfig);
 
-		// Used to cancel the request
-		this._lastCancelToken = axios.CancelToken.source();
+		// List parameters (for url query string)
+		this.params = Object.assign({}, defaultParameters, instanceParameters);
 
-		// List query
-		this.query = {
-			keywords: '',
-		};
+		// Populate params object from url if properties exist there
+		const queryParams = queryUtilities.get();
+		Object.keys(queryParams).forEach((key) => {
+			if (key in this.params) {
+				this.params[key] = queryParams[key];
+			}
+		});
 
-		// The current offset
-		this.offset = 0;
+		// Loading state boolean
+		this.loading = false;
 
-		// Loading boolean
-		this.loading = true;
+		// Untouched state boolean
+		this.untouched = true;
 
 		// Result object
 		this.results = {
@@ -36,7 +45,8 @@ export default class SkyList {
 			items: [],
 		};
 
-		this.fetch();
+		// Token used to cancel a request
+		this._lastCancelToken = axios.CancelToken.source();
 	}
 
 	/**
@@ -45,83 +55,107 @@ export default class SkyList {
 	* @param {number} [optional] offset
 	* @return {promise}
 	*/
-	fetch(offset = 0) {
-		// Cancel any ongoing requests
-		this._lastCancelToken.cancel();
-		this._lastCancelToken = axios.CancelToken.source();
+	fetch(offset) {
+		// Cancel last request
+		this.cancel();
 
-		// Set the offset
-		this.offset = offset;
-
-		// Endpoint
-		const url = this.preferences.api;
-
-		// Merged params
-		const params = Object.assign(this.query, {
-			limit: this.preferences.limit,
-			offset: this.offset,
-		});
-
+		// Set loading state
 		this.loading = true;
+
+		// Set untouched state
+		this.untouched = false;
+
+		// Set limit
+		this.params.limit = Number(this.params.limit);
+
+		// Set the offset (only if offset is passed)
+		if (offset || Number(offset) === 0) {
+			this.params.offset = Number(offset);
+		}
+
+		// Update url
+		if (this.preferences.urlParams) {
+			queryUtilities.set(this.params);
+		}
+
+		const axiosConfig = {
+			url: this.preferences.api,
+			method: 'GET',
+			params: this.params,
+			cancelToken: this._lastCancelToken.token,
+		};
 
 		const promise = new Promise((resolve) => {
 			// Cancel any queued requests
 			clearTimeout(this.debounce);
-			if (params.keywords.length) {
-				this.debounce = setTimeout(() => {
-					axios({
-						method: 'GET',
-						url,
-						params,
-					}).then((res) => {
-						this.loading = false;
-						// Update pagination
-						this.results.pagination = res.data.pagination;
+			this.debounce = setTimeout(() => {
+				axios(axiosConfig).then((res) => {
+					this.loading = false;
+					// Update pagination
+					this.results.pagination = res.data.pagination;
 
-						// Either replace items or cancat
-						if (this.offset === 0 || this.preferences.pagination || !res.data.data.length) {
-							this.results.items = res.data.data;
-						} else {
-							this.results.items = this.results.items.concat(res.data.data);
-						}
-
-						// $location.search(this.query);
-						resolve(this.results);
-					});
-				}, this.preferences.debounceTime);
-			} else {
-				this.loading = false;
-				resolve(true);
-			}
+					// Either replace items or cancat
+					if (this.params.offset === 0 || this.preferences.pagination || !res.data.data.length) {
+						this.results.items = res.data.data;
+					} else {
+						this.results.items = this.results.items.concat(res.data.data);
+					}
+					// Resolve promise with results
+					resolve(this.results);
+				}, () => {
+				});
+			}, this.preferences.debounceTime);
 		});
 		return promise;
 	}
 
 	// Next page
 	fetchNext() {
-		return this.fetch(this.offset + this.preferences.limit);
+		return this.fetch(this.params.offset + this.params.limit);
 	}
 
 	// Previous page
 	fetchPrevious() {
-		return this.fetch(Math.max(0, this.offset - this.preferences.limit));
-	}
-
-	// Reset list
-	empty() {
-		this.results.items = [];
-		this.results.pagination.total = 0;
+		return this.fetch(Math.max(0, this.params.offset - this.params.limit));
 	}
 
 	// Update list
 	update() {
-		// this.empty();
 		this.fetch();
+	}
+
+	// Reset list
+	reset() {
+		// Cancel any ongoing requests
+		this.cancel();
+
+		// Set states
+		this.loading = false;
+		this.untouched = true;
+
+		// Flush items
+		this.results.items = [];
+
+		// Reset meta stuff
+		this.results.pagination.total = 0;
+		this.params.offset = 0;
+
+		// Reset query
+		Object.assign(this.params, this.params);
+
+		// Reset url
+		if (this.preferences.urlParams) {
+			queryUtilities.clear(this.params);
+		}
 	}
 
 	// Cancel request
 	cancel() {
+		// Cancel last request
 		this._lastCancelToken.cancel();
-		this._lastCancelToken = axios.CancelToken.source();
+
+		// Set up new axios request token (to allow next cancel)
+		const cancelToken = axios.CancelToken.source();
+		this._lastCancelToken = cancelToken;
 	}
 }
