@@ -111,12 +111,12 @@ export default class SkyList {
 
 	// Next page
 	next() {
-		return this.fetch(this.params.offset + this.params.limit);
+		return this._fetch(this.params.offset + this.params.limit);
 	}
 
 	// Previous page
 	previous() {
-		return this.fetch(Math.max(0, this.params.offset - this.params.limit));
+		return this._fetch(Math.max(0, this.params.offset - this.params.limit));
 	}
 
 	// Update list
