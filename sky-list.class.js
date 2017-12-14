@@ -1,3 +1,7 @@
+// import core.js polyfills
+import 'core-js/fn/object/assign';
+import 'core-js/fn/promise';
+
 import axios from 'axios';
 import queryUtilities from './utilities/queryUtilities';
 

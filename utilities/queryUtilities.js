@@ -1,3 +1,6 @@
+// import core.js polyfill
+import 'core-js/fn/object/assign';
+
 function updateQueryString(string) {
 	if (history.pushState) {
 		const base = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
