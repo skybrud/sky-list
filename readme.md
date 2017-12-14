@@ -3,6 +3,7 @@
 
 ## Dependencies
 - [axios](https://github.com/mzabriskie/axios)
+- [core-js](https://github.com/zloirock/core-js)
 
 ## Usage
 Use `new SkyList( [config], [params] )` to create instance. If no config or params supplied the defaults are:
