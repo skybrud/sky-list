@@ -3,7 +3,7 @@ import 'core-js/fn/object/assign';
 
 function updateQueryString(string) {
 	if (history.pushState) {
-		const base = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
+		const base = `${window.location.protocol}//${window.location.host}${window.location.pathname}${window.location.hash}`;
 		const seperator = (string.length) ? '?' : '';
 		const url = `${base}${seperator}${string}`;
 
@@ -61,8 +61,8 @@ export default {
 		}
 		return queryObject;
 	},
-	set(parameters) {
-		const queryObject = unserialize(window.location.search);
+	set(parameters, merge = true) {
+		const queryObject = (merge) ? unserialize(window.location.search) : {};
 		if (typeof parameters === 'object') {
 			Object.assign(queryObject, parameters);
 		} else if (typeof params === 'string') {
