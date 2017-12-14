@@ -11,6 +11,11 @@ const defaultConfig = {
 	debounce: 200,
 	pagination: false,
 	urlParams: true,
+	fetchConditions: {
+		// keywords(keywords) {
+		// 	return keywords.length;
+		// },
+	},
 };
 
 const defaultParameters = {
@@ -126,7 +131,23 @@ export default class SkyList {
 
 	// Update list
 	update() {
-		this._fetch();
+		if (Object.keys(this.preferences.fetchConditions).length) {
+			const fetchConditionsMet = Object.keys(this.preferences.fetchConditions)
+				.reduce((previous, key) => {
+					if (previous) {
+						return this.preferences.fetchConditions[key](this.params[key]);
+					}
+					return false;
+				}, true);
+
+			if (fetchConditionsMet) {
+				this._fetch();
+			} else {
+				this.reset();
+			}
+		} else {
+			this._fetch();
+		}
 	}
 
 	// Reset list
