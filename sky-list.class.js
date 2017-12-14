@@ -15,7 +15,6 @@ const defaultParameters = {
 };
 
 export default class SkyList {
-
 	constructor(instanceConfig, instanceParameters) {
 		// List preferences
 		this.preferences = Object.assign({}, defaultConfig, instanceConfig);
@@ -95,7 +94,9 @@ export default class SkyList {
 					this.results.pagination = res.data.pagination;
 
 					// Either replace items or cancat
-					if (this.params.offset === 0 || this.preferences.pagination || !res.data.data.length) {
+					if (this.params.offset === 0
+						|| this.preferences.pagination
+						|| !res.data.data.length) {
 						this.results.items = res.data.data;
 					} else {
 						this.results.items = this.results.items.concat(res.data.data);
