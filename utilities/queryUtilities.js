@@ -2,7 +2,7 @@
 import 'core-js/fn/object/assign';
 
 function updateQueryString(string) {
-	if (history.pushState) {
+	if (window && window.history.pushState) {
 		const base = `${window.location.protocol}//${window.location.host}${window.location.pathname}${window.location.hash}`;
 		const seperator = (string.length) ? '?' : '';
 		const url = `${base}${seperator}${string}`;
