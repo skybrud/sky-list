@@ -1,0 +1,86 @@
+<div :class="['sky-list', { loading : states.loading }]">
+	<div class="sky-list-form">
+		<slot
+			name="listForm"
+			:query="query"
+			:newRequest="request"
+			:nativeSearchHandler="nativeSearchHandling"
+		/>
+	</div>
+
+	<div
+		v-if="(validQuery || config.loadFetch) && (filterKeys.length > 0) && states.hasFetchedOnce"
+		class="sky-list-filter"
+	>
+		<slot
+			name="filters"
+			:query="query"
+			:areas="result.groups"
+		/>
+	</div>
+
+	<div
+		v-if="(validQuery || config.loadFetch)"
+		class="sky-list-content"
+	>
+		<div
+			v-if="config.showCount && states.hasFetchedOnce"
+			class="sky-list-message"
+		>
+			<slot
+				v-if="currentResultSet.length > 0"
+				name="resultMessage"
+				:query="query"
+				:pagination="result.pagination"
+			>
+				<span>
+					Din søgning efter <em>"{{query.keywords}}"</em> gav <em>{{result.pagination.total}} {{(result.pagination.total === 1) ? 'resultat' : 'resultater'}}</em>
+				</span>
+			</slot>
+		</div>
+
+		<div
+			v-if="currentResultSet.length > 0"
+			class="sky-list-result"
+		>
+			<ul>
+				<li
+					class="sky-list-item"
+					v-for="(item, index) in currentResultSet"
+					:key="item.id"
+				>
+					<slot
+						name="listItem"
+						:item="item"
+						:index="index"
+					/>
+				</li>
+			</ul>
+		</div>
+		<div
+			v-else-if="states.hasFetchedOnce"
+			class="sky-list-result empty"
+		>
+			<slot
+				name="noResultMessage"
+				:query="query"
+			>
+				<span v-text="'Din søgning gav ingen resultater'" />
+			</slot>
+		</div>
+
+		<button
+			v-if="canFetchMore && states.hasFetchedOnce"
+			@click="more(false)"
+			class="sky-list-more"
+		>
+			<slot
+				name="listMore"
+				:itemsLeft="itemsLeft"
+			>
+				<span>Show more</span>
+			</slot>
+		</button>
+	</div>
+
+</div>

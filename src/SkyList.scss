@@ -1,0 +1,52 @@
+.sky-list .sky-reveal {
+	min-height: 0;
+
+	&:after {
+		content: none;
+	}
+}
+
+.sky-list-content {
+	width: 100%;
+	text-align: center;
+}
+
+.sky-list-message {
+	text-align: left;
+
+	.loading & {
+		visibility: hidden;
+	}
+}
+
+.sky-list-result {
+	position: relative;
+	transition: opacity 0.2s 0s;
+	text-align: left;
+
+	.loading & {
+		opacity: 0.2;
+		transition-delay: 0.3s;
+	}
+
+	ul {
+		margin: 0;
+		padding: 0;
+		display: block;
+	}
+
+	li {
+		display: block;
+		overflow: visible;
+		height: auto;
+	}
+}
+
+.sky-list-item {
+	position: relative;
+	display: block;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: auto;
+}

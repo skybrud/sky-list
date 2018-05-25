@@ -1,0 +1,28 @@
+{
+  "name": "sky-list",
+  "version": "0.0.0",
+  "description": "Vue component for creating search",
+  "main": "dist/skylist.min.js",
+  "scripts": {
+    "build": "rimraf ./dist && webpack --config ./webpack.config.js",
+    "dist": "yarn install && yarn run build",
+    "update": "rimraf ./node_modules && yarn run dist"
+  },
+  "build": "plugin",
+  "author": "Skybrud.dk",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/skybrud/sky-list.git"
+  },
+  "devDependencies": {
+    "np": "*",
+    "sky-build-setup": "https://github.com/skybrud/sky-build-setup.git#^1.0.0"
+  },
+  "peerDependencies": {
+    "vue": "^2.5.0"
+  },
+  "dependencies": {
+    "axios": "^0.18.0"
+  }
+}
