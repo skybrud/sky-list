@@ -1,4 +1,4 @@
-import SkyList from './SkyList';
+import SkyList from './SkyList.vue';
 
 const defaults = {
 	registerComponents: true,
