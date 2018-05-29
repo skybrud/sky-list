@@ -30,23 +30,20 @@
 	}
 
 	ul {
-		margin: 0;
-		padding: 0;
-		display: block;
-	}
-
-	li {
-		display: block;
-		overflow: visible;
-		height: auto;
+		display: flex;
 	}
 }
 
-.sky-list-item {
-	position: relative;
-	display: block;
-	margin: 0;
-	padding: 0;
-	width: 100%;
-	height: auto;
+.sky-list-pagination {
+	button {
+		flex-shrink: 0;
+	}
+}
+
+.sky-list-numeric {
+	button {
+		display: inline-block;
+		cursor: pointer;
+		background: none;
+	}
 }

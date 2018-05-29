@@ -3,7 +3,7 @@
 		<slot
 			name="listForm"
 			:query="query"
-			:newRequest="request"
+			:newRequest="handleUserSearch"
 			:nativeSearchHandler="nativeSearchHandling"
 		/>
 	</div>
@@ -34,7 +34,7 @@
 				:pagination="result.pagination"
 			>
 				<span>
-					Din søgning efter <em>"{{query.keywords}}"</em> gav <em>{{result.pagination.total}} {{(result.pagination.total === 1) ? 'resultat' : 'resultater'}}</em>
+					Your search for <em>"{{query.keywords}}"</em> returned <em>{{result.pagination.total}} {{(result.pagination.total === 1) ? 'result' : 'results'}}</em>
 				</span>
 			</slot>
 		</div>
@@ -65,22 +65,64 @@
 				name="noResultMessage"
 				:query="query"
 			>
-				<span v-text="'Din søgning gav ingen resultater'" />
+				<span v-text="'Your search returned no results'" />
 			</slot>
 		</div>
 
-		<button
-			v-if="canFetchMore && states.hasFetchedOnce"
-			@click="more(false)"
-			class="sky-list-more"
-		>
-			<slot
-				name="listMore"
-				:itemsLeft="itemsLeft"
+		<div class="sky-list-pagination">
+			<!-- SHOW MORE / ALL -->
+			<button
+				v-if="morePagination && canFetchMore && states.hasFetchedOnce"
+				@click="more(config.paginationType === 'all')"
+				class="sky-list-more"
 			>
-				<span>Show more</span>
-			</slot>
-		</button>
+				<slot
+					name="listMore"
+					:itemsLeft="itemsLeft"
+				>
+					<span v-text="`Show ${config.paginationType}`" />
+				</slot>
+			</button>
+
+			<!-- NUMERIC LIST-->
+			<ul
+				v-if="numericPagination && states.hasFetchedOnce"
+				class="sky-list-numeric"
+			>
+				<li
+					:class="{ current: pages.current === n }"
+					v-for="n in pages.max"
+				>
+					<button @click="goTo(n)">
+						<slot name="paginationBullet">
+							<span v-text="n" />
+						</slot>
+					</button>
+				</li>
+			</ul>
+
+			<!-- NEXT + PREVIOUS -->
+			<button
+				v-if="flowPagination && states.hasFetchedOnce"
+				@click="goTo('previous')"
+				class="sky-list-previous"
+			>
+				<slot name="listPrev">
+					<span>Previous</span>
+				</slot>
+			</button>
+
+			<button
+				v-if="flowPagination && states.hasFetchedOnce"
+				@click="goTo('next')"
+				class="sky-list-next"
+			>
+				<slot name="listNext">
+					<span>Next</span>
+				</slot>
+			</button>
+		</div>
+
 	</div>
 
 </div>
