@@ -5076,7 +5076,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "sky-list-content"
   }, [(_vm.config.showCount && _vm.states.hasFetchedOnce) ? _c('div', {
     staticClass: "sky-list-message"
-  }, [(_vm.currentResultSet.length > 0) ? _vm._t("resultMessage", [_c('span', [_vm._v("\n\t\t\t\t\tYour search for "), _c('em', [_vm._v("\"" + _vm._s(_vm.query.keywords) + "\"")]), _vm._v(" returned "), _c('em', [_vm._v(_vm._s(_vm.pagination.total) + " " + _vm._s((_vm.pagination.total === 1) ? 'result' : 'results'))])])], {
+  }, [(_vm.currentResultSet.length > 0) ? _vm._t("resultMessage", [_c('span', [_vm._v("\n\t\t\t\t\tYour search for "), _c('em', [_vm._v("\"" + _vm._s(_vm.query.keywords) + "\"")]), _vm._v(" returned "), _c('em', [_vm._v(_vm._s(_vm.result.pagination.total) + " " + _vm._s((_vm.result.pagination.total === 1) ? 'result' : 'results'))])])], {
     query: _vm.query,
     pagination: _vm.result.pagination
   }) : _vm._e()], 2) : _vm._e(), _vm._v(" "), (_vm.currentResultSet.length > 0) ? _c('div', {

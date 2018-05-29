@@ -34,7 +34,7 @@
 				:pagination="result.pagination"
 			>
 				<span>
-					Your search for <em>"{{query.keywords}}"</em> returned <em>{{pagination.total}} {{(pagination.total === 1) ? 'result' : 'results'}}</em>
+					Your search for <em>"{{query.keywords}}"</em> returned <em>{{result.pagination.total}} {{(result.pagination.total === 1) ? 'result' : 'results'}}</em>
 				</span>
 			</slot>
 		</div>
