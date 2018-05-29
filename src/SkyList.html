@@ -34,7 +34,7 @@
 				:pagination="result.pagination"
 			>
 				<span>
-					Your search for <em>"{{query.keywords}}"</em> returned <em>{{result.pagination.total}} {{(result.pagination.total === 1) ? 'result' : 'results'}}</em>
+					Your search for <em>"{{query.keywords}}"</em> returned <em>{{pagination.total}} {{(pagination.total === 1) ? 'result' : 'results'}}</em>
 				</span>
 			</slot>
 		</div>
@@ -94,7 +94,10 @@
 					v-for="n in pages.max"
 				>
 					<button @click="goTo(n)">
-						<slot name="paginationBullet">
+						<slot
+							name="paginationBullet"
+							:count="n"
+						>
 							<span v-text="n" />
 						</slot>
 					</button>

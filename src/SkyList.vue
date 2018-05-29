@@ -251,12 +251,7 @@
 
 				if (Number(target)) {
 					this.setCurrentPage(target);
-
-					console.log((this.getCurrentPage() - 1) * limit, '=', this.getCurrentPage(), '-', 1, '*', limit);
-
 					this.setPagination({ offset: (this.getCurrentPage() - 1) * limit });
-
-					console.log(this.result.pagination.offset);
 				}
 
 				if (!this.requestedPageIsFetched(this.getCurrentPage())) {
@@ -283,7 +278,6 @@
 								limit: this.limitEnd, // hvorfor limit = limitEnd?
 								offset: 0,
 							})).then((secondaryResult) => {
-								console.log('if', type);
 								this.dataParser(secondaryResult, type, pageNo)
 							});
 						} else {
@@ -310,7 +304,6 @@
 						this.setResultData([...this.result.data[0], ...data]);
 					},
 					page: () => {
-						console.log('page', data, pagination);
 						this.setResultData(data, this.pageNoToIndex(pageNo));
 					},
 					clean: () => {
@@ -322,7 +315,7 @@
 					filter: () => {
 						// Resets all, but group info and query
 						this.deleteResultData();
-						console.log('filter', data);
+
 						this.setResultData(data, this.pageNoToIndex(pageNo));
 					},
 				};
