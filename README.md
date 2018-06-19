@@ -186,7 +186,6 @@ Slot for customizing show more / all button
 </sky-list>
 ```
 
-## API Response Setup
 ## <a id=“api”></a>API Response Setup
 SkyList expects a response with the following setup
 ```js
