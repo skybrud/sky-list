@@ -212,10 +212,10 @@
 				return data[pageNoRequested - 1];
 			},
 			filterData() {
-				const { groups, pagination: { offset, total } } = this.result;
 
 				const currentArea = groups.find(area => area.id === this.query.area);
 				const currentAreaCount = currentArea.count || total;
+				const { groups, pagination: { total } } = this.result;
 
 				this.setCurrentPage(1);
 				this.setPagination({ offset: 0, total: currentAreaCount });
