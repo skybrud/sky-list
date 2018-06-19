@@ -1892,7 +1892,7 @@ var Component = __webpack_require__(62)(
   /* cssModules */
   null
 )
-Component.options.__file = "/Users/rudiornhoj/Sites/roernhoej/sky-list/src/SkyList.vue"
+Component.options.__file = "/Users/mhelmuth/Sites/mhelmuth/skybrud/sky-list/src/SkyList.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key !== "__esModule"})) {console.error("named exports are not supported in *.vue files.")}
 if (Component.options.functional) {console.error("[vue-loader] SkyList.vue: functional components are not supported with templates, they should use render functions.")}
 
@@ -2221,10 +2221,6 @@ var defaultOptions = {
 	loadFetch: false
 };
 
-var defaultParams = {
-	keywords: ''
-};
-
 exports.default = {
 	props: {
 		valueMap: {
@@ -2242,7 +2238,9 @@ exports.default = {
 		parameters: {
 			type: Object,
 			default: function _default() {
-				return {};
+				return {
+					keywords: ''
+				};
 			}
 		},
 		options: {
@@ -2265,7 +2263,7 @@ exports.default = {
 	data: function data() {
 		return {
 			previousQuery: {},
-			query: (0, _assign2.default)({}, defaultParams, this.filter, this.parameters),
+			query: (0, _assign2.default)({}, this.filter, this.parameters),
 			config: (0, _assign2.default)({}, defaultOptions, this.options),
 			states: {
 				hasFetchedOnce: false,

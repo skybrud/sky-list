@@ -10,10 +10,6 @@
 		loadFetch: false,
 	};
 
-	const defaultParams = {
-		keywords: '',
-	};
-
 	export default {
 		props: {
 			// Value map is used for fetching vue-multiselect value
@@ -27,7 +23,9 @@
 			},
 			parameters: {
 				type: Object,
-				default: () => ({}),
+				default: () => ({
+					keywords: '',
+				}),
 			},
 			options: {
 				type: Object,
@@ -45,7 +43,7 @@
 		data() {
 			return {
 				previousQuery: {},
-				query: Object.assign({}, defaultParams, this.filter, this.parameters),
+				query: Object.assign({}, this.filter, this.parameters),
 				config: Object.assign({}, defaultOptions, this.options),
 				states: {
 					hasFetchedOnce: false,
