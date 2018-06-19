@@ -280,10 +280,10 @@
 								limit: this.limitEnd, // hvorfor limit = limitEnd?
 								offset: 0,
 							})).then((secondaryResult) => {
-								this.dataParser(secondaryResult, type, pageNo)
+								this.dataParser(secondaryResult, type, pageNo);
 							});
 						} else {
-							this.dataParser(result, type, pageNo)
+							this.dataParser(result, type, pageNo);
 						}
 					})
 					.catch(this.catchError);
