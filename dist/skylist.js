@@ -2432,15 +2432,13 @@ exports.default = {
 
 			var _result = this.result,
 			    groups = _result.groups,
-			    _result$pagination3 = _result.pagination,
-			    offset = _result$pagination3.offset,
-			    total = _result$pagination3.total;
+			    total = _result.pagination.total;
 
 
-			var currentArea = groups.find(function (area) {
+			var currentArea = groups ? groups.find(function (area) {
 				return area.id === _this3.query.area;
-			});
-			var currentAreaCount = currentArea.count || total;
+			}) : null;
+			var currentAreaCount = currentArea && currentArea.count ? currentArea.count : total;
 
 			this.setCurrentPage(1);
 			this.setPagination({ offset: 0, total: currentAreaCount });
@@ -2448,10 +2446,10 @@ exports.default = {
 			this.request('filter');
 		},
 		more: function more(all) {
-			var _result$pagination4 = this.result.pagination,
-			    limit = _result$pagination4.limit,
-			    total = _result$pagination4.total,
-			    offset = _result$pagination4.offset;
+			var _result$pagination3 = this.result.pagination,
+			    limit = _result$pagination3.limit,
+			    total = _result$pagination3.total,
+			    offset = _result$pagination3.offset;
 
 			var newPagination = { offset: offset + limit };
 
@@ -2464,9 +2462,9 @@ exports.default = {
 			this.request('append');
 		},
 		goTo: function goTo(target) {
-			var _result$pagination5 = this.result.pagination,
-			    limit = _result$pagination5.limit,
-			    offset = _result$pagination5.offset;
+			var _result$pagination4 = this.result.pagination,
+			    limit = _result$pagination4.limit,
+			    offset = _result$pagination4.offset;
 
 
 			if (target === 'next') {
