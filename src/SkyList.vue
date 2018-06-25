@@ -153,7 +153,7 @@ export default {
 				limit: this.result.pagination.limit,
 				offset: this.result.pagination.offset,
 			},
-			this.listQueryFlatArrays);
+			this.queryFlatArrays);
 		},
 	},
 	watch: {
