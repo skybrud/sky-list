@@ -131,9 +131,9 @@ export default {
 						.join(',');
 				} else {
 					/**
-					 * Avoid objects being send as parameter
-					 * and use exposed value mapping for grapping object value.
-					 */
+							 * Avoid objects being send as parameter
+							 * and use exposed value mapping for grapping object value.
+							 */
 					res[key] = !extractObjectKey.includes(key)
 						? this.query[key]
 						: this.query[key][this.valueMap[key]];
