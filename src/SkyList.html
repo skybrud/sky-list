@@ -2,7 +2,7 @@
 	<div class="sky-list-form">
 		<slot
 			name="listForm"
-			:query="query"
+			:query="listQuery"
 			:newRequest="handleUserSearch"
 			:nativeSearchHandler="nativeSearchHandling"
 		/>
@@ -14,7 +14,7 @@
 	>
 		<slot
 			name="filters"
-			:query="query"
+			:query="listQuery"
 			:areas="result.groups"
 		/>
 	</div>
@@ -30,11 +30,11 @@
 			<slot
 				v-if="currentResultSet.length > 0"
 				name="resultMessage"
-				:query="query"
+				:query="listQuery"
 				:pagination="result.pagination"
 			>
 				<span>
-					Your search for <em>"{{query.keywords}}"</em> returned <em>{{result.pagination.total}} {{(result.pagination.total === 1) ? 'result' : 'results'}}</em>
+					Your search for <em>"{{listQuery.keywords}}"</em> returned <em>{{result.pagination.total}} {{(result.pagination.total === 1) ? 'result' : 'results'}}</em>
 				</span>
 			</slot>
 		</div>
@@ -63,7 +63,7 @@
 		>
 			<slot
 				name="noResultMessage"
-				:query="query"
+				:query="listQuery"
 			>
 				<span v-text="'Your search returned no results'" />
 			</slot>

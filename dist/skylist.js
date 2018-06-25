@@ -2223,6 +2223,8 @@ var defaultOptions = {
 
 exports.default = {
 	props: {
+		query: Object,
+
 		valueMap: {
 			type: Object,
 			default: function _default() {
@@ -2263,7 +2265,7 @@ exports.default = {
 	data: function data() {
 		return {
 			previousQuery: {},
-			query: (0, _assign2.default)({}, this.filter, this.parameters),
+			listQuery: (0, _assign2.default)({}, this.filter, this.parameters),
 			config: (0, _assign2.default)({}, defaultOptions, this.options),
 			states: {
 				hasFetchedOnce: false,
@@ -2345,32 +2347,39 @@ exports.default = {
 			var res = {};
 			var extractObjectKey = (0, _keys2.default)(this.valueMap);
 
-			(0, _keys2.default)(this.query).forEach(function (key) {
-				if (Array.isArray(_this.query[key])) {
-					res[key] = _this.query[key].map(function (queryProperty) {
+			(0, _keys2.default)(this.listQuery).forEach(function (key) {
+				if (Array.isArray(_this.listQuery[key])) {
+					res[key] = _this.listQuery[key].map(function (queryProperty) {
 						if (queryProperty && typeof queryProperty.value !== 'undefined') {
 							return queryProperty.value;
 						}
 						return queryProperty;
 					}).join(',');
 				} else {
-					res[key] = !extractObjectKey.includes(key) ? _this.query[key] : _this.query[key][_this.valueMap[key]];
+					res[key] = !extractObjectKey.includes(key) ? _this.listQuery[key] : _this.listQuery[key][_this.valueMap[key]];
 				}
 			});
 			return res;
 		},
 		validQuery: function validQuery() {
-			return typeof this.validateQuery === 'function' ? this.validateQuery(this.query) : this.validateQuery;
+			return typeof this.validateQuery === 'function' ? this.validateQuery(this.listQuery) : this.validateQuery;
 		},
 		requestParams: function requestParams() {
 			return (0, _assign2.default)({}, {
 				limit: this.result.pagination.limit,
 				offset: this.result.pagination.offset
-			}, this.queryFlatArrays);
+			}, this.listQueryFlatArrays);
 		}
 	},
 	watch: {
 		query: {
+			handler: function handler() {
+				this.$set(this, 'listQuery', this.query);
+			},
+
+			deep: true
+		},
+		listQuery: {
 			handler: function handler() {
 				if (this.liveSearch && this.validQuery) {
 					this.handleUserSearch();
@@ -2391,8 +2400,8 @@ exports.default = {
 			var _this2 = this;
 
 			if (this.validQuery) {
-				(0, _keys2.default)(this.query).forEach(function (key) {
-					var changedKey = _this2.query[key] !== _this2.previousQuery[key];
+				(0, _keys2.default)(this.listQuery).forEach(function (key) {
+					var changedKey = _this2.listQuery[key] !== _this2.previousQuery[key];
 					var isFilterKey = _this2.filterKeys.includes(key);
 
 					if (changedKey && isFilterKey) {
@@ -2402,7 +2411,7 @@ exports.default = {
 					}
 
 					if (changedKey) {
-						(0, _assign2.default)(_this2.previousQuery, _this2.query);
+						(0, _assign2.default)(_this2.previousQuery, _this2.listQuery);
 					}
 				});
 			} else {
@@ -2436,7 +2445,7 @@ exports.default = {
 
 
 			var currentArea = groups ? groups.find(function (area) {
-				return area.id === _this3.query.area;
+				return area.id === _this3.listQuery.area;
 			}) : null;
 			var currentAreaCount = currentArea && currentArea.count ? currentArea.count : total;
 
@@ -2578,7 +2587,7 @@ exports.default = {
 			var _this6 = this;
 
 			this.filterKeys.forEach(function (param) {
-				_this6.query[param] = _this6.filter[param];
+				_this6.listQuery[param] = _this6.filter[param];
 			});
 
 			this.resetPagination();
@@ -5060,20 +5069,20 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
   }, [_c('div', {
     staticClass: "sky-list-form"
   }, [_vm._t("listForm", null, {
-    query: _vm.query,
+    query: _vm.listQuery,
     newRequest: _vm.handleUserSearch,
     nativeSearchHandler: _vm.nativeSearchHandling
   })], 2), _vm._v(" "), ((_vm.validQuery || _vm.config.loadFetch) && (_vm.filterKeys.length > 0) && _vm.states.hasFetchedOnce) ? _c('div', {
     staticClass: "sky-list-filter"
   }, [_vm._t("filters", null, {
-    query: _vm.query,
+    query: _vm.listQuery,
     areas: _vm.result.groups
   })], 2) : _vm._e(), _vm._v(" "), ((_vm.validQuery || _vm.config.loadFetch)) ? _c('div', {
     staticClass: "sky-list-content"
   }, [(_vm.config.showCount && _vm.states.hasFetchedOnce) ? _c('div', {
     staticClass: "sky-list-message"
-  }, [(_vm.currentResultSet.length > 0) ? _vm._t("resultMessage", [_c('span', [_vm._v("\n\t\t\t\t\tYour search for "), _c('em', [_vm._v("\"" + _vm._s(_vm.query.keywords) + "\"")]), _vm._v(" returned "), _c('em', [_vm._v(_vm._s(_vm.result.pagination.total) + " " + _vm._s((_vm.result.pagination.total === 1) ? 'result' : 'results'))])])], {
-    query: _vm.query,
+  }, [(_vm.currentResultSet.length > 0) ? _vm._t("resultMessage", [_c('span', [_vm._v("\n\t\t\t\t\tYour search for "), _c('em', [_vm._v("\"" + _vm._s(_vm.listQuery.keywords) + "\"")]), _vm._v(" returned "), _c('em', [_vm._v(_vm._s(_vm.result.pagination.total) + " " + _vm._s((_vm.result.pagination.total === 1) ? 'result' : 'results'))])])], {
+    query: _vm.listQuery,
     pagination: _vm.result.pagination
   }) : _vm._e()], 2) : _vm._e(), _vm._v(" "), (_vm.currentResultSet.length > 0) ? _c('div', {
     staticClass: "sky-list-result"
@@ -5092,7 +5101,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       "textContent": _vm._s('Your search returned no results')
     }
   })], {
-    query: _vm.query
+    query: _vm.listQuery
   })], 2) : _vm._e(), _vm._v(" "), _c('div', {
     staticClass: "sky-list-pagination"
   }, [(_vm.morePagination && _vm.canFetchMore && _vm.states.hasFetchedOnce) ? _c('button', {

@@ -43,6 +43,7 @@ Vue.use(SkyList);
 | **value-map** | Object | `{}` |  | If a v-model returns a object and a prop is needed, it can be declared with initial value eg: <br> `{ nestedPropName: initialValue }` |
 | **validate-query** | Function | `query => query.keywords` |  |  |
 | **live-search** | Boolean | `true` |  | Enable/disable search on query change |
+| **query** | Object | `null`  |  | Pass a query object directly to SkyList. Overrides internal query object. Useful for keeping query state outside of SkyList and only using it to fetch and render results |
 
 ### Slots options
 | Name | Slot-scope | Description |

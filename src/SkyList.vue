@@ -12,6 +12,8 @@ const defaultOptions = {
 
 export default {
 	props: {
+		// override query with external values
+		query: Object,
 		// Value map is used for fetching vue-multiselect value
 		valueMap: {
 			type: Object,
@@ -43,7 +45,7 @@ export default {
 	data() {
 		return {
 			previousQuery: {},
-			query: Object.assign({}, this.filter, this.parameters),
+			listQuery: Object.assign({}, this.filter, this.parameters),
 			config: Object.assign({}, defaultOptions, this.options),
 			states: {
 				hasFetchedOnce: false,
@@ -118,9 +120,9 @@ export default {
 			const res = {};
 			const extractObjectKey = Object.keys(this.valueMap);
 
-			Object.keys(this.query).forEach((key) => {
-				if (Array.isArray(this.query[key])) {
-					res[key] = this.query[key]
+			Object.keys(this.listQuery).forEach((key) => {
+				if (Array.isArray(this.listQuery[key])) {
+					res[key] = this.listQuery[key]
 						.map((queryProperty) => {
 							// if queryProperty contains a 'value' property return that
 							if (queryProperty && typeof queryProperty.value !== 'undefined') {
@@ -135,15 +137,15 @@ export default {
 							 * and use exposed value mapping for grapping object value.
 							 */
 					res[key] = !extractObjectKey.includes(key)
-						? this.query[key]
-						: this.query[key][this.valueMap[key]];
+						? this.listQuery[key]
+						: this.listQuery[key][this.valueMap[key]];
 				}
 			});
 			return res;
 		},
 		validQuery() {
 			return (typeof this.validateQuery === 'function')
-				? this.validateQuery(this.query)
+				? this.validateQuery(this.listQuery)
 				: this.validateQuery;
 		},
 		requestParams() {
@@ -151,11 +153,17 @@ export default {
 				limit: this.result.pagination.limit,
 				offset: this.result.pagination.offset,
 			},
-			this.queryFlatArrays);
+			this.listQueryFlatArrays);
 		},
 	},
 	watch: {
 		query: {
+			handler() {
+				this.$set(this, 'listQuery', this.query);
+			},
+			deep: true,
+		},
+		listQuery: {
 			handler() {
 				if (this.liveSearch && this.validQuery) {
 					this.handleUserSearch();
@@ -172,8 +180,8 @@ export default {
 	methods: {
 		handleUserSearch() {
 			if (this.validQuery) {
-				Object.keys(this.query).forEach((key) => {
-					const changedKey = this.query[key] !== this.previousQuery[key];
+				Object.keys(this.listQuery).forEach((key) => {
+					const changedKey = this.listQuery[key] !== this.previousQuery[key];
 					const isFilterKey = this.filterKeys.includes(key);
 
 					if (changedKey && isFilterKey) {
@@ -183,7 +191,7 @@ export default {
 					}
 
 					if (changedKey) {
-						Object.assign(this.previousQuery, this.query);
+						Object.assign(this.previousQuery, this.listQuery);
 					}
 				});
 			} else {
@@ -215,7 +223,7 @@ export default {
 			const { groups, pagination: { total } } = this.result;
 
 			const currentArea = groups
-				? groups.find(area => area.id === this.query.area)
+				? groups.find(area => area.id === this.listQuery.area)
 				: null;
 			const currentAreaCount = (currentArea && currentArea.count)
 				? currentArea.count
@@ -343,7 +351,7 @@ export default {
 		},
 		resetQuery() {
 			this.filterKeys.forEach((param) => {
-				this.query[param] = this.filter[param];
+				this.listQuery[param] = this.filter[param];
 			});
 
 			this.resetPagination();
