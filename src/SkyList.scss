@@ -38,6 +38,10 @@
 	button {
 		flex-shrink: 0;
 	}
+
+	.loading & {
+		pointer-events: none;
+	}
 }
 
 .sky-list-numeric {
