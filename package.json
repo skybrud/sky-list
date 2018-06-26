@@ -1,6 +1,6 @@
 {
   "name": "sky-list",
-  "version": "0.2.1-0",
+  "version": "0.2.1-1",
   "description": "Vue component for creating search",
   "main": "dist/skylist.min.js",
   "scripts": {
