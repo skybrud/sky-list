@@ -13,7 +13,10 @@ const defaultOptions = {
 export default {
 	props: {
 		// override query with external values
-		query: Object,
+		query: {
+			type: Object,
+			default: () => ({}),
+		},
 		// Value map is used for fetching vue-multiselect value
 		valueMap: {
 			type: Object,
@@ -41,11 +44,19 @@ export default {
 			type: Boolean,
 			default: true,
 		},
+		transformParams: {
+			type: Function,
+			default: params => params,
+		},
+		transformResult: {
+			type: Function,
+			default: result => result,
+		},
 	},
 	data() {
 		return {
 			previousQuery: {},
-			listQuery: Object.assign({}, this.filter, this.parameters),
+			listQuery: Object.assign({}, this.filter, this.parameters, this.query),
 			config: Object.assign({}, defaultOptions, this.options),
 			states: {
 				hasFetchedOnce: false,
@@ -159,7 +170,7 @@ export default {
 	watch: {
 		query: {
 			handler() {
-				this.$set(this, 'listQuery', this.query);
+				this.$set(this, 'listQuery', Object.assign({}, this.filter, this.parameters, this.query));
 			},
 			deep: true,
 		},
@@ -278,7 +289,7 @@ export default {
 
 			this.fetch()
 				.then((result) => {
-					const totalChanged = total !== result.data.pagination.total;
+					const totalChanged = total !== result.pagination.total;
 					const notFirstFetch = total !== null;
 					const filterNotRequested = type !== 'filter';
 
@@ -304,7 +315,7 @@ export default {
 			// TODO: handle error?⁄
 		},
 		dataParser(result, type = 'clean', pageNo) {
-			const { data, pagination, areas } = result.data;
+			const { data, pagination, areas } = result;
 
 			this.pages.max = Math.ceil(pagination.total / pagination.limit);
 
@@ -342,11 +353,20 @@ export default {
 
 			this.states.cancelToken = axios.CancelToken.source();
 
-			return axios({
-				url: this.config.api,
-				method: 'GET',
-				params,
-				cancelToken: this.states.cancelToken.token,
+			return new Promise((resolve, reject) => {
+				axios({
+					url: this.config.api,
+					method: 'GET',
+					params: this.transformParams(params),
+					cancelToken: this.states.cancelToken.token,
+				}).then((result) => {
+					if (result.data) {
+						resolve(this.transformResult(result.data));
+					}
+					reject(result);
+				}).catch((err) => {
+					reject(err);
+				});
 			});
 		},
 		resetQuery() {

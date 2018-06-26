@@ -43,7 +43,9 @@ Vue.use(SkyList);
 | **value-map** | Object | `{}` |  | If a v-model returns a object and a prop is needed, it can be declared with initial value eg: <br> `{ nestedPropName: initialValue }` |
 | **validate-query** | Function | `query => query.keywords` |  |  |
 | **live-search** | Boolean | `true` |  | Enable/disable search on query change |
-| **query** | Object | `null`  |  | Pass a query object directly to SkyList. Overrides internal query object. Useful for keeping query state outside of SkyList and only using it to fetch and render results |
+| **query** | Object | `{}`  |  | Pass a query object directly to SkyList. Overrides internal query object. Useful for keeping query state outside of SkyList and only using it to fetch and render results |
+| **transform-params** | Function | `params => params`  |  | Hook to modify params before request is sent. Useful for transforming SkyList to integrate with endpoints that do not use the default param naming conventions |
+| **transform-result** | Function | `result => result`  |  | Hook to modify result before request is resolved. Useful for transforming the returned data to match [the API response structure SkyList expects](#api). |
 
 ### Slots options
 | Name | Slot-scope | Description |
@@ -215,6 +217,30 @@ SkyList expects a response with the following setup
         ...
     ]
 }
+```
+
+If your endpoint expects other names for pagination params than `limit` and `offset` the `transform-params` prop can be used to alter the params before requesting. Likewise, upon receiving data, you can use the `transform-result` prop to transform any data received to match the type of API response SkyList expects. Quick example of both in use:
+```html
+<SkyList
+    :options="{
+        api: foreignEndpoint,
+    }"
+    :transform-params="params => ({
+        q: params.keywords,
+        startIndex: params.offset,
+        maxResults: params.limit,
+    })"
+    :transform-result="result => ({
+        pagination: {
+            total: result.TotalResults,
+            limit: result.EffectiveParameters.MaxResults,
+            offset: result.Offset,
+        },
+        data: result.Documents,
+    })"
+>
+    ...
+</SkyList>
 ```
 
 ## Credits
