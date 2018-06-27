@@ -69,7 +69,7 @@
 			</slot>
 		</div>
 
-		<div class="sky-list-pagination">
+		<div :class="['sky-list-pagination', `type-${config.paginationType}`]">
 			<!-- SHOW MORE / ALL -->
 			<button
 				v-if="morePagination && canFetchMore && states.hasFetchedOnce"
