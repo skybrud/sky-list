@@ -5924,7 +5924,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
   })], {
     query: _vm.listQuery
   })], 2) : _vm._e(), _vm._v(" "), _c('div', {
-    staticClass: "sky-list-pagination"
+    class: ['sky-list-pagination', ("type-" + (_vm.config.paginationType))]
   }, [(_vm.morePagination && _vm.canFetchMore && _vm.states.hasFetchedOnce) ? _c('button', {
     staticClass: "sky-list-more",
     on: {
