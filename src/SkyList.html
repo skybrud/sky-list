@@ -69,10 +69,13 @@
 			</slot>
 		</div>
 
-		<div :class="['sky-list-pagination', `type-${config.paginationType}`]">
+		<div
+			v-if="showPagination"
+			:class="['sky-list-pagination', `type-${config.paginationType}`]"
+		>
 			<!-- SHOW MORE / ALL -->
 			<button
-				v-if="morePagination && canFetchMore && states.hasFetchedOnce"
+				v-if="morePagination"
 				@click="more(config.paginationType === 'all')"
 				class="sky-list-more"
 			>
@@ -86,7 +89,7 @@
 
 			<!-- NUMERIC LIST-->
 			<ul
-				v-if="numericPagination && states.hasFetchedOnce"
+				v-if="numericPagination"
 				class="sky-list-numeric"
 			>
 				<li
@@ -106,7 +109,7 @@
 
 			<!-- NEXT + PREVIOUS -->
 			<button
-				v-if="flowPagination && states.hasFetchedOnce"
+				v-if="flowPagination"
 				@click="goTo('previous')"
 				class="sky-list-previous"
 			>
@@ -116,7 +119,7 @@
 			</button>
 
 			<button
-				v-if="flowPagination && states.hasFetchedOnce"
+				v-if="flowPagination"
 				@click="goTo('next')"
 				class="sky-list-next"
 			>

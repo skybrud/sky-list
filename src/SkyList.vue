@@ -88,6 +88,15 @@ export default {
 		morePagination() {
 			return (this.config.paginationType === 'more') || (this.config.paginationType === 'all');
 		},
+		showPagination() {
+			if (!this.states.hasFetchedOnce) {
+				return false;
+			}
+			if (this.morePagination) {
+				return this.canFetchMore();
+			}
+			return this.pages.max > 1;
+		},
 		filterKeys() {
 			return Object.keys(this.filter);
 		},

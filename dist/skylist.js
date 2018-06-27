@@ -2691,6 +2691,15 @@ exports.default = {
 		morePagination: function morePagination() {
 			return this.config.paginationType === 'more' || this.config.paginationType === 'all';
 		},
+		showPagination: function showPagination() {
+			if (!this.states.hasFetchedOnce) {
+				return false;
+			}
+			if (this.morePagination) {
+				return this.canFetchMore();
+			}
+			return this.pages.max > 1;
+		},
 		filterKeys: function filterKeys() {
 			return (0, _keys2.default)(this.filter);
 		},
@@ -5923,9 +5932,9 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }
   })], {
     query: _vm.listQuery
-  })], 2) : _vm._e(), _vm._v(" "), _c('div', {
+  })], 2) : _vm._e(), _vm._v(" "), (_vm.showPagination) ? _c('div', {
     class: ['sky-list-pagination', ("type-" + (_vm.config.paginationType))]
-  }, [(_vm.morePagination && _vm.canFetchMore && _vm.states.hasFetchedOnce) ? _c('button', {
+  }, [(_vm.morePagination) ? _c('button', {
     staticClass: "sky-list-more",
     on: {
       "click": function($event) {
@@ -5938,7 +5947,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }
   })], {
     itemsLeft: _vm.itemsLeft
-  })], 2) : _vm._e(), _vm._v(" "), (_vm.numericPagination && _vm.states.hasFetchedOnce) ? _c('ul', {
+  })], 2) : _vm._e(), _vm._v(" "), (_vm.numericPagination) ? _c('ul', {
     staticClass: "sky-list-numeric"
   }, _vm._l((_vm.pages.max), function(n) {
     return _c('li', {
@@ -5958,21 +5967,21 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     })], {
       count: n
     })], 2)])
-  })) : _vm._e(), _vm._v(" "), (_vm.flowPagination && _vm.states.hasFetchedOnce) ? _c('button', {
+  })) : _vm._e(), _vm._v(" "), (_vm.flowPagination) ? _c('button', {
     staticClass: "sky-list-previous",
     on: {
       "click": function($event) {
         _vm.goTo('previous')
       }
     }
-  }, [_vm._t("listPrev", [_c('span', [_vm._v("Previous")])])], 2) : _vm._e(), _vm._v(" "), (_vm.flowPagination && _vm.states.hasFetchedOnce) ? _c('button', {
+  }, [_vm._t("listPrev", [_c('span', [_vm._v("Previous")])])], 2) : _vm._e(), _vm._v(" "), (_vm.flowPagination) ? _c('button', {
     staticClass: "sky-list-next",
     on: {
       "click": function($event) {
         _vm.goTo('next')
       }
     }
-  }, [_vm._t("listNext", [_c('span', [_vm._v("Next")])])], 2) : _vm._e()])]) : _vm._e()])
+  }, [_vm._t("listNext", [_c('span', [_vm._v("Next")])])], 2) : _vm._e()]) : _vm._e()]) : _vm._e()])
 },staticRenderFns: []}
 module.exports.render._withStripped = true
 
