@@ -93,7 +93,7 @@ export default {
 				return false;
 			}
 			if (this.morePagination) {
-				return this.canFetchMore();
+				return this.canFetchMore;
 			}
 			return this.pages.max > 1;
 		},
