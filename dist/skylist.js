@@ -6681,6 +6681,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "sky-list-filter"
   }, [_vm._t("filters", null, {
     query: _vm.listQuery,
+    result: _vm.result,
     areas: _vm.result.groups
   })], 2) : _vm._e(), _vm._v(" "), ((_vm.validQuery || _vm.config.loadFetch)) ? _c('div', {
     staticClass: "sky-list-content"

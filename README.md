@@ -58,6 +58,7 @@ Vue.use(SkyList);
 | **listPrev** |  | Slot for custom previous button |
 | **listNext** |  | Slot for custom next button |
 | **paginationBullet** | `count` Number | Slot for custom pagination bullets |
+| **filters** | `query` Object <br> `result` Object <br> `area` Object | Slot for filtering result (i.e. by groups/areas etc.) |
 
 
 ## <a id="examples"></a>Examples
