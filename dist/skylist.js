@@ -2658,7 +2658,7 @@ exports.default = {
 	data: function data() {
 		return {
 			previousQuery: {},
-			listQuery: (0, _assign2.default)({}, this.filter, this.parameters, this.query),
+			listQuery: (0, _assign2.default)({}, this.filter, this.parameters, this.query, this.$route ? this.$route.query : {}),
 			config: (0, _assign2.default)({}, defaultOptions, this.options),
 			states: {
 				hasFetchedOnce: false,
@@ -2785,6 +2785,8 @@ exports.default = {
 			handler: function handler() {
 				if (this.liveSearch && this.validQuery) {
 					this.handleUserSearch();
+				} else if (!this.validQuery) {
+					this.updateUrlParams({});
 				}
 			},
 
@@ -2792,7 +2794,7 @@ exports.default = {
 		}
 	},
 	mounted: function mounted() {
-		if (this.config.loadFetch) {
+		if (this.config.loadFetch || this.validQuery) {
 			this.request();
 		}
 	},
@@ -2979,6 +2981,8 @@ exports.default = {
 
 			this.states.cancelToken = _axios2.default.CancelToken.source();
 
+			this.updateUrlParams(params);
+
 			return new _promise2.default(function (resolve, reject) {
 				(0, _axios2.default)({
 					url: _this6.config.api,
@@ -2994,6 +2998,11 @@ exports.default = {
 					reject(err);
 				});
 			});
+		},
+		updateUrlParams: function updateUrlParams(params) {
+			if (this.$route && this.$router) {
+				this.$router.replace({ path: this.$route.path, query: params });
+			}
 		},
 		resetQuery: function resetQuery() {
 			var _this7 = this;

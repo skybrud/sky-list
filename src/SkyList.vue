@@ -56,8 +56,18 @@ export default {
 	data() {
 		return {
 			previousQuery: {},
-			listQuery: Object.assign({}, this.filter, this.parameters, this.query),
-			config: Object.assign({}, defaultOptions, this.options),
+			listQuery: Object.assign(
+				{},
+				this.filter,
+				this.parameters,
+				this.query,
+				(this.$route) ? this.$route.query : {}, // initiate with query params from url
+			),
+			config: Object.assign(
+				{},
+				defaultOptions,
+				this.options,
+			),
 			states: {
 				hasFetchedOnce: false,
 				cancelToken: null,
@@ -187,13 +197,17 @@ export default {
 			handler() {
 				if (this.liveSearch && this.validQuery) {
 					this.handleUserSearch();
+				} else if (!this.validQuery) {
+					// Clear request params from url
+					this.updateUrlParams({});
 				}
 			},
 			deep: true,
 		},
 	},
 	mounted() {
-		if (this.config.loadFetch) {
+		// Do fetch on mount, if configured to or if initiated with valid query from url params
+		if (this.config.loadFetch || this.validQuery) {
 			this.request();
 		}
 	},
@@ -362,6 +376,9 @@ export default {
 
 			this.states.cancelToken = axios.CancelToken.source();
 
+			// Update url with request params
+			this.updateUrlParams(params);
+
 			return new Promise((resolve, reject) => {
 				axios({
 					url: this.config.api,
@@ -377,6 +394,11 @@ export default {
 					reject(err);
 				});
 			});
+		},
+		updateUrlParams(params) {
+			if (this.$route && this.$router) {
+				this.$router.replace({ path: this.$route.path, query: params })
+			}
 		},
 		resetQuery() {
 			this.filterKeys.forEach((param) => {
