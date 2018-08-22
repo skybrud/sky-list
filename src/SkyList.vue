@@ -1,5 +1,6 @@
 <script>
 import axios from 'axios';
+import qs from 'qs';
 import debounce from 'debounce';
 
 const defaultOptions = {
@@ -10,6 +11,23 @@ const defaultOptions = {
 	paginationType: 'more', // navigation | pagination | more | all | numeric
 	loadFetch: false,
 };
+
+function getQueryParams() {
+	if (typeof window !== 'undefined') {
+		const q = window.location.search.replace('?', '');
+		return qs.parse(q);
+	}
+	return {};
+}
+
+function setQueryParams(params) {
+	if (typeof window !== 'undefined') {
+		const baseUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
+		const qString = qs.stringify(params);
+		const q = qString ? `?${qString}` : '';
+		window.history.replaceState('', '', `${baseUrl}${q}`);
+	}
+}
 
 export default {
 	props: {
@@ -62,7 +80,7 @@ export default {
 				this.filter,
 				this.parameters,
 				this.query,
-				(this.$route) ? this.$route.query : {}, // initiate with query params from url
+				getQueryParams(), // initiate with query params from url
 			),
 			config: Object.assign(
 				{},
@@ -190,7 +208,7 @@ export default {
 	watch: {
 		query: {
 			handler() {
-				this.$set(this, 'listQuery', Object.assign({}, this.filter, this.parameters, this.query));
+				this.updateListQuery();
 			},
 			deep: true,
 		},
@@ -213,9 +231,12 @@ export default {
 		}
 	},
 	methods: {
+		updateListQuery: debounce(function() {
+			this.$set(this, 'listQuery', Object.assign({}, this.filter, this.parameters, this.query));
+		}, 200),
 		// This method runs on liveSearch = true, so we make sure to debounce it by 100ms
 		// so we don't spam the server needlessly
-		handleUserSearch: debounce(function() {
+		handleUserSearch() {
 			if (this.validQuery) {
 				Object.keys(this.listQuery).forEach((key) => {
 					const changedKey = this.listQuery[key] !== this.previousQuery[key];
@@ -234,7 +255,7 @@ export default {
 			} else {
 				this.resetPagination();
 			}
-		}, 200),
+		},
 		nativeSearchHandling() {
 			this.validQuery
 				// Handle pressing enter
@@ -399,9 +420,7 @@ export default {
 			});
 		},
 		updateUrlParams(params) {
-			if (this.$route && this.$router) {
-				this.$router.replace({ path: this.$route.path, query: params })
-			}
+			setQueryParams(params);
 		},
 		resetQuery() {
 			this.filterKeys.forEach((param) => {
