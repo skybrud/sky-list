@@ -1,5 +1,6 @@
 <script>
 import axios from 'axios';
+import debounce from 'debounce';
 
 const defaultOptions = {
 	api: '/umbraco/api/site/search/',
@@ -212,7 +213,9 @@ export default {
 		}
 	},
 	methods: {
-		handleUserSearch() {
+		// This method runs on liveSearch = true, so we make sure to debounce it by 100ms
+		// so we don't spam the server needlessly
+		handleUserSearch: debounce(function() {
 			if (this.validQuery) {
 				Object.keys(this.listQuery).forEach((key) => {
 					const changedKey = this.listQuery[key] !== this.previousQuery[key];
@@ -231,7 +234,7 @@ export default {
 			} else {
 				this.resetPagination();
 			}
-		},
+		}, 200),
 		nativeSearchHandling() {
 			this.validQuery
 				// Handle pressing enter
