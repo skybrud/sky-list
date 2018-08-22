@@ -208,6 +208,7 @@ export default {
 	watch: {
 		query: {
 			handler() {
+				this.states.loading = true;
 				this.updateListQuery();
 			},
 			deep: true,

@@ -3046,6 +3046,7 @@ exports.default = {
 	watch: {
 		query: {
 			handler: function handler() {
+				this.states.loading = true;
 				this.updateListQuery();
 			},
 
