@@ -304,7 +304,7 @@ export default {
 		},
 		request(type = 'clean', pageNo = 1) {
 			this.states.loading = true;
-			const { total } = this.result.pagination;
+			const { total, offset } = this.result.pagination;
 
 			if (!this.states.hasFetchedOnce) {
 				this.states.hasFetchedOnce = true;
@@ -312,11 +312,11 @@ export default {
 
 			this.fetch()
 				.then((result) => {
+					const firstFetch = total === null || offset === 0;
 					const totalChanged = total !== result.pagination.total;
-					const notFirstFetch = total !== null;
 					const filterNotRequested = type !== 'filter';
 
-					if (filterNotRequested && notFirstFetch && totalChanged) {
+					if (!firstFetch && totalChanged && filterNotRequested) {
 						// if total has changed refetch entire list and replace
 						this.fetch(Object.assign({}, this.requestParams, {
 							limit: this.limitEnd, // hvorfor limit = limitEnd?

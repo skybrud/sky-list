@@ -2906,7 +2906,9 @@ exports.default = {
 			var pageNo = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
 
 			this.states.loading = true;
-			var total = this.result.pagination.total;
+			var _result$pagination5 = this.result.pagination,
+			    total = _result$pagination5.total,
+			    offset = _result$pagination5.offset;
 
 
 			if (!this.states.hasFetchedOnce) {
@@ -2914,11 +2916,11 @@ exports.default = {
 			}
 
 			this.fetch().then(function (result) {
+				var firstFetch = total === null || offset === 0;
 				var totalChanged = total !== result.pagination.total;
-				var notFirstFetch = total !== null;
 				var filterNotRequested = type !== 'filter';
 
-				if (filterNotRequested && notFirstFetch && totalChanged) {
+				if (!firstFetch && totalChanged && filterNotRequested) {
 					_this4.fetch((0, _assign2.default)({}, _this4.requestParams, {
 						limit: _this4.limitEnd,
 						offset: 0
