@@ -391,6 +391,16 @@ export default {
 
 			dataActions[type]();
 
+			// add any unknown custom result props to result object, since we only
+			// handle data, pagination and areas above
+			Object.keys(result)
+				.filter((key) => {
+					return key !== 'data' && key !== 'pagination' && key !== 'areas';
+				})
+				.forEach((key) => {
+					this.result[key] = result[key];
+				});
+
 			this.states.loading = false;
 		},
 		fetch(params = this.requestParams) {

@@ -3244,6 +3244,12 @@ exports.default = {
 
 			dataActions[type]();
 
+			(0, _keys2.default)(result).filter(function (key) {
+				return key !== 'data' && key !== 'pagination' && key !== 'areas';
+			}).forEach(function (key) {
+				_this5.result[key] = result[key];
+			});
+
 			this.states.loading = false;
 		},
 		fetch: function fetch() {
