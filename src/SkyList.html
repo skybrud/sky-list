@@ -57,6 +57,11 @@
 					/>
 				</li>
 			</ul>
+			<slot
+				name="listAside"
+				:query="listQuery"
+				:result="result"
+			/>
 		</div>
 		<div
 			v-else-if="states.hasFetchedOnce"

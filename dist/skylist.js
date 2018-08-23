@@ -6700,7 +6700,10 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       item: item,
       index: index
     })], 2)
-  }))]) : (_vm.states.hasFetchedOnce) ? _c('div', {
+  })), _vm._v(" "), _vm._t("listAside", null, {
+    query: _vm.listQuery,
+    result: _vm.result
+  })], 2) : (_vm.states.hasFetchedOnce) ? _c('div', {
     staticClass: "sky-list-result empty"
   }, [_vm._t("noResultMessage", [_c('span', {
     domProps: {

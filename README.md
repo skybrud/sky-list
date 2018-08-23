@@ -52,6 +52,7 @@ Vue.use(SkyList);
 |--|--|--|
 | **listForm** | `query` Object | Slot for custom form setup to be `v-model`'ed against SkyList query |
 | **listItem** | `index` Number <br> `listItem` Object | Slot for custom item markup |
+| **listAside** | `query` Object <br> `result` Object | Slot for adding custom aside content next to the result list |
 | **resultMessage** | `query` Object <br> `pagination` Object | Slot for custom message when results are found |
 | **noResultMessage** | `query` Object | Slot for custom message when **no** results are found |
 | **listMore** | `itemsLeft` Number | Slot for custom show more button |
