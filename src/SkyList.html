@@ -1,5 +1,8 @@
 <div :class="['sky-list', { loading : states.loading }]">
-	<div class="sky-list-form">
+	<div
+		v-if="$scopedSlots.listForm"
+		class="sky-list-form"
+	>
 		<slot
 			name="listForm"
 			:query="listQuery"
@@ -9,7 +12,10 @@
 	</div>
 
 	<div
-		v-if="(validQuery || config.loadFetch) && (filterKeys.length > 0) && states.hasFetchedOnce"
+		v-if="(validQuery || config.loadFetch)
+			&& (filterKeys.length > 0)
+			&& states.hasFetchedOnce
+			&& $scopedSlots.filters"
 		class="sky-list-filter"
 	>
 		<slot
@@ -57,11 +63,16 @@
 					/>
 				</li>
 			</ul>
-			<slot
-				name="listAside"
-				:query="listQuery"
-				:result="result"
-			/>
+			<div
+				v-if="$scopedSlots.listAside"
+				class="sky-list-aside"
+			>
+				<slot
+					name="listAside"
+					:query="listQuery"
+					:result="result"
+				/>
+			</div>
 		</div>
 		<div
 			v-else-if="states.hasFetchedOnce"

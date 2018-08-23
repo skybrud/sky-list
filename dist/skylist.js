@@ -6677,13 +6677,16 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     class: ['sky-list', {
       loading: _vm.states.loading
     }]
-  }, [_c('div', {
+  }, [(_vm.$scopedSlots.listForm) ? _c('div', {
     staticClass: "sky-list-form"
   }, [_vm._t("listForm", null, {
     query: _vm.listQuery,
     newRequest: _vm.handleUserSearch,
     nativeSearchHandler: _vm.nativeSearchHandling
-  })], 2), _vm._v(" "), ((_vm.validQuery || _vm.config.loadFetch) && (_vm.filterKeys.length > 0) && _vm.states.hasFetchedOnce) ? _c('div', {
+  })], 2) : _vm._e(), _vm._v(" "), ((_vm.validQuery || _vm.config.loadFetch) &&
+    (_vm.filterKeys.length > 0) &&
+    _vm.states.hasFetchedOnce &&
+    _vm.$scopedSlots.filters) ? _c('div', {
     staticClass: "sky-list-filter"
   }, [_vm._t("filters", null, {
     query: _vm.listQuery,
@@ -6706,10 +6709,12 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       item: item,
       index: index
     })], 2)
-  })), _vm._v(" "), _vm._t("listAside", null, {
+  })), _vm._v(" "), (_vm.$scopedSlots.listAside) ? _c('div', {
+    staticClass: "sky-list-aside"
+  }, [_vm._t("listAside", null, {
     query: _vm.listQuery,
     result: _vm.result
-  })], 2) : (_vm.states.hasFetchedOnce) ? _c('div', {
+  })], 2) : _vm._e()]) : (_vm.states.hasFetchedOnce) ? _c('div', {
     staticClass: "sky-list-result empty"
   }, [_vm._t("noResultMessage", [_c('span', {
     domProps: {
