@@ -6681,6 +6681,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "sky-list-form"
   }, [_vm._t("listForm", null, {
     query: _vm.listQuery,
+    result: _vm.result,
     newRequest: _vm.handleUserSearch,
     nativeSearchHandler: _vm.nativeSearchHandling
   })], 2) : _vm._e(), _vm._v(" "), ((_vm.validQuery || _vm.config.loadFetch) &&

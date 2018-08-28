@@ -67,7 +67,7 @@ Vue.use(SkyList);
 <sky-list>
 	<div
 		slot="listForm"
-		slot-scope="{ query }"
+		slot-scope="{ query, result }"
 	>
 		<input type="text" v-model="query['keywords']" placeholder="Type your search query">
 	</div>
