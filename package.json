@@ -1,30 +1,40 @@
 {
-  "name": "sky-list",
-  "version": "0.4.0",
-  "description": "Vue component for creating search",
-  "main": "dist/skylist.min.js",
-  "scripts": {
-    "build": "rimraf ./dist && webpack --config ./webpack.config.js",
-    "dist": "yarn install && yarn run build",
-    "update": "rimraf ./node_modules && yarn run dist"
-  },
-  "build": "plugin",
-  "author": "Skybrud.dk",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/skybrud/sky-list.git"
-  },
-  "devDependencies": {
-    "np": "*",
-    "sky-build-setup": "https://github.com/skybrud/sky-build-setup.git#^1.0.0"
-  },
-  "peerDependencies": {
-    "vue": "^2.5.0"
-  },
-  "dependencies": {
-    "axios": "^0.18.0",
-    "debounce": "^1.2.0",
-    "qs": "^6.5.2"
-  }
+	"name": "sky-list",
+	"version": "0.4.0",
+	"description": "Vue component for creating search",
+	"main": "dist/sky-list.esm.js",
+	"module": "dist/sky-list.esm.js",
+	"browser": {
+		"./sfc": "src/sky-list.vue"
+	},
+	"config": {
+		"moduleName": "SkyList",
+		"distName": "sky-list"
+	},
+	"scripts": {
+		"dist": "yarn run merge && yarn run build:es && yarn run build:umd",
+		"build:umd": "yarn rollup --config rollup.config.js --format umd --file dist/sky-list.umd.js",
+		"build:es": "yarn rollup --config rollup.config.js --format es --file dist/sky-list.esm.js",
+		"merge": "./merge.sh",
+		"allowMerge": "chmod 755 ./merge.sh"
+	},
+	"build": "plugin",
+	"author": "Skybrud.dk",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/skybrud/sky-list.git"
+	},
+	"devDependencies": {
+		"np": "*",
+		"sky-build-setup": "../sky-build-setup"
+	},
+	"peerDependencies": {
+		"vue": "^2.5.0"
+	},
+	"dependencies": {
+		"axios": "^0.18.0",
+		"debounce": "^1.2.0",
+		"qs": "^6.5.2"
+	}
 }
