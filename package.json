@@ -2,21 +2,15 @@
 	"name": "sky-list",
 	"version": "0.4.0",
 	"description": "Vue component for creating search",
-	"main": "dist/sky-list.esm.js",
+	"main": "dist/sky-list.umd.js",
 	"module": "dist/sky-list.esm.js",
 	"browser": {
-		"./sfc": "src/sky-list.vue"
-	},
-	"config": {
-		"moduleName": "SkyList",
-		"distName": "sky-list"
+		"./sfc": "src/SkyList.vue"
 	},
 	"scripts": {
-		"dist": "yarn run merge && yarn run build:es && yarn run build:umd",
+		"dist": "rimraf dist && yarn run build:es && yarn run build:umd",
 		"build:umd": "yarn rollup --config rollup.config.js --format umd --file dist/sky-list.umd.js",
-		"build:es": "yarn rollup --config rollup.config.js --format es --file dist/sky-list.esm.js",
-		"merge": "./merge.sh",
-		"allowMerge": "chmod 755 ./merge.sh"
+		"build:es": "yarn rollup --config rollup.config.js --format es --file dist/sky-list.esm.js"
 	},
 	"build": "plugin",
 	"author": "Skybrud.dk",
@@ -25,16 +19,15 @@
 		"type": "git",
 		"url": "https://github.com/skybrud/sky-list.git"
 	},
-	"devDependencies": {
-		"np": "*",
-		"sky-build-setup": "../sky-build-setup"
-	},
-	"peerDependencies": {
-		"vue": "^2.5.0"
-	},
 	"dependencies": {
 		"axios": "^0.18.0",
 		"debounce": "^1.2.0",
 		"qs": "^6.5.2"
+	},
+	"devDependencies": {
+		"sky-build-setup": "../sky-build-setup"
+	},
+	"peerDependencies": {
+		"vue": "^2.5.0"
 	}
 }

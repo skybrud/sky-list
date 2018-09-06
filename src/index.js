@@ -6,12 +6,14 @@ const defaults = {
 
 export { SkyList };
 
-export default {
-	install(Vue, options) {
-		const { registerComponents } = Object.assign({}, defaults, options);
+export default function install(Vue, options) {
+	if (install.installed === true) {
+		return;
+	}
 
-		if (registerComponents) {
-			Vue.component('SkyList', SkyList);
-		}
-	},
+	const { registerComponents } = Object.assign({}, defaults, options);
+
+	if (registerComponents) {
+		Vue.component(SkyList.name, SkyList);
+	}
 };

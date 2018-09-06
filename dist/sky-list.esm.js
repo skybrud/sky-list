@@ -2,8 +2,6 @@ import axios from 'axios';
 import qs from 'qs';
 import debounce from 'debounce';
 
-(function(){ if(typeof document !== 'undefined'){ var head=document.head||document.getElementsByTagName('head')[0], style=document.createElement('style'), css=".sky-list .sky-reveal { min-height: 0; } .sky-list .sky-reveal:after { content: none; } .sky-list-content { width: 100%; text-align: center; } .sky-list-message { text-align: left; } .sky-list-result { position: relative; transition: opacity 0.2s 0s; text-align: left; } .loading .sky-list-result { opacity: 0.2; transition-delay: 0.3s; } .sky-list-result ul { display: flex; } .sky-list-pagination button { flex-shrink: 0; } .loading .sky-list-pagination { pointer-events: none; } .sky-list-numeric button { display: inline-block; cursor: pointer; background: none; } "; style.type='text/css'; if (style.styleSheet){ style.styleSheet.cssText = css; } else { style.appendChild(document.createTextNode(css)); } head.appendChild(style); } })();
-
 var defaultOptions = {
 	api: '/umbraco/api/site/search/',
 	limit: 10,
@@ -30,10 +28,8 @@ function setQueryParams(params) {
 	}
 }
 
-var SkyList = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:['sky-list', { loading : _vm.states.loading }]},[(_vm.$scopedSlots.listForm)?_c('div',{staticClass:"sky-list-form"},[_vm._t("listForm",null,{query:_vm.listQuery,result:_vm.result,newRequest:_vm.handleUserSearch,nativeSearchHandler:_vm.nativeSearchHandling})],2):_vm._e(),_vm._v(" "),((_vm.validQuery || _vm.config.loadFetch)
-			&& (_vm.filterKeys.length > 0)
-			&& _vm.states.hasFetchedOnce
-			&& _vm.$scopedSlots.filters)?_c('div',{staticClass:"sky-list-filter"},[_vm._t("filters",null,{query:_vm.listQuery,result:_vm.result,areas:_vm.result.groups})],2):_vm._e(),_vm._v(" "),((_vm.validQuery || _vm.config.loadFetch))?_c('div',{staticClass:"sky-list-content"},[(_vm.config.showCount && _vm.states.hasFetchedOnce)?_c('div',{staticClass:"sky-list-message"},[(_vm.currentResultSet.length > 0)?_vm._t("resultMessage",[_c('span',[_vm._v(" Your search for "),_c('em',[_vm._v("\""+_vm._s(_vm.listQuery.keywords)+"\"")]),_vm._v(" returned "),_c('em',[_vm._v(_vm._s(_vm.result.pagination.total)+" "+_vm._s((_vm.result.pagination.total === 1) ? 'result' : 'results'))])])],{query:_vm.listQuery,pagination:_vm.result.pagination}):_vm._e()],2):_vm._e(),_vm._v(" "),(_vm.currentResultSet.length > 0)?_c('div',{staticClass:"sky-list-result"},[_c('ul',_vm._l((_vm.currentResultSet),function(item,index){return _c('li',{key:item.id,staticClass:"sky-list-item"},[_vm._t("listItem",null,{item:item,index:index})],2)})),_vm._v(" "),(_vm.$scopedSlots.listAside)?_c('div',{staticClass:"sky-list-aside"},[_vm._t("listAside",null,{query:_vm.listQuery,result:_vm.result})],2):_vm._e()]):(_vm.states.hasFetchedOnce)?_c('div',{staticClass:"sky-list-result empty"},[_vm._t("noResultMessage",[_c('span',{domProps:{"textContent":_vm._s('Your search returned no results')}})],{query:_vm.listQuery})],2):_vm._e(),_vm._v(" "),(_vm.showPagination)?_c('div',{class:['sky-list-pagination', ("type-" + (_vm.config.paginationType))]},[(_vm.morePagination)?_c('button',{staticClass:"sky-list-more",on:{"click":function($event){_vm.more(_vm.config.paginationType === 'all');}}},[_vm._t("listMore",[_c('span',{domProps:{"textContent":_vm._s(("Show " + (_vm.config.paginationType)))}})],{itemsLeft:_vm.itemsLeft})],2):_vm._e(),_vm._v(" "),(_vm.numericPagination)?_c('ul',{staticClass:"sky-list-numeric"},_vm._l((_vm.pages.max),function(n){return _c('li',{class:{ current: _vm.pages.current === n }},[_c('button',{on:{"click":function($event){_vm.goTo(n);}}},[_vm._t("paginationBullet",[_c('span',{domProps:{"textContent":_vm._s(n)}})],{count:n})],2)])})):_vm._e(),_vm._v(" "),(_vm.flowPagination)?_c('button',{staticClass:"sky-list-previous",on:{"click":function($event){_vm.goTo('previous');}}},[_vm._t("listPrev",[_c('span',[_vm._v("Previous")])])],2):_vm._e(),_vm._v(" "),(_vm.flowPagination)?_c('button',{staticClass:"sky-list-next",on:{"click":function($event){_vm.goTo('next');}}},[_vm._t("listNext",[_c('span',[_vm._v("Next")])])],2):_vm._e()]):_vm._e()]):_vm._e()])},staticRenderFns: [],
+var script = {
+	name: 'SkyList',
 	props: {
 		// override query with external values
 		query: {
@@ -509,20 +505,326 @@ var SkyList = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
 	},
 };
 
+/* script */
+            var __vue_script__ = script;
+/* template */
+var __vue_render__ = function() {
+  var _vm = this;
+  var _h = _vm.$createElement;
+  var _c = _vm._self._c || _h;
+  return _c("div", { class: ["sky-list", { loading: _vm.states.loading }] }, [
+    _vm.$scopedSlots.listForm
+      ? _c(
+          "div",
+          { staticClass: "sky-list-form" },
+          [
+            _vm._t("listForm", null, {
+              query: _vm.listQuery,
+              result: _vm.result,
+              newRequest: _vm.handleUserSearch,
+              nativeSearchHandler: _vm.nativeSearchHandling
+            })
+          ],
+          2
+        )
+      : _vm._e(),
+    _vm._v(" "),
+    (_vm.validQuery || _vm.config.loadFetch) &&
+    _vm.filterKeys.length > 0 &&
+    _vm.states.hasFetchedOnce &&
+    _vm.$scopedSlots.filters
+      ? _c(
+          "div",
+          { staticClass: "sky-list-filter" },
+          [
+            _vm._t("filters", null, {
+              query: _vm.listQuery,
+              result: _vm.result,
+              areas: _vm.result.groups
+            })
+          ],
+          2
+        )
+      : _vm._e(),
+    _vm._v(" "),
+    _vm.validQuery || _vm.config.loadFetch
+      ? _c("div", { staticClass: "sky-list-content" }, [
+          _vm.config.showCount && _vm.states.hasFetchedOnce
+            ? _c(
+                "div",
+                { staticClass: "sky-list-message" },
+                [
+                  _vm.currentResultSet.length > 0
+                    ? _vm._t(
+                        "resultMessage",
+                        [
+                          _c("span", [
+                            _vm._v("\n\t\t\t\t\tYour search for "),
+                            _c("em", [
+                              _vm._v('"' + _vm._s(_vm.listQuery.keywords) + '"')
+                            ]),
+                            _vm._v(" returned "),
+                            _c("em", [
+                              _vm._v(
+                                _vm._s(_vm.result.pagination.total) +
+                                  " " +
+                                  _vm._s(
+                                    _vm.result.pagination.total === 1
+                                      ? "result"
+                                      : "results"
+                                  )
+                              )
+                            ])
+                          ])
+                        ],
+                        {
+                          query: _vm.listQuery,
+                          pagination: _vm.result.pagination
+                        }
+                      )
+                    : _vm._e()
+                ],
+                2
+              )
+            : _vm._e(),
+          _vm._v(" "),
+          _vm.currentResultSet.length > 0
+            ? _c("div", { staticClass: "sky-list-result" }, [
+                _c(
+                  "ul",
+                  _vm._l(_vm.currentResultSet, function(item, index) {
+                    return _c(
+                      "li",
+                      { key: item.id, staticClass: "sky-list-item" },
+                      [_vm._t("listItem", null, { item: item, index: index })],
+                      2
+                    )
+                  })
+                ),
+                _vm._v(" "),
+                _vm.$scopedSlots.listAside
+                  ? _c(
+                      "div",
+                      { staticClass: "sky-list-aside" },
+                      [
+                        _vm._t("listAside", null, {
+                          query: _vm.listQuery,
+                          result: _vm.result
+                        })
+                      ],
+                      2
+                    )
+                  : _vm._e()
+              ])
+            : _vm.states.hasFetchedOnce
+              ? _c(
+                  "div",
+                  { staticClass: "sky-list-result empty" },
+                  [
+                    _vm._t(
+                      "noResultMessage",
+                      [
+                        _c("span", {
+                          domProps: {
+                            textContent: _vm._s(
+                              "Your search returned no results"
+                            )
+                          }
+                        })
+                      ],
+                      { query: _vm.listQuery }
+                    )
+                  ],
+                  2
+                )
+              : _vm._e(),
+          _vm._v(" "),
+          _vm.showPagination
+            ? _c(
+                "div",
+                {
+                  class: [
+                    "sky-list-pagination",
+                    "type-" + _vm.config.paginationType
+                  ]
+                },
+                [
+                  _vm.morePagination
+                    ? _c(
+                        "button",
+                        {
+                          staticClass: "sky-list-more",
+                          on: {
+                            click: function($event) {
+                              _vm.more(_vm.config.paginationType === "all");
+                            }
+                          }
+                        },
+                        [
+                          _vm._t(
+                            "listMore",
+                            [
+                              _c("span", {
+                                domProps: {
+                                  textContent: _vm._s(
+                                    "Show " + _vm.config.paginationType
+                                  )
+                                }
+                              })
+                            ],
+                            { itemsLeft: _vm.itemsLeft }
+                          )
+                        ],
+                        2
+                      )
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.numericPagination
+                    ? _c(
+                        "ul",
+                        { staticClass: "sky-list-numeric" },
+                        _vm._l(_vm.pages.max, function(n) {
+                          return _c(
+                            "li",
+                            { class: { current: _vm.pages.current === n } },
+                            [
+                              _c(
+                                "button",
+                                {
+                                  on: {
+                                    click: function($event) {
+                                      _vm.goTo(n);
+                                    }
+                                  }
+                                },
+                                [
+                                  _vm._t(
+                                    "paginationBullet",
+                                    [
+                                      _c("span", {
+                                        domProps: { textContent: _vm._s(n) }
+                                      })
+                                    ],
+                                    { count: n }
+                                  )
+                                ],
+                                2
+                              )
+                            ]
+                          )
+                        })
+                      )
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.flowPagination
+                    ? _c(
+                        "button",
+                        {
+                          staticClass: "sky-list-previous",
+                          on: {
+                            click: function($event) {
+                              _vm.goTo("previous");
+                            }
+                          }
+                        },
+                        [
+                          _vm._t("listPrev", [_c("span", [_vm._v("Previous")])])
+                        ],
+                        2
+                      )
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.flowPagination
+                    ? _c(
+                        "button",
+                        {
+                          staticClass: "sky-list-next",
+                          on: {
+                            click: function($event) {
+                              _vm.goTo("next");
+                            }
+                          }
+                        },
+                        [_vm._t("listNext", [_c("span", [_vm._v("Next")])])],
+                        2
+                      )
+                    : _vm._e()
+                ]
+              )
+            : _vm._e()
+        ])
+      : _vm._e()
+  ])
+};
+var __vue_staticRenderFns__ = [];
+__vue_render__._withStripped = true;
+
+  /* style */
+  var __vue_inject_styles__ = undefined;
+  /* scoped */
+  var __vue_scope_id__ = undefined;
+  /* module identifier */
+  var __vue_module_identifier__ = undefined;
+  /* functional template */
+  var __vue_is_functional_template__ = false;
+  /* component normalizer */
+  function __vue_normalize__(
+    template, style, script$$1,
+    scope, functional, moduleIdentifier,
+    createInjector, createInjectorSSR
+  ) {
+    var component = (typeof script$$1 === 'function' ? script$$1.options : script$$1) || {};
+
+    // For security concerns, we use only base name in production mode.
+    component.__file = "/Users/rudiornhoj/Sites/roernhoej/sky-list/src/SkyList.vue";
+
+    if (!component.render) {
+      component.render = template.render;
+      component.staticRenderFns = template.staticRenderFns;
+      component._compiled = true;
+
+      if (functional) { component.functional = true; }
+    }
+
+    component._scopeId = scope;
+
+    
+
+    return component
+  }
+  /* style inject */
+  
+  /* style inject SSR */
+  
+
+  
+  var SkyList = __vue_normalize__(
+    { render: __vue_render__, staticRenderFns: __vue_staticRenderFns__ },
+    __vue_inject_styles__,
+    __vue_script__,
+    __vue_scope_id__,
+    __vue_is_functional_template__,
+    __vue_module_identifier__,
+    undefined,
+    undefined
+  )
+
 var defaults = {
 	registerComponents: true,
 };
 
-var index = {
-	install: function install(Vue, options) {
-		var ref = Object.assign({}, defaults, options);
-		var registerComponents = ref.registerComponents;
+function install(Vue, options) {
+	if (install.installed === true) {
+		return;
+	}
 
-		if (registerComponents) {
-			Vue.component('SkyList', SkyList);
-		}
-	},
-};
+	var ref = Object.assign({}, defaults, options);
+	var registerComponents = ref.registerComponents;
 
-export default index;
+	if (registerComponents) {
+		Vue.component(SkyList.name, SkyList);
+	}
+}
+
+export default install;
 export { SkyList };

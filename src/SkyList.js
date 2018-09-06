@@ -29,6 +29,7 @@ function setQueryParams(params) {
 }
 
 export default {
+	name: 'SkyList',
 	props: {
 		// override query with external values
 		query: {

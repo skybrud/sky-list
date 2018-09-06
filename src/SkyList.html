@@ -1,154 +1,152 @@
-<template>
-	<div :class="['sky-list', { loading : states.loading }]">
+<div :class="['sky-list', { loading : states.loading }]">
+	<div
+		v-if="$scopedSlots.listForm"
+		class="sky-list-form"
+	>
+		<slot
+			name="listForm"
+			:query="listQuery"
+			:result="result"
+			:newRequest="handleUserSearch"
+			:nativeSearchHandler="nativeSearchHandling"
+		/>
+	</div>
+
+	<div
+		v-if="(validQuery || config.loadFetch)
+			&& (filterKeys.length > 0)
+			&& states.hasFetchedOnce
+			&& $scopedSlots.filters"
+		class="sky-list-filter"
+	>
+		<slot
+			name="filters"
+			:query="listQuery"
+			:result="result"
+			:areas="result.groups"
+		/>
+	</div>
+
+	<div
+		v-if="(validQuery || config.loadFetch)"
+		class="sky-list-content"
+	>
 		<div
-			v-if="$scopedSlots.listForm"
-			class="sky-list-form"
+			v-if="config.showCount && states.hasFetchedOnce"
+			class="sky-list-message"
 		>
 			<slot
-				name="listForm"
-				:query="listQuery"
-				:result="result"
-				:newRequest="handleUserSearch"
-				:nativeSearchHandler="nativeSearchHandling"
-			/>
-		</div>
-
-		<div
-			v-if="(validQuery || config.loadFetch)
-				&& (filterKeys.length > 0)
-				&& states.hasFetchedOnce
-				&& $scopedSlots.filters"
-			class="sky-list-filter"
-		>
-			<slot
-				name="filters"
-				:query="listQuery"
-				:result="result"
-				:areas="result.groups"
-			/>
-		</div>
-
-		<div
-			v-if="(validQuery || config.loadFetch)"
-			class="sky-list-content"
-		>
-			<div
-				v-if="config.showCount && states.hasFetchedOnce"
-				class="sky-list-message"
-			>
-				<slot
-					v-if="currentResultSet.length > 0"
-					name="resultMessage"
-					:query="listQuery"
-					:pagination="result.pagination"
-				>
-					<span>
-						Your search for <em>"{{listQuery.keywords}}"</em> returned <em>{{result.pagination.total}} {{(result.pagination.total === 1) ? 'result' : 'results'}}</em>
-					</span>
-				</slot>
-			</div>
-
-			<div
 				v-if="currentResultSet.length > 0"
-				class="sky-list-result"
+				name="resultMessage"
+				:query="listQuery"
+				:pagination="result.pagination"
 			>
-				<ul>
-					<li
-						class="sky-list-item"
-						v-for="(item, index) in currentResultSet"
-						:key="item.id"
-					>
-						<slot
-							name="listItem"
-							:item="item"
-							:index="index"
-						/>
-					</li>
-				</ul>
-				<div
-					v-if="$scopedSlots.listAside"
-					class="sky-list-aside"
+				<span>
+					Your search for <em>"{{listQuery.keywords}}"</em> returned <em>{{result.pagination.total}} {{(result.pagination.total === 1) ? 'result' : 'results'}}</em>
+				</span>
+			</slot>
+		</div>
+
+		<div
+			v-if="currentResultSet.length > 0"
+			class="sky-list-result"
+		>
+			<ul>
+				<li
+					class="sky-list-item"
+					v-for="(item, index) in currentResultSet"
+					:key="item.id"
 				>
 					<slot
-						name="listAside"
-						:query="listQuery"
-						:result="result"
+						name="listItem"
+						:item="item"
+						:index="index"
 					/>
-				</div>
-			</div>
+				</li>
+			</ul>
 			<div
-				v-else-if="states.hasFetchedOnce"
-				class="sky-list-result empty"
+				v-if="$scopedSlots.listAside"
+				class="sky-list-aside"
 			>
 				<slot
-					name="noResultMessage"
+					name="listAside"
 					:query="listQuery"
-				>
-					<span v-text="'Your search returned no results'" />
-				</slot>
+					:result="result"
+				/>
 			</div>
-
-			<div
-				v-if="showPagination"
-				:class="['sky-list-pagination', `type-${config.paginationType}`]"
+		</div>
+		<div
+			v-else-if="states.hasFetchedOnce"
+			class="sky-list-result empty"
+		>
+			<slot
+				name="noResultMessage"
+				:query="listQuery"
 			>
-				<!-- SHOW MORE / ALL -->
-				<button
-					v-if="morePagination"
-					@click="more(config.paginationType === 'all')"
-					class="sky-list-more"
-				>
-					<slot
-						name="listMore"
-						:itemsLeft="itemsLeft"
-					>
-						<span v-text="`Show ${config.paginationType}`" />
-					</slot>
-				</button>
+				<span v-text="'Your search returned no results'" />
+			</slot>
+		</div>
 
-				<!-- NUMERIC LIST-->
-				<ul
-					v-if="numericPagination"
-					class="sky-list-numeric"
+		<div
+			v-if="showPagination"
+			:class="['sky-list-pagination', `type-${config.paginationType}`]"
+		>
+			<!-- SHOW MORE / ALL -->
+			<button
+				v-if="morePagination"
+				@click="more(config.paginationType === 'all')"
+				class="sky-list-more"
+			>
+				<slot
+					name="listMore"
+					:itemsLeft="itemsLeft"
 				>
-					<li
-						:class="{ current: pages.current === n }"
-						v-for="n in pages.max"
-					>
-						<button @click="goTo(n)">
-							<slot
-								name="paginationBullet"
-								:count="n"
-							>
-								<span v-text="n" />
-							</slot>
-						</button>
-					</li>
-				</ul>
+					<span v-text="`Show ${config.paginationType}`" />
+				</slot>
+			</button>
 
-				<!-- NEXT + PREVIOUS -->
-				<button
-					v-if="flowPagination"
-					@click="goTo('previous')"
-					class="sky-list-previous"
+			<!-- NUMERIC LIST-->
+			<ul
+				v-if="numericPagination"
+				class="sky-list-numeric"
+			>
+				<li
+					:class="{ current: pages.current === n }"
+					v-for="n in pages.max"
 				>
-					<slot name="listPrev">
-						<span>Previous</span>
-					</slot>
-				</button>
+					<button @click="goTo(n)">
+						<slot
+							name="paginationBullet"
+							:count="n"
+						>
+							<span v-text="n" />
+						</slot>
+					</button>
+				</li>
+			</ul>
 
-				<button
-					v-if="flowPagination"
-					@click="goTo('next')"
-					class="sky-list-next"
-				>
-					<slot name="listNext">
-						<span>Next</span>
-					</slot>
-				</button>
-			</div>
+			<!-- NEXT + PREVIOUS -->
+			<button
+				v-if="flowPagination"
+				@click="goTo('previous')"
+				class="sky-list-previous"
+			>
+				<slot name="listPrev">
+					<span>Previous</span>
+				</slot>
+			</button>
 
+			<button
+				v-if="flowPagination"
+				@click="goTo('next')"
+				class="sky-list-next"
+			>
+				<slot name="listNext">
+					<span>Next</span>
+				</slot>
+			</button>
 		</div>
 
 	</div>
-</template>
+
+</div>
