@@ -4,8 +4,7 @@
 	"description": "Vue component for creating search",
 	"main": "./dist/sky-list.ssr.js",
 	"module": "./dist/sky-list.esm.js",
-	"browser": "./dist/sky-list.js",
-	"unpkg": "./dist/sky-list.js",
+	"browser": "./dist/sky-list.esm.js",
 	"scripts": {
 		"dist": "yarn rimraf dist && yarn run build",
 		"build": "yarn rollup --config rollup.config.js --environment BUILD:production"
