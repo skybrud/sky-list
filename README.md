@@ -26,7 +26,9 @@ import Vue from 'vue';
 Different import approaches. The First provides the minified and compiled dist version, the other the raw .vue file.
 ```js
 import SkyList from 'sky-list';
-import SkyList from '${YOUR-PROJECT-ROOT-PATH}/node_modules/sky-list/src/';
+
+// If you want to use the baseline scss add the following line
+import '${YOUR-PROJECT-ROOT-PATH}/node_modules/sky-list/src/SkyList.scss';
 ```
 Install plugin
 ```js

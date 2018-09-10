@@ -1,6 +1,12 @@
-import axios from 'axios';
-import qs from 'qs';
-import debounce from 'debounce';
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+
+var axios = _interopDefault(require('axios'));
+var qs = _interopDefault(require('qs'));
+var debounce = _interopDefault(require('debounce'));
 
 const defaultOptions = {
 	api: '/umbraco/api/site/search/',
@@ -468,10 +474,10 @@ var script = {
             const __vue_script__ = script;
             
 /* template */
-var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:['sky-list', { loading : _vm.states.loading }]},[(_vm.$scopedSlots.listForm)?_c('div',{staticClass:"sky-list-form"},[_vm._t("listForm",null,{query:_vm.listQuery,result:_vm.result,newRequest:_vm.handleUserSearch,nativeSearchHandler:_vm.nativeSearchHandling})],2):_vm._e(),_vm._v(" "),((_vm.validQuery || _vm.config.loadFetch)
+var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:['sky-list', { loading : _vm.states.loading }]},[(_vm.$scopedSlots.listForm)?_vm._ssrNode("<div class=\"sky-list-form\">","</div>",[_vm._t("listForm",null,{query:_vm.listQuery,result:_vm.result,newRequest:_vm.handleUserSearch,nativeSearchHandler:_vm.nativeSearchHandling})],2):_vm._e(),_vm._ssrNode(" "),((_vm.validQuery || _vm.config.loadFetch)
 			&& (_vm.filterKeys.length > 0)
 			&& _vm.states.hasFetchedOnce
-			&& _vm.$scopedSlots.filters)?_c('div',{staticClass:"sky-list-filter"},[_vm._t("filters",null,{query:_vm.listQuery,result:_vm.result,areas:_vm.result.groups})],2):_vm._e(),_vm._v(" "),((_vm.validQuery || _vm.config.loadFetch))?_c('div',{staticClass:"sky-list-content"},[(_vm.config.showCount && _vm.states.hasFetchedOnce)?_c('div',{staticClass:"sky-list-message"},[(_vm.currentResultSet.length > 0)?_vm._t("resultMessage",[_c('span',[_vm._v("\n\t\t\t\t\tYour search for "),_c('em',[_vm._v("\""+_vm._s(_vm.listQuery.keywords)+"\"")]),_vm._v(" returned "),_c('em',[_vm._v(_vm._s(_vm.result.pagination.total)+" "+_vm._s((_vm.result.pagination.total === 1) ? 'result' : 'results'))])])],{query:_vm.listQuery,pagination:_vm.result.pagination}):_vm._e()],2):_vm._e(),_vm._v(" "),(_vm.currentResultSet.length > 0)?_c('div',{staticClass:"sky-list-result"},[_c('ul',_vm._l((_vm.currentResultSet),function(item,index){return _c('li',{key:item.id,staticClass:"sky-list-item"},[_vm._t("listItem",null,{item:item,index:index})],2)})),_vm._v(" "),(_vm.$scopedSlots.listAside)?_c('div',{staticClass:"sky-list-aside"},[_vm._t("listAside",null,{query:_vm.listQuery,result:_vm.result})],2):_vm._e()]):(_vm.states.hasFetchedOnce)?_c('div',{staticClass:"sky-list-result empty"},[_vm._t("noResultMessage",[_c('span',{domProps:{"textContent":_vm._s('Your search returned no results')}})],{query:_vm.listQuery})],2):_vm._e(),_vm._v(" "),(_vm.showPagination)?_c('div',{class:['sky-list-pagination', ("type-" + (_vm.config.paginationType))]},[(_vm.morePagination)?_c('button',{staticClass:"sky-list-more",on:{"click":function($event){_vm.more(_vm.config.paginationType === 'all');}}},[_vm._t("listMore",[_c('span',{domProps:{"textContent":_vm._s(("Show " + (_vm.config.paginationType)))}})],{itemsLeft:_vm.itemsLeft})],2):_vm._e(),_vm._v(" "),(_vm.numericPagination)?_c('ul',{staticClass:"sky-list-numeric"},_vm._l((_vm.pages.max),function(n){return _c('li',{class:{ current: _vm.pages.current === n }},[_c('button',{on:{"click":function($event){_vm.goTo(n);}}},[_vm._t("paginationBullet",[_c('span',{domProps:{"textContent":_vm._s(n)}})],{count:n})],2)])})):_vm._e(),_vm._v(" "),(_vm.flowPagination)?_c('button',{staticClass:"sky-list-previous",on:{"click":function($event){_vm.goTo('previous');}}},[_vm._t("listPrev",[_c('span',[_vm._v("Previous")])])],2):_vm._e(),_vm._v(" "),(_vm.flowPagination)?_c('button',{staticClass:"sky-list-next",on:{"click":function($event){_vm.goTo('next');}}},[_vm._t("listNext",[_c('span',[_vm._v("Next")])])],2):_vm._e()]):_vm._e()]):_vm._e()])};
+			&& _vm.$scopedSlots.filters)?_vm._ssrNode("<div class=\"sky-list-filter\">","</div>",[_vm._t("filters",null,{query:_vm.listQuery,result:_vm.result,areas:_vm.result.groups})],2):_vm._e(),_vm._ssrNode(" "),((_vm.validQuery || _vm.config.loadFetch))?_vm._ssrNode("<div class=\"sky-list-content\">","</div>",[(_vm.config.showCount && _vm.states.hasFetchedOnce)?_vm._ssrNode("<div class=\"sky-list-message\">","</div>",[(_vm.currentResultSet.length > 0)?_vm._t("resultMessage",[_c('span',[_vm._v("\n\t\t\t\t\tYour search for "),_c('em',[_vm._v("\""+_vm._s(_vm.listQuery.keywords)+"\"")]),_vm._v(" returned "),_c('em',[_vm._v(_vm._s(_vm.result.pagination.total)+" "+_vm._s((_vm.result.pagination.total === 1) ? 'result' : 'results'))])])],{query:_vm.listQuery,pagination:_vm.result.pagination}):_vm._e()],2):_vm._e(),_vm._ssrNode(" "),(_vm.currentResultSet.length > 0)?_vm._ssrNode("<div class=\"sky-list-result\">","</div>",[_vm._ssrNode("<ul>","</ul>",_vm._l((_vm.currentResultSet),function(item,index){return _vm._ssrNode("<li class=\"sky-list-item\">","</li>",[_vm._t("listItem",null,{item:item,index:index})],2)})),_vm._ssrNode(" "),(_vm.$scopedSlots.listAside)?_vm._ssrNode("<div class=\"sky-list-aside\">","</div>",[_vm._t("listAside",null,{query:_vm.listQuery,result:_vm.result})],2):_vm._e()],2):(_vm.states.hasFetchedOnce)?_vm._ssrNode("<div class=\"sky-list-result empty\">","</div>",[_vm._t("noResultMessage",[_c('span',{domProps:{"textContent":_vm._s('Your search returned no results')}})],{query:_vm.listQuery})],2):_vm._e(),_vm._ssrNode(" "),(_vm.showPagination)?_vm._ssrNode("<div"+(_vm._ssrClass(null,['sky-list-pagination', ("type-" + (_vm.config.paginationType))]))+">","</div>",[(_vm.morePagination)?_vm._ssrNode("<button class=\"sky-list-more\">","</button>",[_vm._t("listMore",[_c('span',{domProps:{"textContent":_vm._s(("Show " + (_vm.config.paginationType)))}})],{itemsLeft:_vm.itemsLeft})],2):_vm._e(),_vm._ssrNode(" "),(_vm.numericPagination)?_vm._ssrNode("<ul class=\"sky-list-numeric\">","</ul>",_vm._l((_vm.pages.max),function(n){return _vm._ssrNode("<li"+(_vm._ssrClass(null,{ current: _vm.pages.current === n }))+">","</li>",[_vm._ssrNode("<button>","</button>",[_vm._t("paginationBullet",[_c('span',{domProps:{"textContent":_vm._s(n)}})],{count:n})],2)])})):_vm._e(),_vm._ssrNode(" "),(_vm.flowPagination)?_vm._ssrNode("<button class=\"sky-list-previous\">","</button>",[_vm._t("listPrev",[_c('span',[_vm._v("Previous")])])],2):_vm._e(),_vm._ssrNode(" "),(_vm.flowPagination)?_vm._ssrNode("<button class=\"sky-list-next\">","</button>",[_vm._t("listNext",[_c('span',[_vm._v("Next")])])],2):_vm._e()],2):_vm._e()],2):_vm._e()],2)};
 var __vue_staticRenderFns__ = [];
 
   /* style */
@@ -483,7 +489,7 @@ var __vue_staticRenderFns__ = [];
   /* scoped */
   const __vue_scope_id__ = undefined;
   /* module identifier */
-  const __vue_module_identifier__ = undefined;
+  const __vue_module_identifier__ = "data-v-ed180d66";
   /* functional template */
   const __vue_is_functional_template__ = false;
   /* component normalizer */
@@ -509,10 +515,30 @@ var __vue_staticRenderFns__ = [];
 
     {
       let hook;
-      if (style) {
+      {
+        // In SSR.
         hook = function(context) {
-          style.call(this, createInjector(context));
+          // 2.3 injection
+          context =
+            context || // cached call
+            (this.$vnode && this.$vnode.ssrContext) || // stateful
+            (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext); // functional
+          // 2.2 with runInNewContext: true
+          if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
+            context = __VUE_SSR_CONTEXT__;
+          }
+          // inject component styles
+          if (style) {
+            style.call(this, createInjectorSSR(context));
+          }
+          // register component module identifier for async chunk inference
+          if (context && context._registeredComponents) {
+            context._registeredComponents.add(moduleIdentifier);
+          }
         };
+        // used by ssr in case component is cached and beforeCreate
+        // never gets called
+        component._ssrRegister = hook;
       }
 
       if (hook !== undefined) {
@@ -534,75 +560,47 @@ var __vue_staticRenderFns__ = [];
     return component
   }
   /* style inject */
-  function __vue_create_injector__() {
-    const head = document.head || document.getElementsByTagName('head')[0];
-    const styles = __vue_create_injector__.styles || (__vue_create_injector__.styles = {});
-    const isOldIE =
-      typeof navigator !== 'undefined' &&
-      /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
+  
+  /* style inject SSR */
+  function __vue_create_injector_ssr__(context) {
+    if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
+      context = __VUE_SSR_CONTEXT__;
+    }
+
+    if (!context) return function () {}
+
+    if (!context.hasOwnProperty('styles')) {
+      Object.defineProperty(context, 'styles', {
+        enumerable: true,
+        get: () => context._styles
+      });
+      context._renderStyles = renderStyles;
+    }
+
+    function renderStyles(styles) {
+      let css = '';
+      for (const {ids, media, parts} of styles) {
+        css +=
+          '<style data-vue-ssr-id="' + ids.join(' ') + '"' + (media ? ' media="' + media + '"' : '') + '>'
+          + parts.join('\n') +
+          '</style>';
+      }
+
+      return css
+    }
 
     return function addStyle(id, css) {
-      if (document.querySelector('style[data-vue-ssr-id~="' + id + '"]')) return // SSR styles are present.
-
-      const group = isOldIE ? css.media || 'default' : id;
-      const style = styles[group] || (styles[group] = { ids: [], parts: [], element: undefined });
+      const group = css.media || 'default';
+      const style = context._styles[group] || (context._styles[group] = { ids: [], parts: [] });
 
       if (!style.ids.includes(id)) {
-        let code = css.source;
-        let index = style.ids.length;
-
+        style.media = css.media;
         style.ids.push(id);
-
-        if (css.map) {
-          // https://developer.chrome.com/devtools/docs/javascript-debugging
-          // this makes source maps inside style tags work properly in Chrome
-          code += '\n/*# sourceURL=' + css.map.sources[0] + ' */';
-          // http://stackoverflow.com/a/26603875
-          code +=
-            '\n/*# sourceMappingURL=data:application/json;base64,' +
-            btoa(unescape(encodeURIComponent(JSON.stringify(css.map)))) +
-            ' */';
-        }
-
-        if (isOldIE) {
-          style.element = style.element || document.querySelector('style[data-group=' + group + ']');
-        }
-
-        if (!style.element) {
-          const el = style.element = document.createElement('style');
-          el.type = 'text/css';
-
-          if (css.media) el.setAttribute('media', css.media);
-          if (isOldIE) {
-            el.setAttribute('data-group', group);
-            el.setAttribute('data-next-index', '0');
-          }
-
-          head.appendChild(el);
-        }
-
-        if (isOldIE) {
-          index = parseInt(style.element.getAttribute('data-next-index'));
-          style.element.setAttribute('data-next-index', index + 1);
-        }
-
-        if (style.element.styleSheet) {
-          style.parts.push(code);
-          style.element.styleSheet.cssText = style.parts
-            .filter(Boolean)
-            .join('\n');
-        } else {
-          const textNode = document.createTextNode(code);
-          const nodes = style.element.childNodes;
-          if (nodes[index]) style.element.removeChild(nodes[index]);
-          if (nodes.length) style.element.insertBefore(textNode, nodes[index]);
-          else style.element.appendChild(textNode);
-        }
+        let code = css.source;
+        style.parts.push(code);
       }
     }
   }
-  /* style inject SSR */
-  
 
   
   var SkyList = __vue_normalize__(
@@ -612,8 +610,8 @@ var __vue_staticRenderFns__ = [];
     __vue_scope_id__,
     __vue_is_functional_template__,
     __vue_module_identifier__,
-    __vue_create_injector__,
-    undefined
+    undefined,
+    __vue_create_injector_ssr__
   );
 
 const defaults = {
@@ -632,5 +630,5 @@ function install(Vue, options) {
 	}
 }
 
-export default install;
-export { SkyList };
+exports.SkyList = SkyList;
+exports.default = install;

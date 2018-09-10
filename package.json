@@ -2,17 +2,14 @@
 	"name": "sky-list",
 	"version": "0.4.0",
 	"description": "Vue component for creating search",
-	"main": "dist/sky-list.umd.js",
-	"module": "dist/sky-list.esm.js",
-	"browser": {
-		"./sfc": "src/SkyList.vue"
-	},
+	"main": "./dist/sky-list.ssr.js",
+	"module": "./dist/sky-list.esm.js",
+	"browser": "./dist/sky-list.js",
+	"unpkg": "./dist/sky-list.js",
 	"scripts": {
-		"dist": "rimraf dist && yarn run build:es && yarn run build:umd",
-		"build:umd": "yarn rollup --config rollup.config.js --format umd --file dist/sky-list.umd.js",
-		"build:es": "yarn rollup --config rollup.config.js --format es --file dist/sky-list.esm.js"
+		"dist": "yarn rimraf dist && yarn run build",
+		"build": "yarn rollup --config rollup.config.js --environment BUILD:production"
 	},
-	"build": "plugin",
 	"author": "Skybrud.dk",
 	"license": "MIT",
 	"repository": {
@@ -25,7 +22,7 @@
 		"qs": "^6.5.2"
 	},
 	"devDependencies": {
-		"sky-build-setup": "../sky-build-setup"
+		"sky-build-setup": "https://github.com/skybrud/sky-build-setup.git"
 	},
 	"peerDependencies": {
 		"vue": "^2.5.0"
