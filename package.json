@@ -1,6 +1,6 @@
 {
 	"name": "sky-list",
-	"version": "0.5.1-0",
+	"version": "0.6.0-0",
 	"description": "Vue component for creating search",
 	"main": "./dist/sky-list.ssr.js",
 	"module": "./dist/sky-list.esm.js",
