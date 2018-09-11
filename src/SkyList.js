@@ -90,7 +90,7 @@ export default {
 			states: {
 				hasFetchedOnce: false,
 				cancelToken: null,
-				loading: true,
+				loading: false,
 			},
 			pages: {
 				max: 1,
