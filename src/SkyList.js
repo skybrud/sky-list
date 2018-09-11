@@ -224,6 +224,13 @@ export default {
 			},
 			deep: true,
 		},
+		'states.loading': function(value) {
+			if (value) {
+				this.$emit('loadingBegin');
+			} else {
+				this.$emit('loadingEnd');
+			}
+		},
 	},
 	mounted() {
 		// Do fetch on mount, if configured to or if initiated with valid query from url params
