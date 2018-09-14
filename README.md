@@ -63,6 +63,18 @@ Vue.use(SkyList);
 | **paginationBullet** | `count` Number | Slot for custom pagination bullets |
 | **filters** | `query` Object <br> `result` Object <br> `area` Object | Slot for filtering result (i.e. by groups/areas etc.) |
 
+### Events
+SkyList emits a few events for flexibility. This list will likely expand in the future. Example:
+```html
+<sky-list @result="handleResultFn" />
+```
+
+| Name | Arguments | Description |
+|--|--|--|
+| **result** | `result` Object | Emitted every time result changes |
+| **loadingBegin** | none | Emitted whenever a fetch begins |
+| **loadingEnd** | none | Emitted when done fetching |
+
 
 ## <a id="examples"></a>Examples
 ```html
