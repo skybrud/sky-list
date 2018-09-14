@@ -237,6 +237,12 @@ var script = {
 				this.$emit('loadingEnd');
 			}
 		},
+		result: {
+			handler(value) {
+				this.$emit('result', value);
+			},
+			deep: true,
+		},
 	},
 	mounted() {
 		// Do fetch on mount, if configured to or if initiated with valid query from url params
