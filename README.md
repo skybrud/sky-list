@@ -36,7 +36,7 @@ Vue.use(SkyList);
 ```
 
 ## <a id="options"></a>Option tables
-### SkyList options
+### Props
 | Name  | Type  | Default   | Options   | Description   |
 |----|----|----|----|----|
 | **parameters** | Object | `{ keywords: '' }`  |  | Parameters to use in query declared with initial value |
@@ -49,7 +49,7 @@ Vue.use(SkyList);
 | **transform-params** | Function | `params => params`  |  | Hook to modify params before request is sent. Useful for transforming SkyList to integrate with endpoints that do not use the default param naming conventions |
 | **transform-result** | Function | `result => result`  |  | Hook to modify result before request is resolved. Useful for transforming the returned data to match [the API response structure SkyList expects](#api). |
 
-### Slots options
+### Slots
 | Name | Slot-scope | Description |
 |--|--|--|
 | **listForm** | `query` Object <br> `result` Object | Slot for custom form setup to be `v-model`'ed against SkyList query |
