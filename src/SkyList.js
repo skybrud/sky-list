@@ -19,10 +19,10 @@ function getQueryParams() {
 	return {};
 }
 
-function setQueryParams(params) {
+function setQueryParams(params, skipNulls = true) {
 	if (typeof window !== 'undefined') {
 		const baseUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
-		const qString = qs.stringify(params);
+		const qString = qs.stringify(params, { skipNulls });
 		const q = qString ? `?${qString}` : '';
 		window.history.replaceState('', '', `${baseUrl}${q}`);
 	}
