@@ -47,9 +47,7 @@ var script = {
 		},
 		parameters: {
 			type: Object,
-			default: () => ({
-				keywords: '',
-			}),
+			default: () => ({ keywords: '' }),
 		},
 		options: {
 			type: Object,
@@ -80,12 +78,12 @@ var script = {
 				this.filter,
 				this.parameters,
 				this.query,
-				getQueryParams(), // initiate with query params from url
+				getQueryParams() // initiate with query params from url
 			),
 			config: Object.assign(
 				{},
 				defaultOptions,
-				this.options,
+				this.options
 			),
 			states: {
 				hasFetchedOnce: false,
