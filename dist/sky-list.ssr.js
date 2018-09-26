@@ -8,7 +8,7 @@ var axios = _interopDefault(require('axios'));
 var qs = _interopDefault(require('qs'));
 var debounce = _interopDefault(require('debounce'));
 
-const defaultOptions = {
+var defaultOptions = {
 	api: '/umbraco/api/site/search/',
 	limit: 10,
 	showCount: false,
@@ -19,18 +19,20 @@ const defaultOptions = {
 
 function getQueryParams() {
 	if (typeof window !== 'undefined') {
-		const q = window.location.search.replace('?', '');
+		var q = window.location.search.replace('?', '');
 		return qs.parse(q);
 	}
 	return {};
 }
 
-function setQueryParams(params, skipNulls = true) {
+function setQueryParams(params, skipNulls) {
+	if ( skipNulls === void 0 ) skipNulls = true;
+
 	if (typeof window !== 'undefined') {
-		const baseUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
-		const qString = qs.stringify(params, { skipNulls });
-		const q = qString ? `?${qString}` : '';
-		window.history.replaceState('', '', `${baseUrl}${q}`);
+		var baseUrl = (window.location.protocol) + "//" + (window.location.host) + (window.location.pathname);
+		var qString = qs.stringify(params, { skipNulls: skipNulls });
+		var q = qString ? ("?" + qString) : '';
+		window.history.replaceState('', '', ("" + baseUrl + q));
 	}
 }
 
@@ -40,28 +42,28 @@ var script = {
 		// override query with external values
 		query: {
 			type: Object,
-			default: () => ({}),
+			default: function () { return ({}); },
 		},
 		// Value map is used for fetching vue-multiselect value
 		valueMap: {
 			type: Object,
-			default: () => ({}),
+			default: function () { return ({}); },
 		},
 		filter: {
 			type: Object,
-			default: () => ({}),
+			default: function () { return ({}); },
 		},
 		parameters: {
 			type: Object,
-			default: () => ({ keywords: '' }),
+			default: function () { return ({ keywords: '' }); },
 		},
 		options: {
 			type: Object,
-			default: () => ({}),
+			default: function () { return ({}); },
 		},
 		validateQuery: {
 			type: Function,
-			default: query => query.keywords,
+			default: function (query) { return query.keywords; },
 		},
 		liveSearch: {
 			type: Boolean,
@@ -69,14 +71,14 @@ var script = {
 		},
 		transformParams: {
 			type: Function,
-			default: params => params,
+			default: function (params) { return params; },
 		},
 		transformResult: {
 			type: Function,
-			default: result => result,
+			default: function (result) { return result; },
 		},
 	},
-	data() {
+	data: function data() {
 		return {
 			previousQuery: {},
 			listQuery: Object.assign(
@@ -112,16 +114,16 @@ var script = {
 		};
 	},
 	computed: {
-		numericPagination() {
+		numericPagination: function numericPagination() {
 			return (this.config.paginationType === 'numeric') || (this.config.paginationType === 'pagination');
 		},
-		flowPagination() {
+		flowPagination: function flowPagination() {
 			return (this.config.paginationType === 'navigation') || (this.config.paginationType === 'pagination');
 		},
-		morePagination() {
+		morePagination: function morePagination() {
 			return (this.config.paginationType === 'more') || (this.config.paginationType === 'all');
 		},
-		showPagination() {
+		showPagination: function showPagination() {
 			if (!this.states.hasFetchedOnce) {
 				return false;
 			}
@@ -130,53 +132,63 @@ var script = {
 			}
 			return this.pages.max > 1;
 		},
-		filterKeys() {
+		filterKeys: function filterKeys() {
 			return Object.keys(this.filter);
 		},
-		itemsLeft() {
+		itemsLeft: function itemsLeft() {
 			// Provides the amount of items not displayed yet.
-			const { limit, offset, total } = this.result.pagination;
+			var ref = this.result.pagination;
+			var limit = ref.limit;
+			var offset = ref.offset;
+			var total = ref.total;
 
 			return (offset + limit) - total < limit
 				? total - (offset + limit)
 				: limit;
 		},
-		resultStartIndex() {
+		resultStartIndex: function resultStartIndex() {
 			if (this.morePagination) {
 				return 0;
 			}
 
 			return (this.pages.current - 1) * this.config.limit;
 		},
-		resultEndIndex() {
-			const { pagination: { offset, limit, total } } = this.result;
+		resultEndIndex: function resultEndIndex() {
+			var ref = this.result;
+			var ref_pagination = ref.pagination;
+			var offset = ref_pagination.offset;
+			var limit = ref_pagination.limit;
+			var total = ref_pagination.total;
 			if (total === null) {
 				return offset + limit;
 			}
 
 			return Math.min(offset + limit, total);
 		},
-		currentResultSet() {
+		currentResultSet: function currentResultSet() {
 			// Showing the part of the complete resultset currently wanted.
-			const { data } = this.result;
+			var ref = this.result;
+			var data = ref.data;
 
 			return data[this.pageNoToIndex(this.getCurrentPage())] || [];
 		},
-		limitEnd() {
+		limitEnd: function limitEnd() {
 			return this.result.pagination.offset + this.result.pagination.limit;
 		},
-		canFetchMore() {
+		canFetchMore: function canFetchMore() {
 			return this.limitEnd < this.result.pagination.total;
 		},
-		queryFlatArrays() {
-			// We loop through the query and join all arrays to strings
-			const res = {};
-			const extractObjectKey = Object.keys(this.valueMap);
+		queryFlatArrays: function queryFlatArrays() {
+			var this$1 = this;
 
-			Object.keys(this.listQuery).forEach((key) => {
-				if (Array.isArray(this.listQuery[key])) {
-					res[key] = this.listQuery[key]
-						.map((queryProperty) => {
+			// We loop through the query and join all arrays to strings
+			var res = {};
+			var extractObjectKey = Object.keys(this.valueMap);
+
+			Object.keys(this.listQuery).forEach(function (key) {
+				if (Array.isArray(this$1.listQuery[key])) {
+					res[key] = this$1.listQuery[key]
+						.map(function (queryProperty) {
 							// if queryProperty contains a 'value' property return that
 							if (queryProperty && typeof queryProperty.value !== 'undefined') {
 								return queryProperty.value;
@@ -190,18 +202,18 @@ var script = {
 							 * and use exposed value mapping for grapping object value.
 							 */
 					res[key] = !extractObjectKey.includes(key)
-						? this.listQuery[key]
-						: this.listQuery[key][this.valueMap[key]];
+						? this$1.listQuery[key]
+						: this$1.listQuery[key][this$1.valueMap[key]];
 				}
 			});
 			return res;
 		},
-		validQuery() {
+		validQuery: function validQuery() {
 			return (typeof this.validateQuery === 'function')
 				? this.validateQuery(this.listQuery)
 				: this.validateQuery;
 		},
-		requestParams() {
+		requestParams: function requestParams() {
 			return Object.assign({}, {
 				limit: this.result.pagination.limit,
 				offset: this.result.pagination.offset,
@@ -211,14 +223,14 @@ var script = {
 	},
 	watch: {
 		query: {
-			handler() {
+			handler: function handler() {
 				this.states.loading = true;
 				this.updateListQuery();
 			},
 			deep: true,
 		},
 		listQuery: {
-			handler() {
+			handler: function handler() {
 				if (this.liveSearch && this.validQuery) {
 					this.handleUserSearch();
 				} else if (!this.validQuery) {
@@ -236,13 +248,13 @@ var script = {
 			}
 		},
 		result: {
-			handler(value) {
+			handler: function handler(value) {
 				this.$emit('result', value);
 			},
 			deep: true,
 		},
 	},
-	mounted() {
+	mounted: function mounted() {
 		// Do fetch on mount, if configured to or if initiated with valid query from url params
 		if (this.config.loadFetch || this.validQuery) {
 			this.request();
@@ -254,54 +266,61 @@ var script = {
 		}, 200),
 		// This method runs on liveSearch = true, so we make sure to debounce it by 100ms
 		// so we don't spam the server needlessly
-		handleUserSearch() {
+		handleUserSearch: function handleUserSearch() {
+			var this$1 = this;
+
 			if (this.validQuery) {
-				Object.keys(this.listQuery).forEach((key) => {
-					const changedKey = this.listQuery[key] !== this.previousQuery[key];
-					const isFilterKey = this.filterKeys.includes(key);
+				Object.keys(this.listQuery).forEach(function (key) {
+					var changedKey = this$1.listQuery[key] !== this$1.previousQuery[key];
+					var isFilterKey = this$1.filterKeys.includes(key);
 
 					if (changedKey && isFilterKey) {
-						this.filterData();
+						this$1.filterData();
 					} else if (changedKey) {
-						this.request();
+						this$1.request();
 					}
 
 					if (changedKey) {
-						Object.assign(this.previousQuery, this.listQuery);
+						Object.assign(this$1.previousQuery, this$1.listQuery);
 					}
 				});
 			} else {
 				this.resetPagination();
 			}
 		},
-		nativeSearchHandling() {
+		nativeSearchHandling: function nativeSearchHandling() {
 			this.validQuery
 				// Handle pressing enter
 				? this.request()
 				// Handle clearing input
 				: this.resetPagination();
 		},
-		setCurrentPage(pageNo) {
+		setCurrentPage: function setCurrentPage(pageNo) {
 			this.pages.current = pageNo;
 		},
-		getCurrentPage() {
+		getCurrentPage: function getCurrentPage() {
 			return this.pages.current;
 		},
-		pageNoToIndex(value) {
+		pageNoToIndex: function pageNoToIndex(value) {
 			return value ? --value : 0;
 		},
-		requestedPageIsFetched(pageNoRequested) {
-			const { data } = this.result;
+		requestedPageIsFetched: function requestedPageIsFetched(pageNoRequested) {
+			var ref = this.result;
+			var data = ref.data;
 
 			return data[pageNoRequested - 1];
 		},
-		filterData() {
-			const { groups, pagination: { total } } = this.result;
+		filterData: function filterData() {
+			var this$1 = this;
 
-			const currentArea = groups
-				? groups.find(area => area.id === this.listQuery.area)
+			var ref = this.result;
+			var groups = ref.groups;
+			var total = ref.pagination.total;
+
+			var currentArea = groups
+				? groups.find(function (area) { return area.id === this$1.listQuery.area; })
 				: null;
-			const currentAreaCount = (currentArea && currentArea.count)
+			var currentAreaCount = (currentArea && currentArea.count)
 				? currentArea.count
 				: total;
 
@@ -310,9 +329,12 @@ var script = {
 
 			this.request('filter');
 		},
-		more(all) {
-			const { limit, total, offset } = this.result.pagination;
-			const newPagination = { offset: offset + limit };
+		more: function more(all) {
+			var ref = this.result.pagination;
+			var limit = ref.limit;
+			var total = ref.total;
+			var offset = ref.offset;
+			var newPagination = { offset: offset + limit };
 
 			if (all) {
 				newPagination.limit = total - offset;
@@ -322,8 +344,10 @@ var script = {
 
 			this.request('append');
 		},
-		goTo(target) {
-			const { limit, offset } = this.result.pagination;
+		goTo: function goTo(target) {
+			var ref = this.result.pagination;
+			var limit = ref.limit;
+			var offset = ref.offset;
 
 			if (target === 'next') {
 				this.setCurrentPage(Math.min(this.getCurrentPage() + 1, this.pages.max));
@@ -344,65 +368,76 @@ var script = {
 				this.request('page', this.getCurrentPage());
 			}
 		},
-		request(type = 'clean', pageNo = 1) {
+		request: function request(type, pageNo) {
+			var this$1 = this;
+			if ( type === void 0 ) type = 'clean';
+			if ( pageNo === void 0 ) pageNo = 1;
+
 			this.states.loading = true;
-			const { total, offset } = this.result.pagination;
+			var ref = this.result.pagination;
+			var total = ref.total;
+			var offset = ref.offset;
 
 			if (!this.states.hasFetchedOnce) {
 				this.states.hasFetchedOnce = true;
 			}
 
 			this.fetch()
-				.then((result) => {
-					const firstFetch = total === null || offset === 0;
-					const totalChanged = total !== result.pagination.total;
-					const filterNotRequested = type !== 'filter';
+				.then(function (result) {
+					var firstFetch = total === null || offset === 0;
+					var totalChanged = total !== result.pagination.total;
+					var filterNotRequested = type !== 'filter';
 
 					if (!firstFetch && totalChanged && filterNotRequested) {
 						// if total has changed refetch entire list and replace
-						this.fetch(Object.assign({}, this.requestParams, {
-							limit: this.limitEnd, // hvorfor limit = limitEnd?
+						this$1.fetch(Object.assign({}, this$1.requestParams, {
+							limit: this$1.limitEnd, // hvorfor limit = limitEnd?
 							offset: 0,
-						})).then((secondaryResult) => {
-							this.dataParser(secondaryResult, type, pageNo);
+						})).then(function (secondaryResult) {
+							this$1.dataParser(secondaryResult, type, pageNo);
 						});
 					} else {
-						this.dataParser(result, type, pageNo);
+						this$1.dataParser(result, type, pageNo);
 					}
 				})
 				.catch(this.catchError);
 		},
-		catchError(thrown) {
+		catchError: function catchError(thrown) {
 			// Only remove spinner etc. if request was not cancelled (by a new request)
 			if (!axios.isCancel(thrown)) {
 				this.states.loading = false;
 			}
 			// TODO: handle error?⁄
 		},
-		dataParser(result, type = 'clean', pageNo) {
-			const { data, pagination, areas } = result;
+		dataParser: function dataParser(result, type, pageNo) {
+			var this$1 = this;
+			if ( type === void 0 ) type = 'clean';
+
+			var data = result.data;
+			var pagination = result.pagination;
+			var areas = result.areas;
 
 			this.pages.max = Math.ceil(pagination.total / pagination.limit);
 
-			const dataActions = {
-				append: () => {
+			var dataActions = {
+				append: function () {
 					// Append fetched result to existing.
-					this.setResultData([...this.result.data[0], ...data]);
+					this$1.setResultData(this$1.result.data[0].concat( data));
 				},
-				page: () => {
-					this.setResultData(data, this.pageNoToIndex(pageNo));
+				page: function () {
+					this$1.setResultData(data, this$1.pageNoToIndex(pageNo));
 				},
-				clean: () => {
+				clean: function () {
 					// Reset result object to newly fetched result.
-					this.setResultData(data, this.pageNoToIndex(pageNo));
-					this.setPagination({ offset: 0, total: pagination.total });
-					this.setGroups(areas);
+					this$1.setResultData(data, this$1.pageNoToIndex(pageNo));
+					this$1.setPagination({ offset: 0, total: pagination.total });
+					this$1.setGroups(areas);
 				},
-				filter: () => {
+				filter: function () {
 					// Resets all, but group info and query
-					this.deleteResultData();
+					this$1.deleteResultData();
 
-					this.setResultData(data, this.pageNoToIndex(pageNo));
+					this$1.setResultData(data, this$1.pageNoToIndex(pageNo));
 				},
 			};
 
@@ -411,16 +446,19 @@ var script = {
 			// add any unknown custom result props to result object, since we only
 			// handle data, pagination and areas above
 			Object.keys(result)
-				.filter((key) => {
+				.filter(function (key) {
 					return key !== 'data' && key !== 'pagination' && key !== 'areas';
 				})
-				.forEach((key) => {
-					this.result[key] = result[key];
+				.forEach(function (key) {
+					this$1.result[key] = result[key];
 				});
 
 			this.states.loading = false;
 		},
-		fetch(params = this.requestParams) {
+		fetch: function fetch(params) {
+			var this$1 = this;
+			if ( params === void 0 ) params = this.requestParams;
+
 			// Cancel previous request
 			if (this.states.cancelToken) {
 				this.states.cancelToken.cancel();
@@ -431,58 +469,63 @@ var script = {
 			// Update url with request params
 			this.updateUrlParams(params);
 
-			return new Promise((resolve, reject) => {
+			return new Promise(function (resolve, reject) {
 				axios({
-					url: this.config.api,
+					url: this$1.config.api,
 					method: 'GET',
-					params: this.transformParams(params),
-					cancelToken: this.states.cancelToken.token,
-				}).then((result) => {
+					params: this$1.transformParams(params),
+					cancelToken: this$1.states.cancelToken.token,
+				}).then(function (result) {
 					if (result.data) {
-						resolve(this.transformResult(result.data));
+						resolve(this$1.transformResult(result.data));
 					}
 					reject(result);
-				}).catch((err) => {
+				}).catch(function (err) {
 					reject(err);
 				});
 			});
 		},
-		updateUrlParams(params) {
+		updateUrlParams: function updateUrlParams(params) {
 			setQueryParams(params);
 		},
-		resetQuery() {
-			this.filterKeys.forEach((param) => {
-				this.listQuery[param] = this.filter[param];
+		resetQuery: function resetQuery() {
+			var this$1 = this;
+
+			this.filterKeys.forEach(function (param) {
+				this$1.listQuery[param] = this$1.filter[param];
 			});
 
 			this.resetPagination();
 		},
-		resetPagination() {
+		resetPagination: function resetPagination() {
 			this.setPagination({ offset: 0, total: 0 });
 		},
-		setGroups(groups) {
+		setGroups: function setGroups(groups) {
 			this.$set(this.result, 'groups', groups);
 		},
-		setPagination(pagination) {
+		setPagination: function setPagination(pagination) {
 			this.$set(this.result, 'pagination', Object.assign(this.result.pagination, pagination));
 		},
-		setResultData(data, index = 0) {
-			for (let i = 0; i < index; i++) {
-				if (!this.result.data[i]) {
-					this.result.data.splice(i, 1, null);
+		setResultData: function setResultData(data, index) {
+			var this$1 = this;
+			if ( index === void 0 ) index = 0;
+
+			for (var i = 0; i < index; i++) {
+				if (!this$1.result.data[i]) {
+					this$1.result.data.splice(i, 1, null);
 				}
 			}
 
 			this.result.data.splice(index, 1, data);
 		},
-		deleteResultData() {
+		deleteResultData: function deleteResultData() {
 			this.result.data.splice(0);
 		},
 	},
 };
 
 /* script */
-            const __vue_script__ = script;
+            var __vue_script__ = script;
             
 /* template */
 var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:['sky-list', { loading : _vm.states.loading }]},[(_vm.$scopedSlots.listForm)?_vm._ssrNode("<div class=\"sky-list-form\">","</div>",[_vm._t("listForm",null,{query:_vm.listQuery,result:_vm.result,newRequest:_vm.handleUserSearch,nativeSearchHandler:_vm.nativeSearchHandling})],2):_vm._e(),_vm._ssrNode(" "),((_vm.validQuery || _vm.config.loadFetch)
@@ -492,24 +535,24 @@ var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=
 var __vue_staticRenderFns__ = [];
 
   /* style */
-  const __vue_inject_styles__ = function (inject) {
-    if (!inject) return
+  var __vue_inject_styles__ = function (inject) {
+    if (!inject) { return }
     inject("data-v-ed180d66_0", { source: "\n.sky-list .sky-reveal{min-height:0\n}\n.sky-list-content{width:100%;text-align:center\n}\n.sky-list-message{text-align:left\n}\n.sky-list-result{position:relative;transition:opacity .2s 0s;text-align:left;transition-delay:.3s\n}\nul{display:flex\n}\n.loading &{pointer-events:none\n}", map: undefined, media: undefined });
 
   };
   /* scoped */
-  const __vue_scope_id__ = undefined;
+  var __vue_scope_id__ = undefined;
   /* module identifier */
-  const __vue_module_identifier__ = "data-v-ed180d66";
+  var __vue_module_identifier__ = "data-v-ed180d66";
   /* functional template */
-  const __vue_is_functional_template__ = false;
+  var __vue_is_functional_template__ = false;
   /* component normalizer */
   function __vue_normalize__(
     template, style, script$$1,
     scope, functional, moduleIdentifier,
     createInjector, createInjectorSSR
   ) {
-    const component = (typeof script$$1 === 'function' ? script$$1.options : script$$1) || {};
+    var component = (typeof script$$1 === 'function' ? script$$1.options : script$$1) || {};
 
     // For security concerns, we use only base name in production mode.
     component.__file = "SkyList.vue";
@@ -519,13 +562,13 @@ var __vue_staticRenderFns__ = [];
       component.staticRenderFns = template.staticRenderFns;
       component._compiled = true;
 
-      if (functional) component.functional = true;
+      if (functional) { component.functional = true; }
     }
 
     component._scopeId = scope;
 
     {
-      let hook;
+      var hook;
       {
         // In SSR.
         hook = function(context) {
@@ -555,14 +598,14 @@ var __vue_staticRenderFns__ = [];
       if (hook !== undefined) {
         if (component.functional) {
           // register for functional component in vue file
-          const originalRender = component.render;
+          var originalRender = component.render;
           component.render = function renderWithStyleInjection(h, context) {
             hook.call(context);
             return originalRender(h, context)
           };
         } else {
           // inject component registration as beforeCreate hook
-          const existing = component.beforeCreate;
+          var existing = component.beforeCreate;
           component.beforeCreate = existing ? [].concat(existing, hook) : [hook];
         }
       }
@@ -578,19 +621,24 @@ var __vue_staticRenderFns__ = [];
       context = __VUE_SSR_CONTEXT__;
     }
 
-    if (!context) return function () {}
+    if (!context) { return function () {} }
 
     if (!context.hasOwnProperty('styles')) {
       Object.defineProperty(context, 'styles', {
         enumerable: true,
-        get: () => context._styles
+        get: function () { return context._styles; }
       });
       context._renderStyles = renderStyles;
     }
 
     function renderStyles(styles) {
-      let css = '';
-      for (const {ids, media, parts} of styles) {
+      var css = '';
+      for (var i = 0, list = styles; i < list.length; i += 1) {
+        var ref = list[i];
+        var ids = ref.ids;
+        var media = ref.media;
+        var parts = ref.parts;
+
         css +=
           '<style data-vue-ssr-id="' + ids.join(' ') + '"' + (media ? ' media="' + media + '"' : '') + '>'
           + parts.join('\n') +
@@ -601,13 +649,13 @@ var __vue_staticRenderFns__ = [];
     }
 
     return function addStyle(id, css) {
-      const group = css.media || 'default';
-      const style = context._styles[group] || (context._styles[group] = { ids: [], parts: [] });
+      var group = css.media || 'default';
+      var style = context._styles[group] || (context._styles[group] = { ids: [], parts: [] });
 
       if (!style.ids.includes(id)) {
         style.media = css.media;
         style.ids.push(id);
-        let code = css.source;
+        var code = css.source;
         style.parts.push(code);
       }
     }
@@ -625,7 +673,7 @@ var __vue_staticRenderFns__ = [];
     __vue_create_injector_ssr__
   );
 
-const defaults = {
+var defaults = {
 	registerComponents: true,
 };
 
@@ -634,7 +682,8 @@ function install(Vue, options) {
 		return;
 	}
 
-	const { registerComponents } = Object.assign({}, defaults, options);
+	var ref = Object.assign({}, defaults, options);
+	var registerComponents = ref.registerComponents;
 
 	if (registerComponents) {
 		Vue.component(SkyList.name, SkyList);
