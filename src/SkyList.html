@@ -1,152 +1,64 @@
 <div :class="['sky-list', { loading : states.loading }]">
-	<div
-		v-if="$scopedSlots.listForm"
-		class="sky-list-form"
+	<slot
+		:query="listQuery"
+		:result="result.data"
+		:areas="result.groups"
+		:states="states"
+		:pagination="result.pagination"
+		:fetch="more"
+		:newRequest="handleUserSearch"
+		:nativeSearchHandler="nativeSearchHandling"
 	>
-		<slot
-			name="listForm"
-			:query="listQuery"
-			:result="result"
-			:newRequest="handleUserSearch"
-			:nativeSearchHandler="nativeSearchHandling"
-		/>
-	</div>
+		<div class="sky-list-form">
+			<input
+				type="text"
+				v-model="listQuery.keywords"
+			/>
+		</div>
 
-	<div
-		v-if="(validQuery || config.loadFetch)
-			&& (filterKeys.length > 0)
-			&& states.hasFetchedOnce
-			&& $scopedSlots.filters"
-		class="sky-list-filter"
-	>
-		<slot
-			name="filters"
-			:query="listQuery"
-			:result="result"
-			:areas="result.groups"
-		/>
-	</div>
-
-	<div
-		v-if="(validQuery || config.loadFetch)"
-		class="sky-list-content"
-	>
 		<div
-			v-if="config.showCount && states.hasFetchedOnce"
-			class="sky-list-message"
+			v-if="(validQuery || config.immediate)"
+			class="sky-list-content"
 		>
-			<slot
-				v-if="currentResultSet.length > 0"
-				name="resultMessage"
-				:query="listQuery"
-				:pagination="result.pagination"
+			<div
+				v-if="config.showCount && states.hasFetchedOnce && (currentResultSet.length > 0)"
+				class="sky-list-message"
 			>
 				<span>
 					Your search for <em>"{{listQuery.keywords}}"</em> returned <em>{{result.pagination.total}} {{(result.pagination.total === 1) ? 'result' : 'results'}}</em>
 				</span>
-			</slot>
-		</div>
-
-		<div
-			v-if="currentResultSet.length > 0"
-			class="sky-list-result"
-		>
-			<ul>
-				<li
-					class="sky-list-item"
-					v-for="(item, index) in currentResultSet"
-					:key="item.id"
-				>
-					<slot
-						name="listItem"
-						:item="item"
-						:index="index"
-					/>
-				</li>
-			</ul>
-			<div
-				v-if="$scopedSlots.listAside"
-				class="sky-list-aside"
-			>
-				<slot
-					name="listAside"
-					:query="listQuery"
-					:result="result"
-				/>
 			</div>
-		</div>
-		<div
-			v-else-if="states.hasFetchedOnce"
-			class="sky-list-result empty"
-		>
-			<slot
-				name="noResultMessage"
-				:query="listQuery"
+
+			<div
+				v-if="currentResultSet.length > 0"
+				class="sky-list-result"
+			>
+				<ul>
+					<li
+						class="sky-list-item"
+						v-for="(item, index) in currentResultSet"
+						:key="item.id"
+					>
+						<span v-text="`Result item with ID: ${item.id}`" />
+					</li>
+				</ul>
+
+			</div>
+			<div
+				v-else-if="states.hasFetchedOnce"
+				class="sky-list-result empty"
 			>
 				<span v-text="'Your search returned no results'" />
-			</slot>
-		</div>
+			</div>
 
-		<div
-			v-if="showPagination"
-			:class="['sky-list-pagination', `type-${config.paginationType}`]"
-		>
-			<!-- SHOW MORE / ALL -->
-			<button
-				v-if="morePagination"
-				@click="more(config.paginationType === 'all')"
-				class="sky-list-more"
-			>
-				<slot
-					name="listMore"
-					:itemsLeft="itemsLeft"
+			<div :class="sky-list-pagination">
+				<button
+					@click="more(true)"
+					class="sky-list-more"
 				>
-					<span v-text="`Show ${config.paginationType}`" />
-				</slot>
-			</button>
-
-			<!-- NUMERIC LIST-->
-			<ul
-				v-if="numericPagination"
-				class="sky-list-numeric"
-			>
-				<li
-					:class="{ current: pages.current === n }"
-					v-for="n in pages.max"
-				>
-					<button @click="goTo(n)">
-						<slot
-							name="paginationBullet"
-							:count="n"
-						>
-							<span v-text="n" />
-						</slot>
-					</button>
-				</li>
-			</ul>
-
-			<!-- NEXT + PREVIOUS -->
-			<button
-				v-if="flowPagination"
-				@click="goTo('previous')"
-				class="sky-list-previous"
-			>
-				<slot name="listPrev">
-					<span>Previous</span>
-				</slot>
-			</button>
-
-			<button
-				v-if="flowPagination"
-				@click="goTo('next')"
-				class="sky-list-next"
-			>
-				<slot name="listNext">
-					<span>Next</span>
-				</slot>
-			</button>
+					<span v-text="`Show All`" />
+				</button>
+			</div>
 		</div>
-
-	</div>
-
+	</slot>
 </div>

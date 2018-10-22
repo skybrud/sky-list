@@ -14,7 +14,7 @@ var defaultOptions = {
 	showCount: false,
 	filterType: 'request',
 	paginationType: 'more', // navigation | pagination | more | all | numeric
-	loadFetch: false,
+	immediate: false,
 };
 
 function getQueryParams() {
@@ -53,9 +53,9 @@ var script = {
 			type: Object,
 			default: function () { return ({}); },
 		},
-		parameters: {
+		initialValues: {
 			type: Object,
-			default: function () { return ({ keywords: '' }); },
+			default: function () { return ({}); },
 		},
 		options: {
 			type: Object,
@@ -63,6 +63,7 @@ var script = {
 		},
 		validateQuery: {
 			type: Function,
+			required: true,
 			default: function (query) { return query.keywords; },
 		},
 		liveSearch: {
@@ -84,7 +85,7 @@ var script = {
 			listQuery: Object.assign(
 				{},
 				this.filter,
-				this.parameters,
+				this.initialValues,
 				this.query,
 				getQueryParams() // initiate with query params from url
 			),
@@ -256,13 +257,13 @@ var script = {
 	},
 	mounted: function mounted() {
 		// Do fetch on mount, if configured to or if initiated with valid query from url params
-		if (this.config.loadFetch || this.validQuery) {
+		if (this.config.immediate || this.validQuery) {
 			this.request();
 		}
 	},
 	methods: {
 		updateListQuery: debounce(function() {
-			this.$set(this, 'listQuery', Object.assign({}, this.filter, this.parameters, this.query));
+			this.$set(this, 'listQuery', Object.assign({}, this.filter, this.initialValues, this.query));
 		}, 200),
 		// This method runs on liveSearch = true, so we make sure to debounce it by 100ms
 		// so we don't spam the server needlessly
@@ -526,20 +527,12 @@ var script = {
 
 /* script */
             var __vue_script__ = script;
-            
 /* template */
-var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:['sky-list', { loading : _vm.states.loading }]},[(_vm.$scopedSlots.listForm)?_vm._ssrNode("<div class=\"sky-list-form\">","</div>",[_vm._t("listForm",null,{query:_vm.listQuery,result:_vm.result,newRequest:_vm.handleUserSearch,nativeSearchHandler:_vm.nativeSearchHandling})],2):_vm._e(),_vm._ssrNode(" "),((_vm.validQuery || _vm.config.loadFetch)
-			&& (_vm.filterKeys.length > 0)
-			&& _vm.states.hasFetchedOnce
-			&& _vm.$scopedSlots.filters)?_vm._ssrNode("<div class=\"sky-list-filter\">","</div>",[_vm._t("filters",null,{query:_vm.listQuery,result:_vm.result,areas:_vm.result.groups})],2):_vm._e(),_vm._ssrNode(" "),((_vm.validQuery || _vm.config.loadFetch))?_vm._ssrNode("<div class=\"sky-list-content\">","</div>",[(_vm.config.showCount && _vm.states.hasFetchedOnce)?_vm._ssrNode("<div class=\"sky-list-message\">","</div>",[(_vm.currentResultSet.length > 0)?_vm._t("resultMessage",[_c('span',[_vm._v("\n\t\t\t\t\tYour search for "),_c('em',[_vm._v("\""+_vm._s(_vm.listQuery.keywords)+"\"")]),_vm._v(" returned "),_c('em',[_vm._v(_vm._s(_vm.result.pagination.total)+" "+_vm._s((_vm.result.pagination.total === 1) ? 'result' : 'results'))])])],{query:_vm.listQuery,pagination:_vm.result.pagination}):_vm._e()],2):_vm._e(),_vm._ssrNode(" "),(_vm.currentResultSet.length > 0)?_vm._ssrNode("<div class=\"sky-list-result\">","</div>",[_vm._ssrNode("<ul>","</ul>",_vm._l((_vm.currentResultSet),function(item,index){return _vm._ssrNode("<li class=\"sky-list-item\">","</li>",[_vm._t("listItem",null,{item:item,index:index})],2)})),_vm._ssrNode(" "),(_vm.$scopedSlots.listAside)?_vm._ssrNode("<div class=\"sky-list-aside\">","</div>",[_vm._t("listAside",null,{query:_vm.listQuery,result:_vm.result})],2):_vm._e()],2):(_vm.states.hasFetchedOnce)?_vm._ssrNode("<div class=\"sky-list-result empty\">","</div>",[_vm._t("noResultMessage",[_c('span',{domProps:{"textContent":_vm._s('Your search returned no results')}})],{query:_vm.listQuery})],2):_vm._e(),_vm._ssrNode(" "),(_vm.showPagination)?_vm._ssrNode("<div"+(_vm._ssrClass(null,['sky-list-pagination', ("type-" + (_vm.config.paginationType))]))+">","</div>",[(_vm.morePagination)?_vm._ssrNode("<button class=\"sky-list-more\">","</button>",[_vm._t("listMore",[_c('span',{domProps:{"textContent":_vm._s(("Show " + (_vm.config.paginationType)))}})],{itemsLeft:_vm.itemsLeft})],2):_vm._e(),_vm._ssrNode(" "),(_vm.numericPagination)?_vm._ssrNode("<ul class=\"sky-list-numeric\">","</ul>",_vm._l((_vm.pages.max),function(n){return _vm._ssrNode("<li"+(_vm._ssrClass(null,{ current: _vm.pages.current === n }))+">","</li>",[_vm._ssrNode("<button>","</button>",[_vm._t("paginationBullet",[_c('span',{domProps:{"textContent":_vm._s(n)}})],{count:n})],2)])})):_vm._e(),_vm._ssrNode(" "),(_vm.flowPagination)?_vm._ssrNode("<button class=\"sky-list-previous\">","</button>",[_vm._t("listPrev",[_c('span',[_vm._v("Previous")])])],2):_vm._e(),_vm._ssrNode(" "),(_vm.flowPagination)?_vm._ssrNode("<button class=\"sky-list-next\">","</button>",[_vm._t("listNext",[_c('span',[_vm._v("Next")])])],2):_vm._e()],2):_vm._e()],2):_vm._e()],2)};
+var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:['sky-list', { loading : _vm.states.loading }]},[_vm._t("default",[_c('div',{staticClass:"sky-list-form"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.listQuery.keywords),expression:"listQuery.keywords"}],attrs:{"type":"text"},domProps:{"value":(_vm.listQuery.keywords)},on:{"input":function($event){if($event.target.composing){ return; }_vm.$set(_vm.listQuery, "keywords", $event.target.value);}}})]),_vm._v(" "),((_vm.validQuery || _vm.config.immediate))?_c('div',{staticClass:"sky-list-content"},[(_vm.config.showCount && _vm.states.hasFetchedOnce && (_vm.currentResultSet.length > 0))?_c('div',{staticClass:"sky-list-message"},[_c('span',[_vm._v("\n\t\t\t\t\tYour search for "),_c('em',[_vm._v("\""+_vm._s(_vm.listQuery.keywords)+"\"")]),_vm._v(" returned "),_c('em',[_vm._v(_vm._s(_vm.result.pagination.total)+" "+_vm._s((_vm.result.pagination.total === 1) ? 'result' : 'results'))])])]):_vm._e(),_vm._v(" "),(_vm.currentResultSet.length > 0)?_c('div',{staticClass:"sky-list-result"},[_c('ul',_vm._l((_vm.currentResultSet),function(item,index){return _c('li',{key:item.id,staticClass:"sky-list-item"},[_c('span',{domProps:{"textContent":_vm._s(("Result item with ID: " + (item.id)))}})])}))]):(_vm.states.hasFetchedOnce)?_c('div',{staticClass:"sky-list-result empty"},[_c('span',{domProps:{"textContent":_vm._s('Your search returned no results')}})]):_vm._e(),_vm._v(" "),_c('div',{class:_vm.sky-_vm.list-_vm.pagination},[_c('button',{staticClass:"sky-list-more",on:{"click":function($event){_vm.more(true);}}},[_c('span',{domProps:{"textContent":_vm._s("Show All")}})])])]):_vm._e()],{query:_vm.listQuery,result:_vm.result.data,areas:_vm.result.groups,states:_vm.states,pagination:_vm.result.pagination,fetch:_vm.more,newRequest:_vm.handleUserSearch,nativeSearchHandler:_vm.nativeSearchHandling})],2)};
 var __vue_staticRenderFns__ = [];
 
   /* style */
-  var __vue_inject_styles__ = function (inject) {
-    if (!inject) { return }
-    inject("data-v-ed180d66_0", { source: "\n.sky-list .sky-reveal{min-height:0\n}\n.sky-list-content{width:100%;text-align:center\n}\n.sky-list-message{text-align:left\n}\n.sky-list-result{position:relative;transition:opacity .2s 0s;text-align:left;transition-delay:.3s\n}\nul{display:flex\n}\n.loading &{pointer-events:none\n}", map: undefined, media: undefined });
-
-  };
+  var __vue_inject_styles__ = undefined;
   /* scoped */
   var __vue_scope_id__ = undefined;
   /* module identifier */
@@ -567,99 +560,12 @@ var __vue_staticRenderFns__ = [];
 
     component._scopeId = scope;
 
-    {
-      var hook;
-      {
-        // In SSR.
-        hook = function(context) {
-          // 2.3 injection
-          context =
-            context || // cached call
-            (this.$vnode && this.$vnode.ssrContext) || // stateful
-            (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext); // functional
-          // 2.2 with runInNewContext: true
-          if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
-            context = __VUE_SSR_CONTEXT__;
-          }
-          // inject component styles
-          if (style) {
-            style.call(this, createInjectorSSR(context));
-          }
-          // register component module identifier for async chunk inference
-          if (context && context._registeredComponents) {
-            context._registeredComponents.add(moduleIdentifier);
-          }
-        };
-        // used by ssr in case component is cached and beforeCreate
-        // never gets called
-        component._ssrRegister = hook;
-      }
-
-      if (hook !== undefined) {
-        if (component.functional) {
-          // register for functional component in vue file
-          var originalRender = component.render;
-          component.render = function renderWithStyleInjection(h, context) {
-            hook.call(context);
-            return originalRender(h, context)
-          };
-        } else {
-          // inject component registration as beforeCreate hook
-          var existing = component.beforeCreate;
-          component.beforeCreate = existing ? [].concat(existing, hook) : [hook];
-        }
-      }
-    }
-
     return component
   }
   /* style inject */
   
   /* style inject SSR */
-  function __vue_create_injector_ssr__(context) {
-    if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
-      context = __VUE_SSR_CONTEXT__;
-    }
-
-    if (!context) { return function () {} }
-
-    if (!context.hasOwnProperty('styles')) {
-      Object.defineProperty(context, 'styles', {
-        enumerable: true,
-        get: function () { return context._styles; }
-      });
-      context._renderStyles = renderStyles;
-    }
-
-    function renderStyles(styles) {
-      var css = '';
-      for (var i = 0, list = styles; i < list.length; i += 1) {
-        var ref = list[i];
-        var ids = ref.ids;
-        var media = ref.media;
-        var parts = ref.parts;
-
-        css +=
-          '<style data-vue-ssr-id="' + ids.join(' ') + '"' + (media ? ' media="' + media + '"' : '') + '>'
-          + parts.join('\n') +
-          '</style>';
-      }
-
-      return css
-    }
-
-    return function addStyle(id, css) {
-      var group = css.media || 'default';
-      var style = context._styles[group] || (context._styles[group] = { ids: [], parts: [] });
-
-      if (!style.ids.includes(id)) {
-        style.media = css.media;
-        style.ids.push(id);
-        var code = css.source;
-        style.parts.push(code);
-      }
-    }
-  }
+  
 
   
   var SkyList = __vue_normalize__(
@@ -670,7 +576,7 @@ var __vue_staticRenderFns__ = [];
     __vue_is_functional_template__,
     __vue_module_identifier__,
     undefined,
-    __vue_create_injector_ssr__
+    undefined
   );
 
 var defaults = {

@@ -8,7 +8,7 @@ const defaultOptions = {
 	showCount: false,
 	filterType: 'request',
 	paginationType: 'more', // navigation | pagination | more | all | numeric
-	loadFetch: false,
+	immediate: false,
 };
 
 function getQueryParams() {
@@ -45,9 +45,9 @@ export default {
 			type: Object,
 			default: () => ({}),
 		},
-		parameters: {
+		initialValues: {
 			type: Object,
-			default: () => ({ keywords: '' }),
+			default: () => ({}),
 		},
 		options: {
 			type: Object,
@@ -55,7 +55,8 @@ export default {
 		},
 		validateQuery: {
 			type: Function,
-			default: query => query.keywords,
+			required: true,
+			default: (query) => query.keywords,
 		},
 		liveSearch: {
 			type: Boolean,
@@ -76,7 +77,7 @@ export default {
 			listQuery: Object.assign(
 				{},
 				this.filter,
-				this.parameters,
+				this.initialValues,
 				this.query,
 				getQueryParams(), // initiate with query params from url
 			),
@@ -238,13 +239,13 @@ export default {
 	},
 	mounted() {
 		// Do fetch on mount, if configured to or if initiated with valid query from url params
-		if (this.config.loadFetch || this.validQuery) {
+		if (this.config.immediate || this.validQuery) {
 			this.request();
 		}
 	},
 	methods: {
 		updateListQuery: debounce(function() {
-			this.$set(this, 'listQuery', Object.assign({}, this.filter, this.parameters, this.query));
+			this.$set(this, 'listQuery', Object.assign({}, this.filter, this.initialValues, this.query));
 		}, 200),
 		// This method runs on liveSearch = true, so we make sure to debounce it by 100ms
 		// so we don't spam the server needlessly

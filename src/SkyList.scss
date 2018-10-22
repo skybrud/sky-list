@@ -1,8 +1,13 @@
-.sky-list .sky-reveal {
-	min-height: 0;
+.sky-list {
+	&.loading {
+		.sky-list-result {
+			opacity: 0.2;
+			transition-delay: 0.3s;
+		}
 
-	&:after {
-		content: none;
+		.sky-list-pagination {
+			pointer-events: none;
+		}
 	}
 }
 
@@ -20,11 +25,6 @@
 	transition: opacity 0.2s 0s;
 	text-align: left;
 
-	.loading & {
-		opacity: 0.2;
-		transition-delay: 0.3s;
-	}
-
 	ul {
 		display: flex;
 	}
@@ -33,10 +33,6 @@
 .sky-list-pagination {
 	button {
 		flex-shrink: 0;
-	}
-
-	.loading & {
-		pointer-events: none;
 	}
 }
 

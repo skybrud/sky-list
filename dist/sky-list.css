@@ -1,0 +1,13 @@
+.sky-list {
+  transition-delay: .3s; }
+
+.sky-list-pagination {
+  pointer-events: none; }
+
+.sky-list-message {
+  text-align: left; }
+
+.sky-list-result {
+  position: relative;
+  transition: opacity .2s 0s;
+  text-align: left; }
