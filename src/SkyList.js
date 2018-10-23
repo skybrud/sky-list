@@ -343,10 +343,6 @@ export default {
 			this.states.loading = true;
 			const { total, offset } = this.result.pagination;
 
-			if (!this.states.hasFetchedOnce) {
-				this.states.hasFetchedOnce = true;
-			}
-
 			this.fetch()
 				.then((result) => {
 					const firstFetch = total === null || offset === 0;
@@ -363,6 +359,11 @@ export default {
 						});
 					} else {
 						this.dataParser(result, type, pageNo);
+					}
+				})
+				.then(() => {
+					if (!this.states.hasFetchedOnce) {
+						this.states.hasFetchedOnce = true;
 					}
 				})
 				.catch(this.catchError);

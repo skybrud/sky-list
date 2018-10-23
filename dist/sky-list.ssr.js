@@ -379,10 +379,6 @@ var script = {
 			var total = ref.total;
 			var offset = ref.offset;
 
-			if (!this.states.hasFetchedOnce) {
-				this.states.hasFetchedOnce = true;
-			}
-
 			this.fetch()
 				.then(function (result) {
 					var firstFetch = total === null || offset === 0;
@@ -399,6 +395,11 @@ var script = {
 						});
 					} else {
 						this$1.dataParser(result, type, pageNo);
+					}
+				})
+				.then(function () {
+					if (!this$1.states.hasFetchedOnce) {
+						this$1.states.hasFetchedOnce = true;
 					}
 				})
 				.catch(this.catchError);
