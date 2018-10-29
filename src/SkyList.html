@@ -1,7 +1,7 @@
 <div :class="['sky-list', { loading : states.loading }]">
 	<slot
 		:query="listQuery"
-		:result="result.data"
+		:result="currentResultSet"
 		:areas="result.groups"
 		:states="states"
 		:pagination="result.pagination"
