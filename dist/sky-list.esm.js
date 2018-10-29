@@ -326,8 +326,6 @@ var script = {
 			this.request('filter');
 		},
 		more: function more(all) {
-			if ( all === void 0 ) all = false;
-
 			var ref = this.result.pagination;
 			var limit = ref.limit;
 			var total = ref.total;

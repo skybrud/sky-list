@@ -306,7 +306,7 @@ export default {
 
 			this.request('filter');
 		},
-		more(all = false) {
+		more(all) {
 			const { limit, total, offset } = this.result.pagination;
 			const newPagination = { offset: offset + limit };
 
