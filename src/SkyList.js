@@ -197,11 +197,12 @@ export default {
 				: this.validateQuery;
 		},
 		requestParams() {
-			return Object.assign({}, {
+			const rp = Object.assign({}, this.queryFlatArrays, {
 				limit: this.result.pagination.limit,
 				offset: this.result.pagination.offset,
-			},
-			this.queryFlatArrays);
+			});
+
+			return rp;
 		},
 	},
 	watch: {
@@ -305,7 +306,7 @@ export default {
 
 			this.request('filter');
 		},
-		more(all) {
+		more(all = false) {
 			const { limit, total, offset } = this.result.pagination;
 			const newPagination = { offset: offset + limit };
 

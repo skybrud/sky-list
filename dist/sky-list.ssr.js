@@ -215,11 +215,12 @@ var script = {
 				: this.validateQuery;
 		},
 		requestParams: function requestParams() {
-			return Object.assign({}, {
+			var rp = Object.assign({}, this.queryFlatArrays, {
 				limit: this.result.pagination.limit,
 				offset: this.result.pagination.offset,
-			},
-			this.queryFlatArrays);
+			});
+
+			return rp;
 		},
 	},
 	watch: {
@@ -331,6 +332,8 @@ var script = {
 			this.request('filter');
 		},
 		more: function more(all) {
+			if ( all === void 0 ) all = false;
+
 			var ref = this.result.pagination;
 			var limit = ref.limit;
 			var total = ref.total;
