@@ -22,13 +22,12 @@ function setQueryParams(params, skipNulls = true) {
 	if (typeof window !== 'undefined') {
 		const { protocol, host, pathname } = window.location;
 		const baseUrl = `${protocol}//${host}${pathname}`;
-		const qString = qs.stringify(params, {
+
+		window.history.replaceState('', '', `${baseUrl}${qs.stringify(params, {
 			skipNulls,
 			arrayFormat: 'repeat',
 			addQueryPrefix: true,
-		});
-		const q = qString || '';
-		window.history.replaceState('', '', `${baseUrl}${q}`);
+		})}`);
 	}
 }
 

@@ -34,13 +34,12 @@ function setQueryParams(params, skipNulls) {
 		var host = ref.host;
 		var pathname = ref.pathname;
 		var baseUrl = protocol + "//" + host + pathname;
-		var qString = qs.stringify(params, {
+
+		window.history.replaceState('', '', ("" + baseUrl + (qs.stringify(params, {
 			skipNulls: skipNulls,
 			arrayFormat: 'repeat',
 			addQueryPrefix: true,
-		});
-		var q = qString || '';
-		window.history.replaceState('', '', ("" + baseUrl + q));
+		}))));
 	}
 }
 
