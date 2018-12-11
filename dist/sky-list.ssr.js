@@ -29,9 +29,17 @@ function setQueryParams(params, skipNulls) {
 	if ( skipNulls === void 0 ) skipNulls = true;
 
 	if (typeof window !== 'undefined') {
-		var baseUrl = (window.location.protocol) + "//" + (window.location.host) + (window.location.pathname);
-		var qString = qs.stringify(params, { skipNulls: skipNulls });
-		var q = qString ? ("?" + qString) : '';
+		var ref = window.location;
+		var protocol = ref.protocol;
+		var host = ref.host;
+		var pathname = ref.pathname;
+		var baseUrl = protocol + "//" + host + pathname;
+		var qString = qs.stringify(params, {
+			skipNulls: skipNulls,
+			arrayFormat: 'repeat',
+			addQueryPrefix: true,
+		});
+		var q = qString || '';
 		window.history.replaceState('', '', ("" + baseUrl + q));
 	}
 }
@@ -72,7 +80,8 @@ var script = {
 			query: Object.assign(
 				{},
 				this.parameters,
-				getQueryParams() // initiate with query params from url
+				getQueryParams(), // initiate with query params from url
+				{ limit: this.options.limit || defaultOptions.limit }
 			),
 			config: Object.assign(
 				{},
@@ -87,23 +96,23 @@ var script = {
 			result: {
 				data: [],
 				pagination: {
-					limit: this.options.limit || defaultOptions.limit,
-					offset: 0,
+					limit: null,
+					offset: null,
 					total: null,
 				},
 			},
 		};
 	},
 	computed: {
-		// validQuery() {
-		// 	return (typeof this.validateQuery === 'function')
-		// 		? this.validateQuery(this.query)
-		// 		: this.validateQuery;
-		// },
+		validQuery: function validQuery() {
+			return (typeof this.validateQuery === 'function')
+				? this.validateQuery(this.query)
+				: this.validateQuery;
+		},
 	},
 	mounted: function mounted() {
 		// Do fetch on mount, if configured to or if initiated with valid query from url params
-		if (this.config.listType === 'more' && !Number(this.query.offset)) {
+		if (this.config.listType === 'more' && this.query.offset > 0) {
 			this.request('initial', Object.assign(
 				{},
 				this.query,
