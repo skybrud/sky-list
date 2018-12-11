@@ -7,19 +7,16 @@
 		<slot
 			:query="listQuery"
 			:result="currentResultSet"
-			:areas="result.groups"
 			:states="states"
 			:pagination="result.pagination"
 			:fetch="more"
-			:newRequest="handleUserSearch"
-			:nativeSearchHandler="nativeSearchHandling"
 		>
-			<div class="sky-list-form">
+			<!-- <div class="sky-list-form">
 				<input
 					type="text"
 					v-model="listQuery.keywords"
 				/>
-			</div>
+			</div> -->
 
 			<div
 				v-if="(validQuery || config.immediate)"
@@ -30,7 +27,7 @@
 					class="sky-list-message"
 				>
 					<span>
-						Your search for <em>"{{listQuery.keywords}}"</em> returned <em>{{result.pagination.total}} {{(result.pagination.total === 1) ? 'result' : 'results'}}</em>
+						<!-- Your search for <em>"{{listQuery.keywords}}"</em> returned <em>{{result.pagination.total}} {{(result.pagination.total === 1) ? 'result' : 'results'}}</em> -->
 					</span>
 				</div>
 

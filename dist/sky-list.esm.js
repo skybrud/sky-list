@@ -44,7 +44,7 @@ var script = {
 		validateQuery: {
 			type: Function,
 			required: true,
-			default: function (query) { return query.keywords; },
+			default: function (query) { return true; },
 		},
 		liveSearch: {
 			type: Boolean,
@@ -288,7 +288,7 @@ var script = {
 /* script */
             var __vue_script__ = script;
 /* template */
-var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:['sky-list', { loading : _vm.states.loading }]},[_vm._t("default",[_c('div',{staticClass:"sky-list-form"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.listQuery.keywords),expression:"listQuery.keywords"}],attrs:{"type":"text"},domProps:{"value":(_vm.listQuery.keywords)},on:{"input":function($event){if($event.target.composing){ return; }_vm.$set(_vm.listQuery, "keywords", $event.target.value);}}})]),_vm._v(" "),((_vm.validQuery || _vm.config.immediate))?_c('div',{staticClass:"sky-list-content"},[(_vm.config.showCount && _vm.states.hasFetchedOnce && (_vm.currentResultSet.length > 0))?_c('div',{staticClass:"sky-list-message"},[_c('span',[_vm._v("\n\t\t\t\t\tYour search for "),_c('em',[_vm._v("\""+_vm._s(_vm.listQuery.keywords)+"\"")]),_vm._v(" returned "),_c('em',[_vm._v(_vm._s(_vm.result.pagination.total)+" "+_vm._s((_vm.result.pagination.total === 1) ? 'result' : 'results'))])])]):_vm._e(),_vm._v(" "),(_vm.currentResultSet.length > 0)?_c('div',{staticClass:"sky-list-result"},[_c('ul',_vm._l((_vm.currentResultSet),function(item,index){return _c('li',{key:item.id,staticClass:"sky-list-item"},[_c('span',{domProps:{"textContent":_vm._s(("Result item with ID: " + (item.id)))}})])}))]):(_vm.states.hasFetchedOnce)?_c('div',{staticClass:"sky-list-result empty"},[_c('span',{domProps:{"textContent":_vm._s('Your search returned no results')}})]):_vm._e(),_vm._v(" "),_c('div',{class:_vm.sky-_vm.list-_vm.pagination},[_c('button',{staticClass:"sky-list-more",on:{"click":function($event){_vm.more(true);}}},[_c('span',{domProps:{"textContent":_vm._s("Show All")}})])])]):_vm._e()],{query:_vm.listQuery,result:_vm.currentResultSet,areas:_vm.result.groups,states:_vm.states,pagination:_vm.result.pagination,fetch:_vm.more,newRequest:_vm.handleUserSearch,nativeSearchHandler:_vm.nativeSearchHandling})],2)};
+var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:['sky-list', { loading : _vm.states.loading }]},[_vm._t("default",[((_vm.validQuery || _vm.config.immediate))?_c('div',{staticClass:"sky-list-content"},[(_vm.config.showCount && _vm.states.hasFetchedOnce && (_vm.currentResultSet.length > 0))?_c('div',{staticClass:"sky-list-message"},[_c('span')]):_vm._e(),_vm._v(" "),(_vm.currentResultSet.length > 0)?_c('div',{staticClass:"sky-list-result"},[_c('ul',_vm._l((_vm.currentResultSet),function(item,index){return _c('li',{key:item.id,staticClass:"sky-list-item"},[_c('span',{domProps:{"textContent":_vm._s(("Result item with ID: " + (item.id)))}})])}))]):(_vm.states.hasFetchedOnce)?_c('div',{staticClass:"sky-list-result empty"},[_c('span',{domProps:{"textContent":_vm._s('Your search returned no results')}})]):_vm._e(),_vm._v(" "),_c('div',{class:_vm.sky-_vm.list-_vm.pagination},[_c('button',{staticClass:"sky-list-more",on:{"click":function($event){_vm.more(true);}}},[_c('span',{domProps:{"textContent":_vm._s("Show All")}})])])]):_vm._e()],{query:_vm.listQuery,result:_vm.currentResultSet,states:_vm.states,pagination:_vm.result.pagination,fetch:_vm.more})],2)};
 var __vue_staticRenderFns__ = [];
 
   /* style */

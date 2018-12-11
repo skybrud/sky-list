@@ -41,7 +41,7 @@ export default {
 		validateQuery: {
 			type: Function,
 			required: true,
-			default: (query) => query.keywords,
+			default: (query) => true,
 		},
 		liveSearch: {
 			type: Boolean,
