@@ -98,7 +98,11 @@ export default {
 	methods: {
 		more(all) {
 			const { limit, total, offset } = this.result.pagination;
-			const newPagination = { offset: offset + limit, total };
+			const newPagination = {
+				limit,
+				offset: offset + limit,
+				total,
+			};
 
 			if (all) {
 				newPagination.limit = total - offset;
@@ -188,6 +192,7 @@ export default {
 		},
 		updatePaginationParams(pagination) {
 			this.$set(this.result, 'pagination', pagination);
+
 			this.query.limit = pagination.limit;
 			this.query.offset = pagination.offset;
 		},
