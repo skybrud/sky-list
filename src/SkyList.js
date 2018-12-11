@@ -6,6 +6,7 @@ const defaultOptions = {
 	api: '/umbraco/api/site/search/',
 	limit: 10,
 	immediate: false,
+	listType: 'more',
 };
 
 function getQueryParams() {
@@ -93,7 +94,18 @@ export default {
 	},
 	mounted() {
 		// Do fetch on mount, if configured to or if initiated with valid query from url params
-		this.request();
+		if (this.config.listType === 'fetchMore' && !Number(this.query.offset)) {
+			this.request('initial', Object.assign(
+				{},
+				this.query,
+				{
+					limit: Number(this.query.offset) + Number(this.query.limit),
+					offset: 0,
+				}
+			));
+		} else {
+			this.request();
+		}
 	},
 	methods: {
 		more(all) {
@@ -114,11 +126,11 @@ export default {
 		},
 		request(type = 'initial', params = this.query) {
 			this.states.loading = true;
-			const { total, offset } = this.result.pagination;
+			const { total } = this.result.pagination;
 
-			this.fetch()
+			this.fetch(params)
 				.then((result) => {
-					const firstFetch = total === null || offset === 0;
+					const firstFetch = total === null;
 					const totalChanged = total !== result.pagination.total;
 					const filterNotRequested = type !== 'filter';
 
