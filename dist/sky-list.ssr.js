@@ -188,7 +188,7 @@ var script = {
 /* script */
             var __vue_script__ = script;
 /* template */
-var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:['sky-list', { loading : _vm.states.loading }]},[_vm._t("default",[((_vm.validQuery || _vm.config.immediate))?_c('div',{staticClass:"sky-list-content"},[(_vm.config.showCount && _vm.states.hasFetchedOnce && (_vm.currentResultSet.length > 0))?_c('div',{staticClass:"sky-list-message"},[_c('span')]):_vm._e(),_vm._v(" "),(_vm.currentResultSet.length > 0)?_c('div',{staticClass:"sky-list-result"},[_c('ul',_vm._l((_vm.currentResultSet),function(item,index){return _c('li',{key:item.id,staticClass:"sky-list-item"},[_c('span',{domProps:{"textContent":_vm._s(("Result item with ID: " + (item.id)))}})])}))]):(_vm.states.hasFetchedOnce)?_c('div',{staticClass:"sky-list-result empty"},[_c('span',{domProps:{"textContent":_vm._s('Your search returned no results')}})]):_vm._e(),_vm._v(" "),_c('div',{class:_vm.sky-_vm.list-_vm.pagination},[_c('button',{staticClass:"sky-list-more",on:{"click":function($event){_vm.more(true);}}},[_c('span',{domProps:{"textContent":_vm._s("Show All")}})])])]):_vm._e()],{query:_vm.query,result:_vm.currentResultSet,states:_vm.states,pagination:_vm.result.pagination,fetch:_vm.more})],2)};
+var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:['sky-list', { loading : _vm.states.loading }]},[_vm._t("default",[((_vm.validQuery || _vm.config.immediate))?_c('div',{staticClass:"sky-list-content"},[(_vm.config.showCount && _vm.states.hasFetchedOnce && (_vm.result.data.length > 0))?_c('div',{staticClass:"sky-list-message"},[_c('span')]):_vm._e(),_vm._v(" "),(_vm.result.data.length > 0)?_c('div',{staticClass:"sky-list-result"},[_c('ul',_vm._l((_vm.result.data),function(item,index){return _c('li',{key:item.id,staticClass:"sky-list-item"},[_c('span',{domProps:{"textContent":_vm._s(("Result item with ID: " + (item.id)))}})])}))]):(_vm.states.hasFetchedOnce)?_c('div',{staticClass:"sky-list-result empty"},[_c('span',{domProps:{"textContent":_vm._s('Your search returned no results')}})]):_vm._e(),_vm._v(" "),_c('div',{class:_vm.sky-_vm.list-_vm.pagination},[_c('button',{staticClass:"sky-list-more",on:{"click":function($event){_vm.more(true);}}},[_c('span',{domProps:{"textContent":_vm._s("Show All")}})])])]):_vm._e()],{query:_vm.query,result:_vm.result.data,states:_vm.states,pagination:_vm.result.pagination,fetch:_vm.more})],2)};
 var __vue_staticRenderFns__ = [];
 
   /* style */
@@ -196,7 +196,7 @@ var __vue_staticRenderFns__ = [];
   /* scoped */
   var __vue_scope_id__ = undefined;
   /* module identifier */
-  var __vue_module_identifier__ = "data-v-75326824";
+  var __vue_module_identifier__ = "data-v-60b79aa2";
   /* functional template */
   var __vue_is_functional_template__ = false;
   /* component normalizer */

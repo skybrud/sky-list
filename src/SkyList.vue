@@ -6,7 +6,7 @@
 	<div :class="['sky-list', { loading : states.loading }]">
 		<slot
 			:query="query"
-			:result="currentResultSet"
+			:result="result.data"
 			:states="states"
 			:pagination="result.pagination"
 			:fetch="more"
@@ -23,7 +23,7 @@
 				class="sky-list-content"
 			>
 				<div
-					v-if="config.showCount && states.hasFetchedOnce && (currentResultSet.length > 0)"
+					v-if="config.showCount && states.hasFetchedOnce && (result.data.length > 0)"
 					class="sky-list-message"
 				>
 					<span>
@@ -32,13 +32,13 @@
 				</div>
 
 				<div
-					v-if="currentResultSet.length > 0"
+					v-if="result.data.length > 0"
 					class="sky-list-result"
 				>
 					<ul>
 						<li
 							class="sky-list-item"
-							v-for="(item, index) in currentResultSet"
+							v-for="(item, index) in result.data"
 							:key="item.id"
 						>
 							<span v-text="`Result item with ID: ${item.id}`" />
