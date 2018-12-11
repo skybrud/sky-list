@@ -106,11 +106,23 @@ var script = {
 	},
 	methods: {
 		more: function more(all) {
+			var ref = this.result.pagination;
+			var limit = ref.limit;
+			var total = ref.total;
+			var offset = ref.offset;
+			var newPagination = { offset: offset + limit };
 
+			if (all) {
+				newPagination.limit = total - offset;
+			}
+
+			this.updatePaginationParams(newPagination);
+
+			this.request('append');
 		},
 		request: function request(type) {
 			var this$1 = this;
-			if ( type === void 0 ) type = 'clean';
+			if ( type === void 0 ) type = 'initial';
 
 			this.states.loading = true;
 			var ref = this.result.pagination;
@@ -125,14 +137,15 @@ var script = {
 
 					if (!firstFetch && totalChanged && filterNotRequested) {
 						// if total has changed refetch entire list and replace
+						console.log('refetch initiated');
 						this$1.fetch(Object.assign({}, this$1.query, {
 							limit: this$1.limitEnd, // hvorfor limit = limitEnd?
 							offset: 0,
 						})).then(function (secondaryResult) {
-							this$1.$set(this$1.result, 'data', secondaryResult.data);
+							this$1.setData(secondaryResult);
 						});
 					} else {
-						this$1.$set(this$1.result, 'data', result.data);
+						this$1.setData(result);
 					}
 				})
 				.then(function () {

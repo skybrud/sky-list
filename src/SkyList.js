@@ -97,9 +97,18 @@ export default {
 	},
 	methods: {
 		more(all) {
+			const { limit, total, offset } = this.result.pagination;
+			const newPagination = { offset: offset + limit };
 
+			if (all) {
+				newPagination.limit = total - offset;
+			}
+
+			this.updatePaginationParams(newPagination);
+
+			this.request('append');
 		},
-		request(type = 'clean') {
+		request(type = 'initial') {
 			this.states.loading = true;
 			const { total, offset } = this.result.pagination;
 
@@ -111,14 +120,15 @@ export default {
 
 					if (!firstFetch && totalChanged && filterNotRequested) {
 						// if total has changed refetch entire list and replace
+						console.log('refetch initiated');
 						this.fetch(Object.assign({}, this.query, {
 							limit: this.limitEnd, // hvorfor limit = limitEnd?
 							offset: 0,
 						})).then((secondaryResult) => {
-							this.$set(this.result, 'data', secondaryResult.data);
+							this.setData(secondaryResult);
 						});
 					} else {
-						this.$set(this.result, 'data', result.data);
+						this.setData(result);
 					}
 				})
 				.then(() => {
