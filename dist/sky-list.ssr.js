@@ -103,7 +103,7 @@ var script = {
 	},
 	mounted: function mounted() {
 		// Do fetch on mount, if configured to or if initiated with valid query from url params
-		if (this.config.listType === 'fetchMore' && !Number(this.query.offset)) {
+		if (this.config.listType === 'more' && !Number(this.query.offset)) {
 			this.request('initial', Object.assign(
 				{},
 				this.query,
@@ -155,7 +155,7 @@ var script = {
 						// if total has changed refetch entire list and replace
 						console.log('refetch initiated');
 						this$1.fetch(Object.assign({}, this$1.query, {
-							limit: this$1.limitEnd, // hvorfor limit = limitEnd?
+							limit: this$1.config.limit,
 							offset: 0,
 						})).then(function (secondaryResult) {
 							this$1.setData(secondaryResult, 'initial');
@@ -230,7 +230,8 @@ var script = {
 		updatePaginationParams: function updatePaginationParams(pagination) {
 			this.$set(this.result, 'pagination', pagination);
 
-			this.query.limit = pagination.limit;
+			// Always fetch with the configured limit.
+			this.query.limit = this.config.limit;
 			this.query.offset = pagination.offset;
 		},
 	},
