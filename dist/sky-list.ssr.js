@@ -110,7 +110,7 @@ var script = {
 			var limit = ref.limit;
 			var total = ref.total;
 			var offset = ref.offset;
-			var newPagination = { offset: offset + limit };
+			var newPagination = { offset: offset + limit, total: total };
 
 			if (all) {
 				newPagination.limit = total - offset;
@@ -142,10 +142,10 @@ var script = {
 							limit: this$1.limitEnd, // hvorfor limit = limitEnd?
 							offset: 0,
 						})).then(function (secondaryResult) {
-							this$1.setData(secondaryResult);
+							this$1.setData(secondaryResult, 'initial');
 						});
 					} else {
-						this$1.setData(result);
+						this$1.setData(result, type);
 					}
 				})
 				.then(function () {
@@ -192,10 +192,14 @@ var script = {
 				});
 			});
 		},
-		setData: function setData(result) {
+		setData: function setData(result, type) {
 			var pagination = result.pagination;
 			var data = result.data;
 			var filters = result.filters;
+
+			if (type = 'append') {
+				this.$set(this.result, 'data', this.result.data.concat( data));
+			}
 
 			this.$set(this.result, 'data', data);
 
@@ -206,6 +210,8 @@ var script = {
 		},
 		updatePaginationParams: function updatePaginationParams(pagination) {
 			this.$set(this.result, 'pagination', pagination);
+			this.query.limit = pagination.limit;
+			this.query.offset = pagination.offset;
 		},
 	},
 };

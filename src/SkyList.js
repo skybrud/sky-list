@@ -98,7 +98,7 @@ export default {
 	methods: {
 		more(all) {
 			const { limit, total, offset } = this.result.pagination;
-			const newPagination = { offset: offset + limit };
+			const newPagination = { offset: offset + limit, total };
 
 			if (all) {
 				newPagination.limit = total - offset;
@@ -125,10 +125,10 @@ export default {
 							limit: this.limitEnd, // hvorfor limit = limitEnd?
 							offset: 0,
 						})).then((secondaryResult) => {
-							this.setData(secondaryResult);
+							this.setData(secondaryResult, 'initial');
 						});
 					} else {
-						this.setData(result);
+						this.setData(result, type);
 					}
 				})
 				.then(() => {
@@ -172,8 +172,12 @@ export default {
 				});
 			});
 		},
-		setData(result) {
+		setData(result, type) {
 			const { pagination, data, filters } = result;
+
+			if (type = 'append') {
+				this.$set(this.result, 'data', [...this.result.data, ...data]);
+			}
 
 			this.$set(this.result, 'data', data);
 
@@ -184,6 +188,8 @@ export default {
 		},
 		updatePaginationParams(pagination) {
 			this.$set(this.result, 'pagination', pagination);
+			this.query.limit = pagination.limit;
+			this.query.offset = pagination.offset;
 		},
 	},
 };
