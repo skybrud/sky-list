@@ -76,7 +76,6 @@ export default {
 			},
 			result: {
 				data: [],
-				// groups: [],
 				pagination: {
 					limit: this.options.limit || defaultOptions.limit,
 					offset: 0,
@@ -86,114 +85,15 @@ export default {
 		};
 	},
 	computed: {
-		itemsLeft() {
-			// Provides the amount of items not displayed yet.
-			const { limit, offset, total } = this.result.pagination;
-
-			return (offset + limit) - total < limit
-				? total - (offset + limit)
-				: limit;
-		},
-		// resultStartIndex() {
-		// 	if (this.morePagination) {
-		// 		return 0;
-		// 	}
-
-		// 	return (this.pages.current - 1) * this.config.limit;
+		// validQuery() {
+		// 	return (typeof this.validateQuery === 'function')
+		// 		? this.validateQuery(this.query)
+		// 		: this.validateQuery;
 		// },
-		// resultEndIndex() {
-		// 	const { pagination: { offset, limit, total } } = this.result;
-		// 	if (total === null) {
-		// 		return offset + limit;
-		// 	}
-
-		// 	return Math.min(offset + limit, total);
-		// },
-		currentResultSet() {
-			// Showing the part of the complete resultset currently wanted.
-			const { data } = this.result;
-
-			return data;
-		},
-		limitEnd() {
-			return this.result.pagination.offset + this.result.pagination.limit;
-		},
-		canFetchMore() {
-			return this.limitEnd < this.result.pagination.total;
-		},
-		queryFlatArrays() {
-			// We loop through the query and join all arrays to strings
-			const res = {};
-			const extractObjectKey = Object.keys(this.valueMap);
-
-			Object.keys(this.query).forEach((key) => {
-				if (Array.isArray(this.query[key])) {
-					res[key] = this.query[key]
-						.map((queryProperty) => {
-							// if queryProperty contains a 'value' property return that
-							if (queryProperty && typeof queryProperty.value !== 'undefined') {
-								return queryProperty.value;
-							}
-							return queryProperty;
-						})
-						.join(',');
-				} else {
-					/**
-							 * Avoid objects being send as parameter
-							 * and use exposed value mapping for grapping object value.
-							 */
-					res[key] = !extractObjectKey.includes(key)
-						? this.query[key]
-						: this.query[key][this.valueMap[key]];
-				}
-			});
-			return res;
-		},
-		validQuery() {
-			return (typeof this.validateQuery === 'function')
-				? this.validateQuery(this.query)
-				: this.validateQuery;
-		},
-		requestParams() {
-			const rp = Object.assign({}, this.queryFlatArrays, {
-				limit: this.result.pagination.limit,
-				offset: this.result.pagination.offset,
-			});
-
-			return rp;
-		},
 	},
-	// watch: {
-	// 	query: {
-	// 		handler() {
-	// 			if (this.liveSearch && this.validQuery) {
-	// 				this.handleUserSearch();
-	// 			} else if (!this.validQuery) {
-	// 				// Clear request params from url
-	// 				this.updateUrlParams({});
-	// 			}
-	// 		},
-	// 		deep: true,
-	// 	},
-	// 	'states.loading': function(value) {
-	// 		if (value) {
-	// 			this.$emit('loadingBegin');
-	// 		} else {
-	// 			this.$emit('loadingEnd');
-	// 		}
-	// 	},
-	// 	result: {
-	// 		handler(value) {
-	// 			this.$emit('result', value);
-	// 		},
-	// 		deep: true,
-	// 	},
-	// },
 	mounted() {
 		// Do fetch on mount, if configured to or if initiated with valid query from url params
-		if (this.config.immediate || this.validQuery) {
-			this.request();
-		}
+		this.request();
 	},
 	methods: {
 		more(all) {
@@ -215,7 +115,7 @@ export default {
 							limit: this.limitEnd, // hvorfor limit = limitEnd?
 							offset: 0,
 						})).then((secondaryResult) => {
-							this.$set(this.result, 'data', result.data);
+							this.$set(this.result, 'data', secondaryResult.data);
 						});
 					} else {
 						this.$set(this.result, 'data', result.data);

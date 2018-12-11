@@ -85,7 +85,6 @@ var script = {
 			},
 			result: {
 				data: [],
-				// groups: [],
 				pagination: {
 					limit: this.options.limit || defaultOptions.limit,
 					offset: 0,
@@ -95,120 +94,15 @@ var script = {
 		};
 	},
 	computed: {
-		itemsLeft: function itemsLeft() {
-			// Provides the amount of items not displayed yet.
-			var ref = this.result.pagination;
-			var limit = ref.limit;
-			var offset = ref.offset;
-			var total = ref.total;
-
-			return (offset + limit) - total < limit
-				? total - (offset + limit)
-				: limit;
-		},
-		// resultStartIndex() {
-		// 	if (this.morePagination) {
-		// 		return 0;
-		// 	}
-
-		// 	return (this.pages.current - 1) * this.config.limit;
+		// validQuery() {
+		// 	return (typeof this.validateQuery === 'function')
+		// 		? this.validateQuery(this.query)
+		// 		: this.validateQuery;
 		// },
-		// resultEndIndex() {
-		// 	const { pagination: { offset, limit, total } } = this.result;
-		// 	if (total === null) {
-		// 		return offset + limit;
-		// 	}
-
-		// 	return Math.min(offset + limit, total);
-		// },
-		currentResultSet: function currentResultSet() {
-			// Showing the part of the complete resultset currently wanted.
-			var ref = this.result;
-			var data = ref.data;
-
-			return data;
-		},
-		limitEnd: function limitEnd() {
-			return this.result.pagination.offset + this.result.pagination.limit;
-		},
-		canFetchMore: function canFetchMore() {
-			return this.limitEnd < this.result.pagination.total;
-		},
-		queryFlatArrays: function queryFlatArrays() {
-			var this$1 = this;
-
-			// We loop through the query and join all arrays to strings
-			var res = {};
-			var extractObjectKey = Object.keys(this.valueMap);
-
-			Object.keys(this.query).forEach(function (key) {
-				if (Array.isArray(this$1.query[key])) {
-					res[key] = this$1.query[key]
-						.map(function (queryProperty) {
-							// if queryProperty contains a 'value' property return that
-							if (queryProperty && typeof queryProperty.value !== 'undefined') {
-								return queryProperty.value;
-							}
-							return queryProperty;
-						})
-						.join(',');
-				} else {
-					/**
-							 * Avoid objects being send as parameter
-							 * and use exposed value mapping for grapping object value.
-							 */
-					res[key] = !extractObjectKey.includes(key)
-						? this$1.query[key]
-						: this$1.query[key][this$1.valueMap[key]];
-				}
-			});
-			return res;
-		},
-		validQuery: function validQuery() {
-			return (typeof this.validateQuery === 'function')
-				? this.validateQuery(this.query)
-				: this.validateQuery;
-		},
-		requestParams: function requestParams() {
-			var rp = Object.assign({}, this.queryFlatArrays, {
-				limit: this.result.pagination.limit,
-				offset: this.result.pagination.offset,
-			});
-
-			return rp;
-		},
 	},
-	// watch: {
-	// 	query: {
-	// 		handler() {
-	// 			if (this.liveSearch && this.validQuery) {
-	// 				this.handleUserSearch();
-	// 			} else if (!this.validQuery) {
-	// 				// Clear request params from url
-	// 				this.updateUrlParams({});
-	// 			}
-	// 		},
-	// 		deep: true,
-	// 	},
-	// 	'states.loading': function(value) {
-	// 		if (value) {
-	// 			this.$emit('loadingBegin');
-	// 		} else {
-	// 			this.$emit('loadingEnd');
-	// 		}
-	// 	},
-	// 	result: {
-	// 		handler(value) {
-	// 			this.$emit('result', value);
-	// 		},
-	// 		deep: true,
-	// 	},
-	// },
 	mounted: function mounted() {
 		// Do fetch on mount, if configured to or if initiated with valid query from url params
-		if (this.config.immediate || this.validQuery) {
-			this.request();
-		}
+		this.request();
 	},
 	methods: {
 		more: function more(all) {
@@ -235,7 +129,7 @@ var script = {
 							limit: this$1.limitEnd, // hvorfor limit = limitEnd?
 							offset: 0,
 						})).then(function (secondaryResult) {
-							this$1.$set(this$1.result, 'data', result.data);
+							this$1.$set(this$1.result, 'data', secondaryResult.data);
 						});
 					} else {
 						this$1.$set(this$1.result, 'data', result.data);
