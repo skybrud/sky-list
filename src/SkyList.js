@@ -112,7 +112,7 @@ export default {
 
 			this.request('append');
 		},
-		request(type = 'initial') {
+		request(type = 'initial', params = this.query) {
 			this.states.loading = true;
 			const { total, offset } = this.result.pagination;
 
@@ -149,7 +149,7 @@ export default {
 			}
 			// TODO: handle error?⁄
 		},
-		fetch(params = this.query) {
+		fetch(params) {
 			// Cancel previous request
 			if (this.states.cancelToken) {
 				this.states.cancelToken.cancel();
@@ -179,11 +179,15 @@ export default {
 		setData(result, type) {
 			const { pagination, data, filters } = result;
 
-			if (type = 'append') {
-				this.$set(this.result, 'data', [...this.result.data, ...data]);
-			}
+			switch(type) {
+				case 'append':
+					this.$set(this.result, 'data', [...this.result.data, ...data])
+					break;
 
-			this.$set(this.result, 'data', data);
+				default:
+					this.$set(this.result, 'data', data);
+					break
+			}
 
 			this.updatePaginationParams(pagination);
 		},

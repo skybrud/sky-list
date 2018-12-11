@@ -124,9 +124,10 @@ var script = {
 
 			this.request('append');
 		},
-		request: function request(type) {
+		request: function request(type, params) {
 			var this$1 = this;
 			if ( type === void 0 ) type = 'initial';
+			if ( params === void 0 ) params = this.query;
 
 			this.states.loading = true;
 			var ref = this.result.pagination;
@@ -168,7 +169,6 @@ var script = {
 		},
 		fetch: function fetch(params) {
 			var this$1 = this;
-			if ( params === void 0 ) params = this.query;
 
 			// Cancel previous request
 			if (this.states.cancelToken) {
@@ -201,11 +201,15 @@ var script = {
 			var data = result.data;
 			var filters = result.filters;
 
-			if (type = 'append') {
-				this.$set(this.result, 'data', this.result.data.concat( data));
-			}
+			switch(type) {
+				case 'append':
+					this.$set(this.result, 'data', this.result.data.concat( data));
+					break;
 
-			this.$set(this.result, 'data', data);
+				default:
+					this.$set(this.result, 'data', data);
+					break
+			}
 
 			this.updatePaginationParams(pagination);
 		},
