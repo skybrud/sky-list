@@ -119,7 +119,7 @@ var script = {
 
 					if (!firstFetch && totalChanged && filterNotRequested) {
 						// if total has changed refetch entire list and replace
-						this$1.fetch(Object.assign({}, this$1.requestParams, {
+						this$1.fetch(Object.assign({}, this$1.query, {
 							limit: this$1.limitEnd, // hvorfor limit = limitEnd?
 							offset: 0,
 						})).then(function (secondaryResult) {
@@ -145,7 +145,7 @@ var script = {
 		},
 		fetch: function fetch(params) {
 			var this$1 = this;
-			if ( params === void 0 ) params = this.requestParams;
+			if ( params === void 0 ) params = this.query;
 
 			// Cancel previous request
 			if (this.states.cancelToken) {
@@ -173,8 +173,20 @@ var script = {
 				});
 			});
 		},
+		setData: function setData(result) {
+			var pagination = result.pagination;
+			var data = result.data;
+			var filters = result.filters;
+
+			this.$set(this.result, 'data', data);
+
+			this.updatePaginationParams(pagination);
+		},
 		updateUrlParams: function updateUrlParams(params) {
 			setQueryParams(params);
+		},
+		updatePaginationParams: function updatePaginationParams(pagination) {
+			this.$set(this.result, 'pagination', pagination);
 		},
 	},
 };

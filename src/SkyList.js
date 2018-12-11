@@ -111,7 +111,7 @@ export default {
 
 					if (!firstFetch && totalChanged && filterNotRequested) {
 						// if total has changed refetch entire list and replace
-						this.fetch(Object.assign({}, this.requestParams, {
+						this.fetch(Object.assign({}, this.query, {
 							limit: this.limitEnd, // hvorfor limit = limitEnd?
 							offset: 0,
 						})).then((secondaryResult) => {
@@ -135,7 +135,7 @@ export default {
 			}
 			// TODO: handle error?⁄
 		},
-		fetch(params = this.requestParams) {
+		fetch(params = this.query) {
 			// Cancel previous request
 			if (this.states.cancelToken) {
 				this.states.cancelToken.cancel();
@@ -162,8 +162,18 @@ export default {
 				});
 			});
 		},
+		setData(result) {
+			const { pagination, data, filters } = result;
+
+			this.$set(this.result, 'data', data);
+
+			this.updatePaginationParams(pagination);
+		},
 		updateUrlParams(params) {
 			setQueryParams(params);
+		},
+		updatePaginationParams(pagination) {
+			this.$set(this.result, 'pagination', pagination);
 		},
 	},
 };
