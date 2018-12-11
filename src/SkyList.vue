@@ -5,7 +5,7 @@
 <template>
 	<div :class="['sky-list', { loading : states.loading }]">
 		<slot
-			:query="listQuery"
+			:query="query"
 			:result="currentResultSet"
 			:states="states"
 			:pagination="result.pagination"
