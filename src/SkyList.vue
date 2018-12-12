@@ -17,7 +17,7 @@
 					type="text"
 					v-model="listQuery.keywords"
 				/>
-			</div> -->
+			</div>
 
 			<div
 				v-if="(validQuery || config.immediate)"
@@ -28,7 +28,7 @@
 					class="sky-list-message"
 				>
 					<span>
-						<!-- Your search for <em>"{{listQuery.keywords}}"</em> returned <em>{{result.pagination.total}} {{(result.pagination.total === 1) ? 'result' : 'results'}}</em> -->
+						Your search for <em>"{{listQuery.keywords}}"</em> returned <em>{{result.pagination.total}} {{(result.pagination.total === 1) ? 'result' : 'results'}}</em>
 					</span>
 				</div>
 
@@ -62,7 +62,7 @@
 						<span v-text="`Show All`" />
 					</button>
 				</div>
-			</div>
+			</div> -->
 		</slot>
 	</div>
 </template>
