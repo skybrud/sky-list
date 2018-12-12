@@ -5,7 +5,10 @@
 <template>
 	<div :class="['sky-list', { loading : states.loading }]">
 		<slot
-			:query="queryParts.parameters"
+			:query="{
+				paramters: queryParts.parameters,
+				filters: queryParts.filters,
+			}"
 			:result="data.items"
 			:filters="data.filters"
 			:states="states"

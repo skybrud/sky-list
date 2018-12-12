@@ -63,12 +63,6 @@ export default {
 	},
 	data() {
 		return {
-			// query: Object.assign(
-			// 	{},
-			// 	this.parameters,
-			// 	getQueryParams(), // FJERNES EVT FOR AT SKABE SÆRSKILT CASE FOR URL
-			// 	{ limit: this.options.limit || defaultOptions.limit },
-			// ),
 			queryParts: {
 				filter: null,
 				parameters: this.parameters,
@@ -134,42 +128,28 @@ export default {
 		},
 	},
 	watch: {
-		'queryParts.filters': function(value) {
-			console.log('QP filters', value);
+		'queryParts.parameters': {
+			handler() {
+				console.log('QP parameters');
+				this.requestHub('new');
+			},
+			deep: true,
+		},
+		'queryParts.filters': {
+			handler() {
+				console.log('QP filters');
+				this.requestHub('filter');
+			},
+			deep: true,
 		},
 		'states.loading': function(value) {
 			value
 				? this.$emit('loadingBegin')
 				: this.$emit('loadingEnd');
 		},
-		requestQuery: {
-			handler() {
-				console.log('Changed request, motherfucker');
-
-				if (this.enableLiveSearch && this.validQuery) {
-					this.states.loading = true;
-					this.debounce(this.request);
-				} else if (!this.validQuery) {
-					// Clear request params from url
-					this.updateUrlParams({});
-				}
-			},
-			deep: true,
-		},
-		// query: {
-		// 	handler() {
-		// 		if (this.enableLiveSearch && this.validQuery) {
-		// 			this.states.loading = true;
-		// 			this.debounce(this.request);
-		// 		} else if (!this.validQuery) {
-		// 			// Clear request params from url
-		// 			this.updateUrlParams({});
-		// 		}
-		// 	},
-		// 	deep: true,
-		// },
 	},
 	mounted() {
+		// TODO: REFACTOR INFO MORE ELEGANT FORM
 		// Do fetch on mount, if configured to or if initiated with valid query from url params
 		if (this.config.immediate || this.validQuery) {
 			!this.forceFetchFromOffsetZero
@@ -203,6 +183,16 @@ export default {
 			this.updatePaginationParams(newPagination);
 
 			this.request('append');
+		},
+		requestHub(type) {
+			console.log('Changed request, motherfucker');
+			if (this.enableLiveSearch && this.validQuery) {
+				this.states.loading = true;
+				this.debounce({ cb: this.request, args: [type] });
+			} else if (!this.validQuery) {
+				// Clear request params from url
+				this.updateUrlParams({});
+			}
 		},
 		request(type = 'new', params = this.requestQuery) {
 			this.states.loading = true;
@@ -272,22 +262,24 @@ export default {
 			const { pagination, data, filters } = result;
 
 			switch(type) {
-				case 'append':
-					this.$set(this.data, 'items', [...this.data.items, ...data])
+				case 'new':
+					this.$set(this.data, 'items', data);
+					this.updateFilters(filters);
 					break;
 
 				default:
-					this.$set(this.data, 'items', data);
+					this.$set(this.data, 'items', this.data.items.concat( data));
 					break;
-			}
-
-			if (filters && filters.length) {
-				this.$set(this.data, 'filters', filters);
 			}
 
 			this.updatePaginationParams(pagination);
 
 			this.states.loading = false;
+		},
+		updateFilters(filters) {
+			if (filters && filters.length) {
+				this.$set(this.data, 'filters', filters);
+			}
 		},
 		updateUrlParams(params) {
 			setQueryParams(params);

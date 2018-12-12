@@ -68,12 +68,6 @@ var script = {
 	},
 	data: function data() {
 		return {
-			// query: Object.assign(
-			// 	{},
-			// 	this.parameters,
-			// 	getQueryParams(), // FJERNES EVT FOR AT SKABE SÆRSKILT CASE FOR URL
-			// 	{ limit: this.options.limit || defaultOptions.limit },
-			// ),
 			queryParts: {
 				filter: null,
 				parameters: this.parameters,
@@ -139,42 +133,28 @@ var script = {
 		},
 	},
 	watch: {
-		'queryParts.filters': function(value) {
-			console.log('QP filters', value);
+		'queryParts.parameters': {
+			handler: function handler() {
+				console.log('QP parameters');
+				this.requestHub('new');
+			},
+			deep: true,
+		},
+		'queryParts.filters': {
+			handler: function handler() {
+				console.log('QP filters');
+				this.requestHub('filter');
+			},
+			deep: true,
 		},
 		'states.loading': function(value) {
 			value
 				? this.$emit('loadingBegin')
 				: this.$emit('loadingEnd');
 		},
-		requestQuery: {
-			handler: function handler() {
-				console.log('Changed request, motherfucker');
-
-				if (this.enableLiveSearch && this.validQuery) {
-					this.states.loading = true;
-					this.debounce(this.request);
-				} else if (!this.validQuery) {
-					// Clear request params from url
-					this.updateUrlParams({});
-				}
-			},
-			deep: true,
-		},
-		// query: {
-		// 	handler() {
-		// 		if (this.enableLiveSearch && this.validQuery) {
-		// 			this.states.loading = true;
-		// 			this.debounce(this.request);
-		// 		} else if (!this.validQuery) {
-		// 			// Clear request params from url
-		// 			this.updateUrlParams({});
-		// 		}
-		// 	},
-		// 	deep: true,
-		// },
 	},
 	mounted: function mounted() {
+		// TODO: REFACTOR INFO MORE ELEGANT FORM
 		// Do fetch on mount, if configured to or if initiated with valid query from url params
 		if (this.config.immediate || this.validQuery) {
 			!this.forceFetchFromOffsetZero
@@ -211,6 +191,16 @@ var script = {
 			this.updatePaginationParams(newPagination);
 
 			this.request('append');
+		},
+		requestHub: function requestHub(type) {
+			console.log('Changed request, motherfucker');
+			if (this.enableLiveSearch && this.validQuery) {
+				this.states.loading = true;
+				this.debounce({ cb: this.request, args: [type] });
+			} else if (!this.validQuery) {
+				// Clear request params from url
+				this.updateUrlParams({});
+			}
 		},
 		request: function request(type, params) {
 			var this$1 = this;
@@ -289,22 +279,24 @@ var script = {
 			var filters = result.filters;
 
 			switch(type) {
-				case 'append':
-					this.$set(this.data, 'items', this.data.items.concat( data));
+				case 'new':
+					this.$set(this.data, 'items', data);
+					this.updateFilters(filters);
 					break;
 
 				default:
-					this.$set(this.data, 'items', data);
+					this.$set(this.data, 'items', this.data.items.concat( data));
 					break;
-			}
-
-			if (filters && filters.length) {
-				this.$set(this.data, 'filters', filters);
 			}
 
 			this.updatePaginationParams(pagination);
 
 			this.states.loading = false;
+		},
+		updateFilters: function updateFilters(filters) {
+			if (filters && filters.length) {
+				this.$set(this.data, 'filters', filters);
+			}
 		},
 		updateUrlParams: function updateUrlParams(params) {
 			setQueryParams(params);
@@ -322,7 +314,10 @@ var script = {
 /* script */
             var __vue_script__ = script;
 /* template */
-var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:['sky-list', { loading : _vm.states.loading }]},[_vm._t("default",null,{query:_vm.queryParts.parameters,result:_vm.data.items,filters:_vm.data.filters,states:_vm.states,pagination:_vm.data.pagination,fetch:_vm.more})],2)};
+var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:['sky-list', { loading : _vm.states.loading }]},[_vm._t("default",null,{query:{
+			paramters: _vm.queryParts.parameters,
+			filters: _vm.queryParts.filters,
+		},result:_vm.data.items,filters:_vm.data.filters,states:_vm.states,pagination:_vm.data.pagination,fetch:_vm.more})],2)};
 var __vue_staticRenderFns__ = [];
 
   /* style */
