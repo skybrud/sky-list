@@ -13,6 +13,7 @@ var defaultOptions = {
 	limit: 10,
 	immediate: false,
 	listType: 'more',
+	debounce: 500,
 };
 
 function getQueryParams() {
@@ -106,6 +107,14 @@ var script = {
 				? this.validateQuery(this.query)
 				: this.validateQuery;
 		},
+		enableLiveSearch: function enableLiveSearch() {
+			return this.config.loadFetch
+				? this.liveSearch && this.states.hasFetchedOnce
+				: this.liveSearch;
+		},
+		forceFetchFromOffsetZero: function forceFetchFromOffsetZero() {
+			return this.config.listType === 'more' && this.query.offset > 0;
+		},
 	},
 	watch: {
 		'states.loading': function(value) {
@@ -113,28 +122,25 @@ var script = {
 				? this.$emit('loadingBegin')
 				: this.$emit('loadingEnd');
 		},
-		// query: {
-		// 	handler() {
-		// 		if (this.liveSearch && this.validQuery) {
-		// 			console.log('Hi lo');
-		// 			this.states.loading = true;
-		// 			this.debounce(this.request);
-		// 			// this.handleUserSearch();
-		// 		} else if (!this.validQuery) {
-		// 			// Clear request params from url
-		// 			this.updateUrlParams({});
-		// 		}
-		// 	},
-		// 	deep: true,
-		// },
+		query: {
+			handler: function handler() {
+				if (this.enableLiveSearch && this.validQuery) {
+					this.states.loading = true;
+					this.debounce(this.request);
+				} else if (!this.validQuery) {
+					// Clear request params from url
+					this.updateUrlParams({});
+				}
+			},
+			deep: true,
+		},
 	},
 	mounted: function mounted() {
-		var this$1 = this;
-
 		// Do fetch on mount, if configured to or if initiated with valid query from url params
 		if (this.config.immediate || this.validQuery) {
-			if (this.config.listType === 'more' && this.query.offset > 0) {
-				this.request('initial', Object.assign(
+			!this.forceFetchFromOffsetZero
+				? this.request()
+				: this.request('new', Object.assign(
 					{},
 					this.query,
 					{
@@ -142,37 +148,12 @@ var script = {
 						offset: 0,
 					}
 				));
-			} else {
-				this.request();
-			}
 		}
-
-		this.$nextTick(function () {
-			this$1.$watch(
-				'query',
-				function handler() {
-					if (this.liveSearch && this.validQuery) {
-						console.log('1: Hi lo');
-						this.states.loading = true;
-						// this.debounce(this.request);
-						this.request();
-						// this.handleUserSearch();
-					} else if (!this.validQuery) {
-						// Clear request params from url
-						this.updateUrlParams({});
-					}
-				},
-				{
-					deep: true,
-				}
-			);
-		});
 	},
 	methods: {
 		debounce: debounce(function(cb) {
-			console.log('bouncing');
 			cb();
-		}, 500),
+		}, undefined.config.debounce),
 		more: function more(all) {
 			var ref = this.result.pagination;
 			var limit = ref.limit;
@@ -194,7 +175,7 @@ var script = {
 		},
 		request: function request(type, params) {
 			var this$1 = this;
-			if ( type === void 0 ) type = 'initial';
+			if ( type === void 0 ) type = 'new';
 			if ( params === void 0 ) params = this.query;
 
 			this.states.loading = true;
@@ -203,18 +184,18 @@ var script = {
 
 			this.fetch(params)
 				.then(function (result) {
-					var firstFetch = total === null;
+					var notFirstFetch = total !== null;
 					var totalChanged = total !== result.pagination.total;
-					var filterNotRequested = type !== 'filter';
+					var notNewRequest = type !== 'new';
 
-					if (!firstFetch && totalChanged && filterNotRequested) {
+					if (notFirstFetch && notNewRequest && totalChanged) {
 						// if total has changed refetch entire list and replace
 						console.log('refetch initiated');
 						this$1.fetch(Object.assign({}, this$1.query, {
 							limit: this$1.config.limit,
 							offset: 0,
 						})).then(function (secondaryResult) {
-							this$1.setData(secondaryResult, 'initial');
+							this$1.setData(secondaryResult, 'new');
 						});
 					} else {
 						this$1.setData(result, type);

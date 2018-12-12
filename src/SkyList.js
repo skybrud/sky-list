@@ -7,6 +7,7 @@ const defaultOptions = {
 	limit: 10,
 	immediate: false,
 	listType: 'more',
+	debounce: 500,
 };
 
 function getQueryParams() {
@@ -95,6 +96,14 @@ export default {
 				? this.validateQuery(this.query)
 				: this.validateQuery;
 		},
+		enableLiveSearch() {
+			return this.config.loadFetch
+				? this.liveSearch && this.states.hasFetchedOnce
+				: this.liveSearch;
+		},
+		forceFetchFromOffsetZero() {
+			return this.config.listType === 'more' && this.query.offset > 0;
+		},
 	},
 	watch: {
 		'states.loading': function(value) {
@@ -102,64 +111,38 @@ export default {
 				? this.$emit('loadingBegin')
 				: this.$emit('loadingEnd');
 		},
-		// query: {
-		// 	handler() {
-		// 		if (this.liveSearch && this.validQuery) {
-		// 			console.log('Hi lo');
-		// 			this.states.loading = true;
-		// 			this.debounce(this.request);
-		// 			// this.handleUserSearch();
-		// 		} else if (!this.validQuery) {
-		// 			// Clear request params from url
-		// 			this.updateUrlParams({});
-		// 		}
-		// 	},
-		// 	deep: true,
-		// },
+		query: {
+			handler() {
+				if (this.enableLiveSearch && this.validQuery) {
+					this.states.loading = true;
+					this.debounce(this.request);
+				} else if (!this.validQuery) {
+					// Clear request params from url
+					this.updateUrlParams({});
+				}
+			},
+			deep: true,
+		},
 	},
 	mounted() {
 		// Do fetch on mount, if configured to or if initiated with valid query from url params
 		if (this.config.immediate || this.validQuery) {
-			if (this.config.listType === 'more' && this.query.offset > 0) {
-				this.request('initial', Object.assign(
+			!this.forceFetchFromOffsetZero
+				? this.request()
+				: this.request('new', Object.assign(
 					{},
 					this.query,
 					{
 						limit: Number(this.query.offset) + Number(this.query.limit),
 						offset: 0,
-					}
+					},
 				));
-			} else {
-				this.request();
-			}
 		}
-
-		this.$nextTick(() => {
-			this.$watch(
-				'query',
-				function handler() {
-					if (this.liveSearch && this.validQuery) {
-						console.log('1: Hi lo');
-						this.states.loading = true;
-						// this.debounce(this.request);
-						this.request();
-						// this.handleUserSearch();
-					} else if (!this.validQuery) {
-						// Clear request params from url
-						this.updateUrlParams({});
-					}
-				},
-				{
-					deep: true,
-				},
-			)
-		});
 	},
 	methods: {
 		debounce: debounce(function(cb) {
-			console.log('bouncing')
 			cb();
-		}, 500),
+		}, this.config.debounce),
 		more(all) {
 			const { limit, total, offset } = this.result.pagination;
 			const newPagination = {
@@ -176,24 +159,24 @@ export default {
 
 			this.request('append');
 		},
-		request(type = 'initial', params = this.query) {
+		request(type = 'new', params = this.query) {
 			this.states.loading = true;
 			const { total } = this.result.pagination;
 
 			this.fetch(params)
 				.then((result) => {
-					const firstFetch = total === null;
+					const notFirstFetch = total !== null;
 					const totalChanged = total !== result.pagination.total;
-					const filterNotRequested = type !== 'filter';
+					const notNewRequest = type !== 'new';
 
-					if (!firstFetch && totalChanged && filterNotRequested) {
+					if (notFirstFetch && notNewRequest && totalChanged) {
 						// if total has changed refetch entire list and replace
 						console.log('refetch initiated');
 						this.fetch(Object.assign({}, this.query, {
 							limit: this.config.limit,
 							offset: 0,
 						})).then((secondaryResult) => {
-							this.setData(secondaryResult, 'initial');
+							this.setData(secondaryResult, 'new');
 						});
 					} else {
 						this.setData(result, type);
