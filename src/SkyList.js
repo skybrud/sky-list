@@ -97,6 +97,13 @@ export default {
 				: this.validateQuery;
 		},
 	},
+	watch: {
+		'states.loading': function(value) {
+			value
+				? this.$emit('loadingBegin')
+				: this.$emit('loadingEnd');
+		},
+	},
 	mounted() {
 		// Do fetch on mount, if configured to or if initiated with valid query from url params
 		if (this.config.immediate || this.validQuery) {

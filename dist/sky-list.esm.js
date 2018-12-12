@@ -103,6 +103,13 @@ var script = {
 				: this.validateQuery;
 		},
 	},
+	watch: {
+		'states.loading': function(value) {
+			value
+				? this.$emit('loadingBegin')
+				: this.$emit('loadingEnd');
+		},
+	},
 	mounted: function mounted() {
 		// Do fetch on mount, if configured to or if initiated with valid query from url params
 		if (this.config.immediate || this.validQuery) {
