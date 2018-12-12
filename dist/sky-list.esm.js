@@ -68,13 +68,18 @@ var script = {
 	},
 	data: function data() {
 		return {
-			previousQuery: null,
 			query: Object.assign(
 				{},
 				this.parameters,
 				getQueryParams(), // initiate with query params from url
 				{ limit: this.options.limit || defaultOptions.limit }
 			),
+			queryParts: {
+				filter: null,
+				parameters: this.parameters,
+				limit: this.options.limit || defaultOptions.limit,
+				// previous: null,
+			},
 			config: Object.assign(
 				{},
 				defaultOptions,
@@ -85,8 +90,8 @@ var script = {
 				cancelToken: null,
 				loading: false,
 			},
-			result: {
-				data: [],
+			data: {
+				items: [],
 				filters: null,
 				pagination: {
 					limit: null,
@@ -97,31 +102,12 @@ var script = {
 		};
 	},
 	computed: {
-		parameterQuery: function parameterQuery() {
-			var this$1 = this;
-
-			var filterKeyArray = Object.keys(this.result.filters);
-
-			return Object.keys(this.query).reduce(function (acc, cur) {
-				if (!filterKeyArray.includes(cur)) {
-					acc[cur] = this$1.query[key];
-				}
-
-				return acc;
-			}, {});
-		},
-		filterQuery: function filterQuery() {
-			var this$1 = this;
-
-			var filterKeyArray = Object.keys(this.result.filters);
-
-			return Object.keys(this.query).reduce(function (acc, cur) {
-				if (filterKeyArray.includes(cur)) {
-					acc[cur] = this$1.query[key];
-				}
-
-				return acc;
-			}, {});
+		requestQuery: function requestQuery() {
+			return Object.assign(
+				{},
+				this.queryParts.parameters,
+				this.queryParts.limit
+			);
 		},
 		validQuery: function validQuery() {
 			return (typeof this.validateQuery === 'function')
@@ -138,13 +124,18 @@ var script = {
 		},
 	},
 	watch: {
+		'queryParts.filters': function(value) {
+			console.log('QP filters', value);
+		},
 		'states.loading': function(value) {
 			value
 				? this.$emit('loadingBegin')
 				: this.$emit('loadingEnd');
 		},
-		query: {
+		requestQuery: {
 			handler: function handler() {
+				console.log('Changed request, motherfucker');
+
 				if (this.enableLiveSearch && this.validQuery) {
 					this.states.loading = true;
 					this.debounce(this.request);
@@ -155,18 +146,18 @@ var script = {
 			},
 			deep: true,
 		},
-		filterQuery: {
-			handler: function handler() {
-				console.log('Filter part to query changed');
-			},
-			deep: true,
-		},
-		parameterQuery: {
-			handler: function handler() {
-				console.log('Parameter part of query changed');
-			},
-			deep: true,
-		},
+		// query: {
+		// 	handler() {
+		// 		if (this.enableLiveSearch && this.validQuery) {
+		// 			this.states.loading = true;
+		// 			this.debounce(this.request);
+		// 		} else if (!this.validQuery) {
+		// 			// Clear request params from url
+		// 			this.updateUrlParams({});
+		// 		}
+		// 	},
+		// 	deep: true,
+		// },
 	},
 	mounted: function mounted() {
 		// Do fetch on mount, if configured to or if initiated with valid query from url params
@@ -188,7 +179,7 @@ var script = {
 			cb();
 		}, 500),
 		more: function more(all) {
-			var ref = this.result.pagination;
+			var ref = this.data.pagination;
 			var limit = ref.limit;
 			var total = ref.total;
 			var offset = ref.offset;
@@ -212,7 +203,7 @@ var script = {
 			if ( params === void 0 ) params = this.query;
 
 			this.states.loading = true;
-			var ref = this.result.pagination;
+			var ref = this.data.pagination;
 			var total = ref.total;
 
 			this.fetch(params)
@@ -286,16 +277,16 @@ var script = {
 
 			switch(type) {
 				case 'append':
-					this.$set(this.result, 'data', this.result.data.concat( data));
+					this.$set(this.data, 'items', this.data.items.concat( data));
 					break;
 
 				default:
-					this.$set(this.result, 'data', data);
+					this.$set(this.data, 'items', data);
 					break;
 			}
 
 			if (filters && filters.length) {
-				this.$set(this.result, 'filters', filters);
+				this.$set(this.data, 'filters', filters);
 			}
 
 			this.updatePaginationParams(pagination);
@@ -306,7 +297,7 @@ var script = {
 			setQueryParams(params);
 		},
 		updatePaginationParams: function updatePaginationParams(pagination) {
-			this.$set(this.result, 'pagination', pagination);
+			this.$set(this.data, 'pagination', pagination);
 
 			// Always fetch with the configured limit.
 			this.query.limit = this.config.limit;
@@ -318,7 +309,7 @@ var script = {
 /* script */
             var __vue_script__ = script;
 /* template */
-var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:['sky-list', { loading : _vm.states.loading }]},[_vm._t("default",[((_vm.validQuery || _vm.config.immediate))?_c('div',{staticClass:"sky-list-content"},[(_vm.config.showCount && _vm.states.hasFetchedOnce && (_vm.result.data.length > 0))?_c('div',{staticClass:"sky-list-message"},[_c('span')]):_vm._e(),_vm._v(" "),(_vm.result.data.length > 0)?_c('div',{staticClass:"sky-list-result"},[_c('ul',_vm._l((_vm.result.data),function(item,index){return _c('li',{key:item.id,staticClass:"sky-list-item"},[_c('span',{domProps:{"textContent":_vm._s(("Result item with ID: " + (item.id)))}})])}))]):(_vm.states.hasFetchedOnce)?_c('div',{staticClass:"sky-list-result empty"},[_c('span',{domProps:{"textContent":_vm._s('Your search returned no results')}})]):_vm._e(),_vm._v(" "),_c('div',{class:_vm.sky-_vm.list-_vm.pagination},[_c('button',{staticClass:"sky-list-more",on:{"click":function($event){_vm.more(true);}}},[_c('span',{domProps:{"textContent":_vm._s("Show All")}})])])]):_vm._e()],{query:_vm.query,result:_vm.result.data,filters:_vm.result.filters,states:_vm.states,pagination:_vm.result.pagination,fetch:_vm.more})],2)};
+var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:['sky-list', { loading : _vm.states.loading }]},[_vm._t("default",[((_vm.validQuery || _vm.config.immediate))?_c('div',{staticClass:"sky-list-content"},[(_vm.config.showCount && _vm.states.hasFetchedOnce && (_vm.result.data.length > 0))?_c('div',{staticClass:"sky-list-message"},[_c('span')]):_vm._e(),_vm._v(" "),(_vm.result.data.length > 0)?_c('div',{staticClass:"sky-list-result"},[_c('ul',_vm._l((_vm.result.data),function(item,index){return _c('li',{key:item.id,staticClass:"sky-list-item"},[_c('span',{domProps:{"textContent":_vm._s(("Result item with ID: " + (item.id)))}})])}))]):(_vm.states.hasFetchedOnce)?_c('div',{staticClass:"sky-list-result empty"},[_c('span',{domProps:{"textContent":_vm._s('Your search returned no results')}})]):_vm._e(),_vm._v(" "),_c('div',{class:_vm.sky-_vm.list-_vm.pagination},[_c('button',{staticClass:"sky-list-more",on:{"click":function($event){_vm.more(true);}}},[_c('span',{domProps:{"textContent":_vm._s("Show All")}})])])]):_vm._e()],{query:_vm.queryParts.parameters,result:_vm.data.items,filters:_vm.data.filters,states:_vm.states,pagination:_vm.data.pagination,fetch:_vm.more})],2)};
 var __vue_staticRenderFns__ = [];
 
   /* style */

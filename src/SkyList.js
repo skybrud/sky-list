@@ -63,13 +63,18 @@ export default {
 	},
 	data() {
 		return {
-			previousQuery: null,
 			query: Object.assign(
 				{},
 				this.parameters,
-				getQueryParams(), // initiate with query params from url
+				getQueryParams(), // FJERNES EVT FOR AT SKABE SÆRSKILT CASE FOR URL REQUEST!
 				{ limit: this.options.limit || defaultOptions.limit },
 			),
+			queryParts: {
+				filter: null,
+				parameters: this.parameters,
+				limit: this.options.limit || defaultOptions.limit,
+				// previous: null,
+			},
 			config: Object.assign(
 				{},
 				defaultOptions,
@@ -80,8 +85,8 @@ export default {
 				cancelToken: null,
 				loading: false,
 			},
-			result: {
-				data: [],
+			data: {
+				items: [],
 				filters: null,
 				pagination: {
 					limit: null,
@@ -92,27 +97,12 @@ export default {
 		};
 	},
 	computed: {
-		parameterQuery() {
-			const filterKeyArray = Object.keys(this.result.filters);
-
-			return Object.keys(this.query).reduce((acc, cur) => {
-				if (!filterKeyArray.includes(cur)) {
-					acc[cur] = this.query[key];
-				}
-
-				return acc;
-			}, {});
-		},
-		filterQuery() {
-			const filterKeyArray = Object.keys(this.result.filters);
-
-			return Object.keys(this.query).reduce((acc, cur) => {
-				if (filterKeyArray.includes(cur)) {
-					acc[cur] = this.query[key];
-				}
-
-				return acc;
-			}, {});
+		requestQuery() {
+			return Object.assign(
+				{},
+				this.queryParts.parameters,
+				this.queryParts.limit,
+			);
 		},
 		validQuery() {
 			return (typeof this.validateQuery === 'function')
@@ -129,13 +119,18 @@ export default {
 		},
 	},
 	watch: {
+		'queryParts.filters': function(value) {
+			console.log('QP filters', value);
+		},
 		'states.loading': function(value) {
 			value
 				? this.$emit('loadingBegin')
 				: this.$emit('loadingEnd');
 		},
-		query: {
+		requestQuery: {
 			handler() {
+				console.log('Changed request, motherfucker');
+
 				if (this.enableLiveSearch && this.validQuery) {
 					this.states.loading = true;
 					this.debounce(this.request);
@@ -146,18 +141,18 @@ export default {
 			},
 			deep: true,
 		},
-		filterQuery: {
-			handler() {
-				console.log('Filter part to query changed');
-			},
-			deep: true,
-		},
-		parameterQuery: {
-			handler() {
-				console.log('Parameter part of query changed');
-			},
-			deep: true,
-		},
+		// query: {
+		// 	handler() {
+		// 		if (this.enableLiveSearch && this.validQuery) {
+		// 			this.states.loading = true;
+		// 			this.debounce(this.request);
+		// 		} else if (!this.validQuery) {
+		// 			// Clear request params from url
+		// 			this.updateUrlParams({});
+		// 		}
+		// 	},
+		// 	deep: true,
+		// },
 	},
 	mounted() {
 		// Do fetch on mount, if configured to or if initiated with valid query from url params
@@ -179,7 +174,7 @@ export default {
 			cb();
 		}, 500),
 		more(all) {
-			const { limit, total, offset } = this.result.pagination;
+			const { limit, total, offset } = this.data.pagination;
 			const newPagination = {
 				limit,
 				offset: offset + limit,
@@ -196,7 +191,7 @@ export default {
 		},
 		request(type = 'new', params = this.query) {
 			this.states.loading = true;
-			const { total } = this.result.pagination;
+			const { total } = this.data.pagination;
 
 			this.fetch(params)
 				.then((result) => {
@@ -265,16 +260,16 @@ export default {
 
 			switch(type) {
 				case 'append':
-					this.$set(this.result, 'data', [...this.result.data, ...data])
+					this.$set(this.data, 'items', [...this.data.items, ...data])
 					break;
 
 				default:
-					this.$set(this.result, 'data', data);
+					this.$set(this.data, 'items', data);
 					break;
 			}
 
 			if (filters && filters.length) {
-				this.$set(this.result, 'filters', filters);
+				this.$set(this.data, 'filters', filters);
 			}
 
 			this.updatePaginationParams(pagination);
@@ -285,7 +280,7 @@ export default {
 			setQueryParams(params);
 		},
 		updatePaginationParams(pagination) {
-			this.$set(this.result, 'pagination', pagination);
+			this.$set(this.data, 'pagination', pagination);
 
 			// Always fetch with the configured limit.
 			this.query.limit = this.config.limit;

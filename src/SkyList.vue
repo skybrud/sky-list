@@ -5,11 +5,11 @@
 <template>
 	<div :class="['sky-list', { loading : states.loading }]">
 		<slot
-			:query="query"
-			:result="result.data"
-			:filters="result.filters"
+			:query="queryParts.parameters"
+			:result="data.items"
+			:filters="data.filters"
 			:states="states"
-			:pagination="result.pagination"
+			:pagination="data.pagination"
 			:fetch="more"
 		>
 			<!-- <div class="sky-list-form">
