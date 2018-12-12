@@ -64,7 +64,7 @@ export default {
 	data() {
 		return {
 			queryParts: {
-				filters: null,
+				filters: {},
 				parameters: this.parameters,
 				pagination: {
 					limit: this.options.limit || defaultOptions.limit,
@@ -94,10 +94,11 @@ export default {
 		};
 	},
 	computed: {
-		requestQuery: function requestQuery() {
+		requestQuery() {
 			const nonUrlQuery = Object.assign({},
 				this.queryParts.parameters,
-				this.queryParts.limit
+				this.queryParts.filters,
+				this.queryParts.pagination.limit
 			);
 
 			if (this.states.hasFetchedOnce) {

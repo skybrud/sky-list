@@ -75,7 +75,7 @@ var script = {
 	data: function data() {
 		return {
 			queryParts: {
-				filters: null,
+				filters: {},
 				parameters: this.parameters,
 				pagination: {
 					limit: this.options.limit || defaultOptions.limit,
@@ -108,7 +108,8 @@ var script = {
 		requestQuery: function requestQuery() {
 			var nonUrlQuery = Object.assign({},
 				this.queryParts.parameters,
-				this.queryParts.limit
+				this.queryParts.filters,
+				this.queryParts.pagination.limit
 			);
 
 			if (this.states.hasFetchedOnce) {
