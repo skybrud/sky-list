@@ -21,13 +21,13 @@ function getQueryParams() {
 function setQueryParams(params, skipNulls = true) {
 	if (typeof window !== 'undefined') {
 		const { protocol, host, pathname } = window.location;
-		const baseUrl = `${protocol}//${host}${pathname}`;
-
-		window.history.replaceState('', '', `${baseUrl}${qs.stringify(params, {
+		const newUrl = `${protocol}//${host}${pathname}${qs.stringify(params, {
 			skipNulls,
 			arrayFormat: 'repeat',
 			addQueryPrefix: true,
-		})}`);
+		})}`;
+
+		window.history.replaceState('', '', `${newUrl}`);
 	}
 }
 
@@ -99,17 +99,19 @@ export default {
 	},
 	mounted() {
 		// Do fetch on mount, if configured to or if initiated with valid query from url params
-		if (this.config.listType === 'more' && this.query.offset > 0) {
-			this.request('initial', Object.assign(
-				{},
-				this.query,
-				{
-					limit: Number(this.query.offset) + Number(this.query.limit),
-					offset: 0,
-				}
-			));
-		} else {
-			this.request();
+		if (this.config.immediate || this.validQuery) {
+			if (this.config.listType === 'more' && this.query.offset > 0) {
+				this.request('initial', Object.assign(
+					{},
+					this.query,
+					{
+						limit: Number(this.query.offset) + Number(this.query.limit),
+						offset: 0,
+					}
+				));
+			} else {
+				this.request();
+			}
 		}
 	},
 	methods: {

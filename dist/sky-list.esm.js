@@ -27,13 +27,13 @@ function setQueryParams(params, skipNulls) {
 		var protocol = ref.protocol;
 		var host = ref.host;
 		var pathname = ref.pathname;
-		var baseUrl = protocol + "//" + host + pathname;
-
-		window.history.replaceState('', '', ("" + baseUrl + (qs.stringify(params, {
+		var newUrl = protocol + "//" + host + pathname + (qs.stringify(params, {
 			skipNulls: skipNulls,
 			arrayFormat: 'repeat',
 			addQueryPrefix: true,
-		}))));
+		}));
+
+		window.history.replaceState('', '', ("" + newUrl));
 	}
 }
 
@@ -105,17 +105,19 @@ var script = {
 	},
 	mounted: function mounted() {
 		// Do fetch on mount, if configured to or if initiated with valid query from url params
-		if (this.config.listType === 'more' && this.query.offset > 0) {
-			this.request('initial', Object.assign(
-				{},
-				this.query,
-				{
-					limit: Number(this.query.offset) + Number(this.query.limit),
-					offset: 0,
-				}
-			));
-		} else {
-			this.request();
+		if (this.config.immediate || this.validQuery) {
+			if (this.config.listType === 'more' && this.query.offset > 0) {
+				this.request('initial', Object.assign(
+					{},
+					this.query,
+					{
+						limit: Number(this.query.offset) + Number(this.query.limit),
+						offset: 0,
+					}
+				));
+			} else {
+				this.request();
+			}
 		}
 	},
 	methods: {
