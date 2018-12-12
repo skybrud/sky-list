@@ -7,6 +7,7 @@
 		<slot
 			:query="query"
 			:result="result.data"
+			:filters="result.filters"
 			:states="states"
 			:pagination="result.pagination"
 			:fetch="more"

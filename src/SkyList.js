@@ -81,6 +81,7 @@ export default {
 			},
 			result: {
 				data: [],
+				filters: null,
 				pagination: {
 					limit: null,
 					offset: null,
@@ -233,6 +234,10 @@ export default {
 				default:
 					this.$set(this.result, 'data', data);
 					break;
+			}
+
+			if (filters && filters.length) {
+				this.$set(this.result, 'filters', filters);
 			}
 
 			this.updatePaginationParams(pagination);
