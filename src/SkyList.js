@@ -102,20 +102,20 @@ export default {
 				? this.$emit('loadingBegin')
 				: this.$emit('loadingEnd');
 		},
-		query: {
-			handler() {
-				if (this.liveSearch && this.validQuery) {
-					console.log('Hi lo');
-					this.states.loading = true;
-					this.debounce(this.request);
-					// this.handleUserSearch();
-				} else if (!this.validQuery) {
-					// Clear request params from url
-					this.updateUrlParams({});
-				}
-			},
-			deep: true,
-		},
+		// query: {
+		// 	handler() {
+		// 		if (this.liveSearch && this.validQuery) {
+		// 			console.log('Hi lo');
+		// 			this.states.loading = true;
+		// 			this.debounce(this.request);
+		// 			// this.handleUserSearch();
+		// 		} else if (!this.validQuery) {
+		// 			// Clear request params from url
+		// 			this.updateUrlParams({});
+		// 		}
+		// 	},
+		// 	deep: true,
+		// },
 	},
 	mounted() {
 		// Do fetch on mount, if configured to or if initiated with valid query from url params
@@ -133,6 +133,27 @@ export default {
 				this.request();
 			}
 		}
+
+		this.$nextTick(() => {
+			this.$watch(
+				'query',
+				function handler() {
+					if (this.liveSearch && this.validQuery) {
+						console.log('1: Hi lo');
+						this.states.loading = true;
+						// this.debounce(this.request);
+						this.request();
+						// this.handleUserSearch();
+					} else if (!this.validQuery) {
+						// Clear request params from url
+						this.updateUrlParams({});
+					}
+				},
+				{
+					deep: true,
+				},
+			)
+		});
 	},
 	methods: {
 		debounce: debounce(function(cb) {

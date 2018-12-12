@@ -107,22 +107,24 @@ var script = {
 				? this.$emit('loadingBegin')
 				: this.$emit('loadingEnd');
 		},
-		query: {
-			handler: function handler() {
-				if (this.liveSearch && this.validQuery) {
-					console.log('Hi lo');
-					this.states.loading = true;
-					this.debounce(this.request);
-					// this.handleUserSearch();
-				} else if (!this.validQuery) {
-					// Clear request params from url
-					this.updateUrlParams({});
-				}
-			},
-			deep: true,
-		},
+		// query: {
+		// 	handler() {
+		// 		if (this.liveSearch && this.validQuery) {
+		// 			console.log('Hi lo');
+		// 			this.states.loading = true;
+		// 			this.debounce(this.request);
+		// 			// this.handleUserSearch();
+		// 		} else if (!this.validQuery) {
+		// 			// Clear request params from url
+		// 			this.updateUrlParams({});
+		// 		}
+		// 	},
+		// 	deep: true,
+		// },
 	},
 	mounted: function mounted() {
+		var this$1 = this;
+
 		// Do fetch on mount, if configured to or if initiated with valid query from url params
 		if (this.config.immediate || this.validQuery) {
 			if (this.config.listType === 'more' && this.query.offset > 0) {
@@ -138,6 +140,27 @@ var script = {
 				this.request();
 			}
 		}
+
+		this.$nextTick(function () {
+			this$1.$watch(
+				'query',
+				function handler() {
+					if (this.liveSearch && this.validQuery) {
+						console.log('1: Hi lo');
+						this.states.loading = true;
+						// this.debounce(this.request);
+						this.request();
+						// this.handleUserSearch();
+					} else if (!this.validQuery) {
+						// Clear request params from url
+						this.updateUrlParams({});
+					}
+				},
+				{
+					deep: true,
+				}
+			);
+		});
 	},
 	methods: {
 		debounce: debounce(function(cb) {
