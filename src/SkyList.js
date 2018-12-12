@@ -7,7 +7,6 @@ const defaultOptions = {
 	limit: 10,
 	immediate: false,
 	listType: 'more',
-	debounce: 500,
 };
 
 function getQueryParams() {
@@ -142,7 +141,7 @@ export default {
 	methods: {
 		debounce: debounce(function(cb) {
 			cb();
-		}, this.config.debounce),
+		}, 500),
 		more(all) {
 			const { limit, total, offset } = this.result.pagination;
 			const newPagination = {

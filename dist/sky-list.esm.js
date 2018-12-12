@@ -7,7 +7,6 @@ var defaultOptions = {
 	limit: 10,
 	immediate: false,
 	listType: 'more',
-	debounce: 500,
 };
 
 function getQueryParams() {
@@ -147,7 +146,7 @@ var script = {
 	methods: {
 		debounce: debounce(function(cb) {
 			cb();
-		}, undefined.config.debounce),
+		}, 500),
 		more: function more(all) {
 			var ref = this.result.pagination;
 			var limit = ref.limit;
