@@ -6,7 +6,7 @@
 	<div :class="['sky-list', { loading : states.loading }]">
 		<slot
 			:query="{
-				paramters: queryParts.parameters,
+				parameters: queryParts.parameters,
 				filters: queryParts.filters,
 			}"
 			:result="data.items"

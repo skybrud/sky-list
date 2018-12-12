@@ -75,7 +75,7 @@ var script = {
 	data: function data() {
 		return {
 			queryParts: {
-				filter: null,
+				filters: null,
 				parameters: this.parameters,
 				pagination: {
 					limit: this.options.limit || defaultOptions.limit,
@@ -176,8 +176,11 @@ var script = {
 		}
 	},
 	methods: {
-		debounce: debounce(function(cb) {
-			cb();
+		debounce: debounce(function(ref) {
+			var cb = ref.cb;
+			var args = ref.args;
+
+			cb(args);
 		}, 500),
 		more: function more(all) {
 			var ref = this.data.pagination;
@@ -321,7 +324,7 @@ var script = {
             var __vue_script__ = script;
 /* template */
 var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:['sky-list', { loading : _vm.states.loading }]},[_vm._t("default",null,{query:{
-			paramters: _vm.queryParts.parameters,
+			parameters: _vm.queryParts.parameters,
 			filters: _vm.queryParts.filters,
 		},result:_vm.data.items,filters:_vm.data.filters,states:_vm.states,pagination:_vm.data.pagination,fetch:_vm.more})],2)};
 var __vue_staticRenderFns__ = [];
@@ -331,7 +334,7 @@ var __vue_staticRenderFns__ = [];
   /* scoped */
   var __vue_scope_id__ = undefined;
   /* module identifier */
-  var __vue_module_identifier__ = "data-v-34f0278a";
+  var __vue_module_identifier__ = "data-v-bb6940a4";
   /* functional template */
   var __vue_is_functional_template__ = false;
   /* component normalizer */

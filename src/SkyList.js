@@ -64,7 +64,7 @@ export default {
 	data() {
 		return {
 			queryParts: {
-				filter: null,
+				filters: null,
 				parameters: this.parameters,
 				pagination: {
 					limit: this.options.limit || defaultOptions.limit,
@@ -165,8 +165,8 @@ export default {
 		}
 	},
 	methods: {
-		debounce: debounce(function(cb) {
-			cb();
+		debounce: debounce(function({ cb, args }) {
+			cb(args);
 		}, 500),
 		more(all) {
 			const { limit, total, offset } = this.data.pagination;
