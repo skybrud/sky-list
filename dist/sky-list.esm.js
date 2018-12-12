@@ -230,7 +230,7 @@ var script = {
 
 				default:
 					this.$set(this.result, 'data', data);
-					break
+					break;
 			}
 
 			this.updatePaginationParams(pagination);
