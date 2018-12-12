@@ -111,9 +111,8 @@ var script = {
 			handler: function handler() {
 				if (this.liveSearch && this.validQuery) {
 					console.log('Hi lo');
-					debounce(function() {
-						console.log('bounce IT');
-					}, 200);
+					this.states.loading = true;
+					this.debounce(this.request);
 					// this.handleUserSearch();
 				} else if (!this.validQuery) {
 					// Clear request params from url
@@ -141,6 +140,10 @@ var script = {
 		}
 	},
 	methods: {
+		debounce: debounce(function(cb) {
+			console.log('bouncing');
+			cb();
+		}, 500),
 		more: function more(all) {
 			var ref = this.result.pagination;
 			var limit = ref.limit;
