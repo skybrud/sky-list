@@ -63,6 +63,7 @@ export default {
 	},
 	data() {
 		return {
+			previousQuery: null,
 			query: Object.assign(
 				{},
 				this.parameters,
@@ -91,6 +92,28 @@ export default {
 		};
 	},
 	computed: {
+		parameterQuery() {
+			const filterKeyArray = Object.keys(this.result.filters);
+
+			return Object.keys(this.query).reduce((acc, cur) => {
+				if (!filterKeyArray.includes(cur)) {
+					acc[cur] = this.query[key];
+				}
+
+				return acc;
+			}, {});
+		},
+		filterQuery() {
+			const filterKeyArray = Object.keys(this.result.filters);
+
+			return Object.keys(this.query).reduce((acc, cur) => {
+				if (filterKeyArray.includes(cur)) {
+					acc[cur] = this.query[key];
+				}
+
+				return acc;
+			}, {});
+		},
 		validQuery() {
 			return (typeof this.validateQuery === 'function')
 				? this.validateQuery(this.query)
@@ -120,6 +143,18 @@ export default {
 					// Clear request params from url
 					this.updateUrlParams({});
 				}
+			},
+			deep: true,
+		},
+		filterQuery: {
+			handler() {
+				console.log('Filter part to query changed');
+			},
+			deep: true,
+		},
+		parameterQuery: {
+			handler() {
+				console.log('Parameter part of query changed');
 			},
 			deep: true,
 		},
@@ -186,6 +221,8 @@ export default {
 					if (!this.states.hasFetchedOnce) {
 						this.states.hasFetchedOnce = true;
 					}
+
+					this.$set(this, 'previousQuery', this.query);
 				})
 				.catch(this.catchError);
 		},

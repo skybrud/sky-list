@@ -68,6 +68,7 @@ var script = {
 	},
 	data: function data() {
 		return {
+			previousQuery: null,
 			query: Object.assign(
 				{},
 				this.parameters,
@@ -96,6 +97,32 @@ var script = {
 		};
 	},
 	computed: {
+		parameterQuery: function parameterQuery() {
+			var this$1 = this;
+
+			var filterKeyArray = Object.keys(this.result.filters);
+
+			return Object.keys(this.query).reduce(function (acc, cur) {
+				if (!filterKeyArray.includes(cur)) {
+					acc[cur] = this$1.query[key];
+				}
+
+				return acc;
+			}, {});
+		},
+		filterQuery: function filterQuery() {
+			var this$1 = this;
+
+			var filterKeyArray = Object.keys(this.result.filters);
+
+			return Object.keys(this.query).reduce(function (acc, cur) {
+				if (filterKeyArray.includes(cur)) {
+					acc[cur] = this$1.query[key];
+				}
+
+				return acc;
+			}, {});
+		},
 		validQuery: function validQuery() {
 			return (typeof this.validateQuery === 'function')
 				? this.validateQuery(this.query)
@@ -125,6 +152,18 @@ var script = {
 					// Clear request params from url
 					this.updateUrlParams({});
 				}
+			},
+			deep: true,
+		},
+		filterQuery: {
+			handler: function handler() {
+				console.log('Filter part to query changed');
+			},
+			deep: true,
+		},
+		parameterQuery: {
+			handler: function handler() {
+				console.log('Parameter part of query changed');
 			},
 			deep: true,
 		},
@@ -199,6 +238,8 @@ var script = {
 					if (!this$1.states.hasFetchedOnce) {
 						this$1.states.hasFetchedOnce = true;
 					}
+
+					this$1.$set(this$1, 'previousQuery', this$1.query);
 				})
 				.catch(this.catchError);
 		},
