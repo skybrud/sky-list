@@ -216,6 +216,8 @@ export default {
 			}
 
 			this.updatePaginationParams(pagination);
+
+			this.states.loading = false;
 		},
 		updateUrlParams(params) {
 			setQueryParams(params);

@@ -240,6 +240,8 @@ var script = {
 			}
 
 			this.updatePaginationParams(pagination);
+
+			this.states.loading = false;
 		},
 		updateUrlParams: function updateUrlParams(params) {
 			setQueryParams(params);
