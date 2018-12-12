@@ -1,6 +1,6 @@
 import axios from 'axios';
 import qs from 'qs';
-// import debounce from 'debounce';
+import debounce from 'debounce';
 
 const defaultOptions = {
 	api: '/umbraco/api/site/search/',
@@ -63,7 +63,6 @@ export default {
 	},
 	data() {
 		return {
-			previousQuery: {},
 			query: Object.assign(
 				{},
 				this.parameters,
@@ -102,6 +101,21 @@ export default {
 			value
 				? this.$emit('loadingBegin')
 				: this.$emit('loadingEnd');
+		},
+		query: {
+			handler() {
+				if (this.liveSearch && this.validQuery) {
+					console.log('Hi lo');
+					debounce(function() {
+						console.log('bounce IT');
+					}, 200)
+					// this.handleUserSearch();
+				} else if (!this.validQuery) {
+					// Clear request params from url
+					this.updateUrlParams({});
+				}
+			},
+			deep: true,
 		},
 	},
 	mounted() {
