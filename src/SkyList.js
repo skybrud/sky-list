@@ -63,16 +63,19 @@ export default {
 	},
 	data() {
 		return {
-			query: Object.assign(
-				{},
-				this.parameters,
-				getQueryParams(), // FJERNES EVT FOR AT SKABE SÆRSKILT CASE FOR URL REQUEST!
-				{ limit: this.options.limit || defaultOptions.limit },
-			),
+			// query: Object.assign(
+			// 	{},
+			// 	this.parameters,
+			// 	getQueryParams(), // FJERNES EVT FOR AT SKABE SÆRSKILT CASE FOR URL
+			// 	{ limit: this.options.limit || defaultOptions.limit },
+			// ),
 			queryParts: {
 				filter: null,
 				parameters: this.parameters,
-				limit: this.options.limit || defaultOptions.limit,
+				pagination: {
+					limit: this.options.limit || defaultOptions.limit,
+					offset: 0,
+				},
 				// previous: null,
 			},
 			config: Object.assign(
@@ -97,16 +100,28 @@ export default {
 		};
 	},
 	computed: {
-		requestQuery() {
-			return Object.assign(
-				{},
+		requestQuery: function requestQuery() {
+			const nonUrlQuery = Object.assign({},
 				this.queryParts.parameters,
-				this.queryParts.limit,
+				this.queryParts.limit
 			);
+
+			if (this.states.hasFetchedOnce) {
+				return nonUrlQuery;
+			}
+
+			const urlQuery = getQueryParams();
+
+			return !urlQuery
+				? nonUrlQuery
+				: Object.assign({},
+					urlQuery,
+					this.queryParts.pagination.limit
+				);
 		},
 		validQuery() {
 			return (typeof this.validateQuery === 'function')
-				? this.validateQuery(this.query)
+				? this.validateQuery(this.requestQuery)
 				: this.validateQuery;
 		},
 		enableLiveSearch() {
@@ -115,7 +130,7 @@ export default {
 				: this.liveSearch;
 		},
 		forceFetchFromOffsetZero() {
-			return this.config.listType === 'more' && this.query.offset > 0;
+			return this.config.listType === 'more' && this.requestQuery.offset > 0;
 		},
 	},
 	watch: {
@@ -161,9 +176,9 @@ export default {
 				? this.request()
 				: this.request('new', Object.assign(
 					{},
-					this.query,
+					this.requestQuery,
 					{
-						limit: Number(this.query.offset) + Number(this.query.limit),
+						limit: Number(this.requestQuery.offset) + Number(this.requestQuery.limit),
 						offset: 0,
 					},
 				));
@@ -189,7 +204,7 @@ export default {
 
 			this.request('append');
 		},
-		request(type = 'new', params = this.query) {
+		request(type = 'new', params = this.requestQuery) {
 			this.states.loading = true;
 			const { total } = this.data.pagination;
 
@@ -202,7 +217,7 @@ export default {
 					if (notFirstFetch && notNewRequest && totalChanged) {
 						// if total has changed refetch entire list and replace
 						console.log('refetch initiated');
-						this.fetch(Object.assign({}, this.query, {
+						this.fetch(Object.assign({}, this.requestQuery, {
 							limit: this.config.limit,
 							offset: 0,
 						})).then((secondaryResult) => {
@@ -216,8 +231,6 @@ export default {
 					if (!this.states.hasFetchedOnce) {
 						this.states.hasFetchedOnce = true;
 					}
-
-					this.$set(this, 'previousQuery', this.query);
 				})
 				.catch(this.catchError);
 		},
@@ -283,8 +296,8 @@ export default {
 			this.$set(this.data, 'pagination', pagination);
 
 			// Always fetch with the configured limit.
-			this.query.limit = this.config.limit;
-			this.query.offset = pagination.offset;
+			this.requestQuery.limit = this.config.limit;
+			this.requestQuery.offset = pagination.offset;
 		},
 	},
 };

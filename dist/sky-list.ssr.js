@@ -74,16 +74,19 @@ var script = {
 	},
 	data: function data() {
 		return {
-			query: Object.assign(
-				{},
-				this.parameters,
-				getQueryParams(), // initiate with query params from url
-				{ limit: this.options.limit || defaultOptions.limit }
-			),
+			// query: Object.assign(
+			// 	{},
+			// 	this.parameters,
+			// 	getQueryParams(), // FJERNES EVT FOR AT SKABE SÆRSKILT CASE FOR URL
+			// 	{ limit: this.options.limit || defaultOptions.limit },
+			// ),
 			queryParts: {
 				filter: null,
 				parameters: this.parameters,
-				limit: this.options.limit || defaultOptions.limit,
+				pagination: {
+					limit: this.options.limit || defaultOptions.limit,
+					offset: 0,
+				},
 				// previous: null,
 			},
 			config: Object.assign(
@@ -109,15 +112,27 @@ var script = {
 	},
 	computed: {
 		requestQuery: function requestQuery() {
-			return Object.assign(
-				{},
+			var nonUrlQuery = Object.assign({},
 				this.queryParts.parameters,
 				this.queryParts.limit
 			);
+
+			if (this.states.hasFetchedOnce) {
+				return nonUrlQuery;
+			}
+
+			var urlQuery = getQueryParams();
+
+			return !urlQuery
+				? nonUrlQuery
+				: Object.assign({},
+					urlQuery,
+					this.queryParts.pagination.limit
+				);
 		},
 		validQuery: function validQuery() {
 			return (typeof this.validateQuery === 'function')
-				? this.validateQuery(this.query)
+				? this.validateQuery(this.requestQuery)
 				: this.validateQuery;
 		},
 		enableLiveSearch: function enableLiveSearch() {
@@ -126,7 +141,7 @@ var script = {
 				: this.liveSearch;
 		},
 		forceFetchFromOffsetZero: function forceFetchFromOffsetZero() {
-			return this.config.listType === 'more' && this.query.offset > 0;
+			return this.config.listType === 'more' && this.requestQuery.offset > 0;
 		},
 	},
 	watch: {
@@ -172,9 +187,9 @@ var script = {
 				? this.request()
 				: this.request('new', Object.assign(
 					{},
-					this.query,
+					this.requestQuery,
 					{
-						limit: Number(this.query.offset) + Number(this.query.limit),
+						limit: Number(this.requestQuery.offset) + Number(this.requestQuery.limit),
 						offset: 0,
 					}
 				));
@@ -206,7 +221,7 @@ var script = {
 		request: function request(type, params) {
 			var this$1 = this;
 			if ( type === void 0 ) type = 'new';
-			if ( params === void 0 ) params = this.query;
+			if ( params === void 0 ) params = this.requestQuery;
 
 			this.states.loading = true;
 			var ref = this.data.pagination;
@@ -221,7 +236,7 @@ var script = {
 					if (notFirstFetch && notNewRequest && totalChanged) {
 						// if total has changed refetch entire list and replace
 						console.log('refetch initiated');
-						this$1.fetch(Object.assign({}, this$1.query, {
+						this$1.fetch(Object.assign({}, this$1.requestQuery, {
 							limit: this$1.config.limit,
 							offset: 0,
 						})).then(function (secondaryResult) {
@@ -235,8 +250,6 @@ var script = {
 					if (!this$1.states.hasFetchedOnce) {
 						this$1.states.hasFetchedOnce = true;
 					}
-
-					this$1.$set(this$1, 'previousQuery', this$1.query);
 				})
 				.catch(this.catchError);
 		},
@@ -306,8 +319,8 @@ var script = {
 			this.$set(this.data, 'pagination', pagination);
 
 			// Always fetch with the configured limit.
-			this.query.limit = this.config.limit;
-			this.query.offset = pagination.offset;
+			this.requestQuery.limit = this.config.limit;
+			this.requestQuery.offset = pagination.offset;
 		},
 	},
 };
@@ -315,7 +328,7 @@ var script = {
 /* script */
             var __vue_script__ = script;
 /* template */
-var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:['sky-list', { loading : _vm.states.loading }]},[_vm._t("default",[((_vm.validQuery || _vm.config.immediate))?_c('div',{staticClass:"sky-list-content"},[(_vm.config.showCount && _vm.states.hasFetchedOnce && (_vm.result.data.length > 0))?_c('div',{staticClass:"sky-list-message"},[_c('span')]):_vm._e(),_vm._v(" "),(_vm.result.data.length > 0)?_c('div',{staticClass:"sky-list-result"},[_c('ul',_vm._l((_vm.result.data),function(item,index){return _c('li',{key:item.id,staticClass:"sky-list-item"},[_c('span',{domProps:{"textContent":_vm._s(("Result item with ID: " + (item.id)))}})])}))]):(_vm.states.hasFetchedOnce)?_c('div',{staticClass:"sky-list-result empty"},[_c('span',{domProps:{"textContent":_vm._s('Your search returned no results')}})]):_vm._e(),_vm._v(" "),_c('div',{class:_vm.sky-_vm.list-_vm.pagination},[_c('button',{staticClass:"sky-list-more",on:{"click":function($event){_vm.more(true);}}},[_c('span',{domProps:{"textContent":_vm._s("Show All")}})])])]):_vm._e()],{query:_vm.queryParts.parameters,result:_vm.data.items,filters:_vm.data.filters,states:_vm.states,pagination:_vm.data.pagination,fetch:_vm.more})],2)};
+var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:['sky-list', { loading : _vm.states.loading }]},[_vm._t("default",null,{query:_vm.queryParts.parameters,result:_vm.data.items,filters:_vm.data.filters,states:_vm.states,pagination:_vm.data.pagination,fetch:_vm.more})],2)};
 var __vue_staticRenderFns__ = [];
 
   /* style */
@@ -323,7 +336,7 @@ var __vue_staticRenderFns__ = [];
   /* scoped */
   var __vue_scope_id__ = undefined;
   /* module identifier */
-  var __vue_module_identifier__ = "data-v-3879fc7e";
+  var __vue_module_identifier__ = "data-v-29dcf7ab";
   /* functional template */
   var __vue_is_functional_template__ = false;
   /* component normalizer */
