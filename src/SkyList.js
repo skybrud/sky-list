@@ -197,7 +197,6 @@ export default {
 			this.request('append');
 		},
 		requestHub(type) {
-			console.log('Changed request, motherfucker');
 			if (this.enableLiveSearch && this.validQuery) {
 				this.states.loading = true;
 				this.debounce({ cb: this.request, args: [type] });
@@ -212,11 +211,13 @@ export default {
 
 			this.fetch(params)
 				.then((result) => {
-					const notFirstFetch = total !== null;
+					// const notFirstFetch = total !== null;
 					const totalChanged = total !== result.pagination.total;
 					const notNewRequest = type !== 'new';
+					const notFilterRequest = type !== 'filter';
+					const initiateNewFetch = notFilterRequest && notNewRequest && totalChanged;
 
-					if (notFirstFetch && notNewRequest && totalChanged) {
+					if (initiateNewFetch) {
 						// if total has changed refetch entire list and replace
 						console.log('refetch initiated');
 						this.fetch(Object.assign({}, this.requestQuery, {
