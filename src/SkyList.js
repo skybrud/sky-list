@@ -71,6 +71,7 @@ export default {
 					offset: 0,
 				},
 				// previous: null,
+				url: getQueryParams(),
 			},
 			config: Object.assign(
 				{},
@@ -97,22 +98,32 @@ export default {
 		requestQuery() {
 			const nonUrlQuery = Object.assign({},
 				this.queryParts.parameters,
-				this.queryParts.filters,
-				this.queryParts.pagination.limit
+				this.queryParts.pagination
 			);
 
-			if (this.states.hasFetchedOnce) {
-				return nonUrlQuery;
+			const queryUrlKeys = Object.keys(this.queryParts.url);
+
+			if (!this.states.hasFetchedOnce && queryUrlKeys.length) {
+				const urlQueryFilters = queryUrlKeys
+					.filter(key => Object.keys(nonUrlQuery).join(' ').indexOf(key) === -1)
+					.reduce((acc, cur) => {
+						const curValue = this.queryParts.url[cur];
+						acc[cur] = Array.isArray(curValue)
+							? [...curValue]
+							: [curValue];
+
+						return acc;
+					}, {});
+
+				this.$set(this.queryParts, 'filters', urlQueryFilters);
+
+				return Object.assign({},
+					this.queryParts.url,
+					{ limit: this.queryParts.pagination.limit }
+				);
 			}
 
-			const urlQuery = getQueryParams();
-
-			return !urlQuery
-				? nonUrlQuery
-				: Object.assign({},
-					urlQuery,
-					this.queryParts.pagination.limit
-				);
+			return nonUrlQuery;
 		},
 		validQuery() {
 			return (typeof this.validateQuery === 'function')
@@ -280,6 +291,18 @@ export default {
 		updateFilters(filters) {
 			if (filters && filters.length) {
 				this.$set(this.data, 'filters', filters);
+
+				const compiledFilter = {};
+
+				for (let i = filters.length - 1; i >= 0; i--) {
+					const curValue = this.queryParts.filters[filters[i].alias];
+
+					compiledFilter[filters[i].alias] = !this.states.hasFetchedOnce && curValue
+						? [...curValue]
+						: [];
+				}
+
+				this.$set(this.queryParts, 'filters', compiledFilter);
 			}
 		},
 		updateUrlParams(params) {

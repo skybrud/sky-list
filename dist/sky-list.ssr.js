@@ -82,6 +82,7 @@ var script = {
 					offset: 0,
 				},
 				// previous: null,
+				url: getQueryParams(),
 			},
 			config: Object.assign(
 				{},
@@ -106,24 +107,36 @@ var script = {
 	},
 	computed: {
 		requestQuery: function requestQuery() {
+			var this$1 = this;
+
 			var nonUrlQuery = Object.assign({},
 				this.queryParts.parameters,
-				this.queryParts.filters,
-				this.queryParts.pagination.limit
+				this.queryParts.pagination
 			);
 
-			if (this.states.hasFetchedOnce) {
-				return nonUrlQuery;
+			var queryUrlKeys = Object.keys(this.queryParts.url);
+
+			if (!this.states.hasFetchedOnce && queryUrlKeys.length) {
+				var urlQueryFilters = queryUrlKeys
+					.filter(function (key) { return Object.keys(nonUrlQuery).join(' ').indexOf(key) === -1; })
+					.reduce(function (acc, cur) {
+						var curValue = this$1.queryParts.url[cur];
+						acc[cur] = Array.isArray(curValue)
+							? [].concat( curValue )
+							: [curValue];
+
+						return acc;
+					}, {});
+
+				this.$set(this.queryParts, 'filters', urlQueryFilters);
+
+				return Object.assign({},
+					this.queryParts.url,
+					{ limit: this.queryParts.pagination.limit }
+				);
 			}
 
-			var urlQuery = getQueryParams();
-
-			return !urlQuery
-				? nonUrlQuery
-				: Object.assign({},
-					urlQuery,
-					this.queryParts.pagination.limit
-				);
+			return nonUrlQuery;
 		},
 		validQuery: function validQuery() {
 			return (typeof this.validateQuery === 'function')
@@ -304,8 +317,22 @@ var script = {
 			this.states.loading = false;
 		},
 		updateFilters: function updateFilters(filters) {
+			var this$1 = this;
+
 			if (filters && filters.length) {
 				this.$set(this.data, 'filters', filters);
+
+				var compiledFilter = {};
+
+				for (var i = filters.length - 1; i >= 0; i--) {
+					var curValue = this$1.queryParts.filters[filters[i].alias];
+
+					compiledFilter[filters[i].alias] = !this$1.states.hasFetchedOnce && curValue
+						? [].concat( curValue )
+						: [];
+				}
+
+				this.$set(this.queryParts, 'filters', compiledFilter);
 			}
 		},
 		updateUrlParams: function updateUrlParams(params) {
