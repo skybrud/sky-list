@@ -74,7 +74,6 @@ export default {
 					limit: this.options.limit || defaultOptions.limit,
 					offset: 0,
 				},
-				url: getQueryParams(),
 			},
 			queryUrl: this.getUrlQuery(),
 			config: Object.assign(
@@ -83,6 +82,7 @@ export default {
 				this.options,
 			),
 			states: {
+				hasInitialQueryUrl: false,
 				hasFetchedOnce: false,
 				cancelToken: null,
 				loading: false,
@@ -99,7 +99,7 @@ export default {
 		};
 	},
 	computed: {
-		parameterKeysString() {
+		parametersKeysString() {
 			return Object.keys(this.parameters).join(' ');
 		},
 		filterKeysString() {
@@ -108,6 +108,13 @@ export default {
 				acc.push(cur.alias);
 				return acc;
 			}, []).join(' ');
+		},
+		initialQueryData() {
+			const urlObject = getQueryParams();
+
+			return Object.keys(urlObject).length
+				? urlObject
+				: null;
 		},
 		requestQuery() {
 			return Object.assign({},
@@ -152,19 +159,21 @@ export default {
 		},
 	},
 	mounted() {
-		// TODO: Refactor more funktionalitet ind i en "more" mixin
-		// Do fetch on mount, if configured to or if initiated with valid query from url params
-		if (this.config.immediate || this.validQuery) {
-			!this.forceFetchFromOffsetZero
-				? this.request()
-				: this.request('new', Object.assign(
-					{},
-					this.requestQuery,
-					{
-						limit: Number(this.requestQuery.offset) + Number(this.requestQuery.limit),
-						offset: 0,
-					},
-				));
+		console.log('initial query data', this.initialQueryData());
+		const initialData = this.initialQueryData();
+
+		if (this.forceFetchFromOffsetZero) {
+			Object.assign({},
+				this.queryParts.pagination,
+				{ limit: Number(this.requestQuery.offset) + Number(this.requestQuery.limit) }
+			);
+		}
+
+		if (initialData) {
+			this.hasInitialQueryUrl = true;
+			this.hydrateQueryParts(initialData);
+		} else if (this.config.immediate) {
+			this.request();
 		}
 	},
 	methods: {
@@ -188,7 +197,7 @@ export default {
 			this.request('append');
 		},
 		requestHub(type) {
-			if (this.enableLiveSearch && this.validQuery) {
+			if (this.hasInitialQueryUrl || (this.enableLiveSearch && this.validQuery)) {
 				console.log('rh: a');
 				this.states.loading = true;
 				this.debounce({ cb: this.request, args: [type] });
@@ -319,6 +328,24 @@ export default {
 
 				window.history.replaceState('', '', `${newUrl}`);
 			}
+		},
+		hydrateQueryParts(data) {
+			const presumeItIsFilter = value =>
+				this.parameterKeysString.indexOf(value) === -1
+				&& value !== 'limit'
+				&& value !== 'offset';
+
+			const queryFilters = Object.keys(data).reduce((acc, cur) => {
+				if (acc[cur]) {
+					acc[cur].push(data[cur]);
+				} else if (presumeItIsFilter(cur)) {
+					acc[cur] = [data[cur]];
+				}
+
+				return acc;
+			}, {});
+
+			this.$set(this.queryParts, 'filters', queryFilters);
 		},
 	},
 };

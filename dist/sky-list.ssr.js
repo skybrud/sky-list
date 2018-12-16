@@ -83,7 +83,6 @@ var script = {
 					limit: this.options.limit || defaultOptions.limit,
 					offset: 0,
 				},
-				url: getQueryParams(),
 			},
 			queryUrl: this.getUrlQuery(),
 			config: Object.assign(
@@ -92,6 +91,7 @@ var script = {
 				this.options
 			),
 			states: {
+				hasInitialQueryUrl: false,
 				hasFetchedOnce: false,
 				cancelToken: null,
 				loading: false,
@@ -108,7 +108,7 @@ var script = {
 		};
 	},
 	computed: {
-		parameterKeysString: function parameterKeysString() {
+		parametersKeysString: function parametersKeysString() {
 			return Object.keys(this.parameters).join(' ');
 		},
 		filterKeysString: function filterKeysString() {
@@ -117,6 +117,13 @@ var script = {
 				acc.push(cur.alias);
 				return acc;
 			}, []).join(' ');
+		},
+		initialQueryData: function initialQueryData() {
+			var urlObject = getQueryParams();
+
+			return Object.keys(urlObject).length
+				? urlObject
+				: null;
 		},
 		requestQuery: function requestQuery() {
 			return Object.assign({},
@@ -161,19 +168,21 @@ var script = {
 		},
 	},
 	mounted: function mounted() {
-		// TODO: Refactor more funktionalitet ind i en "more" mixin
-		// Do fetch on mount, if configured to or if initiated with valid query from url params
-		if (this.config.immediate || this.validQuery) {
-			!this.forceFetchFromOffsetZero
-				? this.request()
-				: this.request('new', Object.assign(
-					{},
-					this.requestQuery,
-					{
-						limit: Number(this.requestQuery.offset) + Number(this.requestQuery.limit),
-						offset: 0,
-					}
-				));
+		console.log('initial query data', this.initialQueryData());
+		var initialData = this.initialQueryData();
+
+		if (this.forceFetchFromOffsetZero) {
+			Object.assign({},
+				this.queryParts.pagination,
+				{ limit: Number(this.requestQuery.offset) + Number(this.requestQuery.limit) }
+			);
+		}
+
+		if (initialData) {
+			this.hasInitialQueryUrl = true;
+			this.hydrateQueryParts(initialData);
+		} else if (this.config.immediate) {
+			this.request();
 		}
 	},
 	methods: {
@@ -203,7 +212,7 @@ var script = {
 			this.request('append');
 		},
 		requestHub: function requestHub(type) {
-			if (this.enableLiveSearch && this.validQuery) {
+			if (this.hasInitialQueryUrl || (this.enableLiveSearch && this.validQuery)) {
 				console.log('rh: a');
 				this.states.loading = true;
 				this.debounce({ cb: this.request, args: [type] });
@@ -346,6 +355,25 @@ var script = {
 
 				window.history.replaceState('', '', ("" + newUrl));
 			}
+		},
+		hydrateQueryParts: function hydrateQueryParts(data) {
+			var this$1 = this;
+
+			var presumeItIsFilter = function (value) { return this$1.parameterKeysString.indexOf(value) === -1
+				&& value !== 'limit'
+				&& value !== 'offset'; };
+
+			var queryFilters = Object.keys(data).reduce(function (acc, cur) {
+				if (acc[cur]) {
+					acc[cur].push(data[cur]);
+				} else if (presumeItIsFilter(cur)) {
+					acc[cur] = [data[cur]];
+				}
+
+				return acc;
+			}, {});
+
+			this.$set(this.queryParts, 'filters', queryFilters);
 		},
 	},
 };
