@@ -15,13 +15,13 @@ var defaultOptions = {
 	listType: 'more',
 };
 
-function objectToQueryString(params) {
-	return qs.stringify(params, {
-		skipNulls: true,
-		arrayFormat: 'repeat',
-		addQueryPrefix: true,
-	});
-}
+// function objectToQueryString(params) {
+// 	return qs.stringify(params, {
+// 		skipNulls: true,
+// 		arrayFormat: 'repeat',
+// 		addQueryPrefix: true,
+// 	});
+// }
 
 function getQueryParams() {
 	if (typeof window !== 'undefined') {
@@ -32,17 +32,14 @@ function getQueryParams() {
 	return {};
 }
 
-function setQueryParams(params) {
-	if (typeof window !== 'undefined') {
-		var ref = window.location;
-		var protocol = ref.protocol;
-		var host = ref.host;
-		var pathname = ref.pathname;
-		var newUrl = protocol + "//" + host + pathname + (objectToQueryString(params));
+// function setQueryParams(params) {
+// 	if (typeof window !== 'undefined') {
+// 		const { protocol, host, pathname } = window.location;
+// 		const newUrl = `${protocol}//${host}${pathname}${objectToQueryString(params)}`;
 
-		window.history.replaceState('', '', ("" + newUrl));
-	}
-}
+// 		window.history.replaceState('', '', `${newUrl}`);
+// 	}
+// }
 
 var script = {
 	name: 'SkyList',
@@ -168,8 +165,8 @@ var script = {
 		},
 	},
 	mounted: function mounted() {
-		console.log('initial query data', this.initialQueryData());
-		var initialData = this.initialQueryData();
+		console.log('initial query data', getQueryParams());
+		var initialData = getQueryParams();
 
 		if (this.forceFetchFromOffsetZero) {
 			Object.assign({},
@@ -337,14 +334,14 @@ var script = {
 				addQueryPrefix: true,
 			});
 		},
-		queryStringToObject: function queryStringToObject(string) {
-			return qs.parse(string);
-		},
-		getUrlQuery: function getUrlQuery() {
-			return typeof window !== 'undefined'
-				? window.location.search.replace('?', '')
-				: '';
-		},
+		// queryStringToObject(string) {
+		// 	return qs.parse(string);
+		// },
+		// getUrlQuery() {
+		// 	return typeof window !== 'undefined'
+		// 		? window.location.search.replace('?', '')
+		// 		: '';
+		// },
 		setUrlQuery: function setUrlQuery(queryString) {
 			if (typeof window !== 'undefined') {
 				var ref = window.location;
@@ -359,15 +356,15 @@ var script = {
 		hydrateQueryParts: function hydrateQueryParts(data) {
 			var this$1 = this;
 
-			var presumeItIsFilter = function (value) { return this$1.parameterKeysString.indexOf(value) === -1
+			var presumeItIsFilter = function (value) { return this$1.parametersKeysString.indexOf(value) === -1
 				&& value !== 'limit'
 				&& value !== 'offset'; };
 
 			var queryFilters = Object.keys(data).reduce(function (acc, cur) {
-				if (acc[cur]) {
-					acc[cur].push(data[cur]);
-				} else if (presumeItIsFilter(cur)) {
-					acc[cur] = [data[cur]];
+				if (presumeItIsFilter(cur)) {
+					acc[cur] = Array.isArray(data[cur])
+						? data[cur]
+						: [data[cur]];
 				}
 
 				return acc;

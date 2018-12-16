@@ -9,13 +9,13 @@ const defaultOptions = {
 	listType: 'more',
 };
 
-function objectToQueryString(params) {
-	return qs.stringify(params, {
-		skipNulls: true,
-		arrayFormat: 'repeat',
-		addQueryPrefix: true,
-	});
-}
+// function objectToQueryString(params) {
+// 	return qs.stringify(params, {
+// 		skipNulls: true,
+// 		arrayFormat: 'repeat',
+// 		addQueryPrefix: true,
+// 	});
+// }
 
 function getQueryParams() {
 	if (typeof window !== 'undefined') {
@@ -26,14 +26,14 @@ function getQueryParams() {
 	return {};
 }
 
-function setQueryParams(params) {
-	if (typeof window !== 'undefined') {
-		const { protocol, host, pathname } = window.location;
-		const newUrl = `${protocol}//${host}${pathname}${objectToQueryString(params)}`;
+// function setQueryParams(params) {
+// 	if (typeof window !== 'undefined') {
+// 		const { protocol, host, pathname } = window.location;
+// 		const newUrl = `${protocol}//${host}${pathname}${objectToQueryString(params)}`;
 
-		window.history.replaceState('', '', `${newUrl}`);
-	}
-}
+// 		window.history.replaceState('', '', `${newUrl}`);
+// 	}
+// }
 
 export default {
 	name: 'SkyList',
@@ -159,8 +159,8 @@ export default {
 		},
 	},
 	mounted() {
-		console.log('initial query data', this.initialQueryData());
-		const initialData = this.initialQueryData();
+		console.log('initial query data', getQueryParams());
+		const initialData = getQueryParams();
 
 		if (this.forceFetchFromOffsetZero) {
 			Object.assign({},
@@ -313,14 +313,14 @@ export default {
 				addQueryPrefix: true,
 			});
 		},
-		queryStringToObject(string) {
-			return qs.parse(string);
-		},
-		getUrlQuery() {
-			return typeof window !== 'undefined'
-				? window.location.search.replace('?', '')
-				: '';
-		},
+		// queryStringToObject(string) {
+		// 	return qs.parse(string);
+		// },
+		// getUrlQuery() {
+		// 	return typeof window !== 'undefined'
+		// 		? window.location.search.replace('?', '')
+		// 		: '';
+		// },
 		setUrlQuery(queryString) {
 			if (typeof window !== 'undefined') {
 				const { protocol, host, pathname } = window.location;
@@ -331,15 +331,15 @@ export default {
 		},
 		hydrateQueryParts(data) {
 			const presumeItIsFilter = value =>
-				this.parameterKeysString.indexOf(value) === -1
+				this.parametersKeysString.indexOf(value) === -1
 				&& value !== 'limit'
 				&& value !== 'offset';
 
 			const queryFilters = Object.keys(data).reduce((acc, cur) => {
-				if (acc[cur]) {
-					acc[cur].push(data[cur]);
-				} else if (presumeItIsFilter(cur)) {
-					acc[cur] = [data[cur]];
+				if (presumeItIsFilter(cur)) {
+					acc[cur] = Array.isArray(data[cur])
+						? data[cur]
+						: [data[cur]];
 				}
 
 				return acc;
