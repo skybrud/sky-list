@@ -89,7 +89,7 @@ export default {
 			},
 			data: {
 				items: [],
-				filters: {},
+				filters: [],
 				pagination: {
 					limit: null,
 					offset: null,
@@ -100,7 +100,11 @@ export default {
 	},
 	computed: {
 		filterKeys() {
-			return Object.keys(this.data.filters);
+			// Kan bruges ved page load med query url
+			return this.data.filters.reduce((acc, cur) => {
+				acc.push(cur.alias);
+				return acc;
+			}, []).join(' ');
 		},
 		requestQuery() {
 			return Object.assign({},
@@ -108,31 +112,6 @@ export default {
 				this.queryParts.pagination,
 				this.queryParts.filters,
 			);
-
-			const queryUrlKeys = Object.keys(this.queryParts.url);
-
-			//TODO: Finding url skrevne filter parametre bør skrives et andet sted hen.
-			// if (!this.states.hasFetchedOnce && queryUrlKeys.length) {
-			// 	const urlQueryFilters = queryUrlKeys
-			// 		.filter(key => Object.keys(nonUrlQuery).join(' ').indexOf(key) === -1)
-			// 		.reduce((acc, cur) => {
-			// 			const curValue = this.queryParts.url[cur];
-			// 			acc[cur] = Array.isArray(curValue)
-			// 				? [...curValue]
-			// 				: [curValue];
-
-			// 			return acc;
-			// 		}, {});
-
-			// 	this.$set(this.queryParts, 'filters', urlQueryFilters);
-
-			// 	return Object.assign({},
-			// 		this.queryParts.url,
-			// 		{ limit: this.queryParts.pagination.limit }
-			// 	);
-			// }
-
-			// return nonUrlQuery;
 		},
 		validQuery() {
 			return (typeof this.validateQuery === 'function')
@@ -303,18 +282,6 @@ export default {
 		updateFilters(filters) {
 			if (filters && filters.length) {
 				this.$set(this.data, 'filters', filters);
-
-				const compiledFilter = {};
-
-				for (let i = filters.length - 1; i >= 0; i--) {
-					const curValue = this.queryParts.filters[filters[i].alias];
-
-					compiledFilter[filters[i].alias] = !this.states.hasFetchedOnce && curValue
-						? [...curValue]
-						: [];
-				}
-
-				this.$set(this.queryParts, 'filters', compiledFilter);
 			}
 		},
 		updateUrlParams(params) {
@@ -324,8 +291,8 @@ export default {
 			this.$set(this.data, 'pagination', pagination);
 
 			// Always fetch with the configured limit.
-			this.requestQuery.limit = this.config.limit;
-			this.requestQuery.offset = pagination.offset;
+			this.queryParts.pagination.limit = this.config.limit;
+			this.queryParts.pagination.offset = pagination.offset;
 		},
 		objectToQueryString(params) {
 			return qs.stringify(params, {
