@@ -9,6 +9,14 @@ const defaultOptions = {
 	listType: 'more',
 };
 
+function objectToQueryString(params) {
+	return qs.stringify(params, {
+		skipNulls,
+		arrayFormat: 'repeat',
+		addQueryPrefix: true,
+	});
+}
+
 function getQueryParams() {
 	if (typeof window !== 'undefined') {
 		const q = window.location.search.replace('?', '');
@@ -21,11 +29,7 @@ function getQueryParams() {
 function setQueryParams(params, skipNulls = true) {
 	if (typeof window !== 'undefined') {
 		const { protocol, host, pathname } = window.location;
-		const newUrl = `${protocol}//${host}${pathname}${qs.stringify(params, {
-			skipNulls,
-			arrayFormat: 'repeat',
-			addQueryPrefix: true,
-		})}`;
+		const newUrl = `${protocol}//${host}${pathname}${objectToQueryString(params)}`;
 
 		window.history.replaceState('', '', `${newUrl}`);
 	}
@@ -70,9 +74,9 @@ export default {
 					limit: this.options.limit || defaultOptions.limit,
 					offset: 0,
 				},
-				// previous: null,
 				url: getQueryParams(),
 			},
+			queryUrl: this.getUrlQuery(),
 			config: Object.assign(
 				{},
 				defaultOptions,
@@ -85,7 +89,7 @@ export default {
 			},
 			data: {
 				items: [],
-				filters: null,
+				filters: {},
 				pagination: {
 					limit: null,
 					offset: null,
@@ -95,6 +99,9 @@ export default {
 		};
 	},
 	computed: {
+		filterKeys() {
+			return Object.keys(this.data.filters);
+		},
 		requestQuery() {
 			const nonUrlQuery = Object.assign({},
 				this.queryParts.parameters,
@@ -103,6 +110,7 @@ export default {
 
 			const queryUrlKeys = Object.keys(this.queryParts.url);
 
+			//TODO: Finding url skrevne filter parametre bør skrives et andet sted hen.
 			if (!this.states.hasFetchedOnce && queryUrlKeys.length) {
 				const urlQueryFilters = queryUrlKeys
 					.filter(key => Object.keys(nonUrlQuery).join(' ').indexOf(key) === -1)
@@ -161,7 +169,7 @@ export default {
 		},
 	},
 	mounted() {
-		// TODO: REFACTOR INFO MORE ELEGANT FORM
+		// TODO: Refactor more funktionalitet ind i en "more" mixin
 		// Do fetch on mount, if configured to or if initiated with valid query from url params
 		if (this.config.immediate || this.validQuery) {
 			!this.forceFetchFromOffsetZero
@@ -198,9 +206,11 @@ export default {
 		},
 		requestHub(type) {
 			if (this.enableLiveSearch && this.validQuery) {
+				console.log('rh: a');
 				this.states.loading = true;
 				this.debounce({ cb: this.request, args: [type] });
 			} else if (!this.validQuery) {
+				console.log('rh: b');
 				// Clear request params from url
 				this.updateUrlParams({});
 			}
@@ -234,6 +244,8 @@ export default {
 					if (!this.states.hasFetchedOnce) {
 						this.states.hasFetchedOnce = true;
 					}
+
+					this.queryUrl = this.objectToQueryString(params);
 				})
 				.catch(this.catchError);
 		},
@@ -315,6 +327,29 @@ export default {
 			// Always fetch with the configured limit.
 			this.requestQuery.limit = this.config.limit;
 			this.requestQuery.offset = pagination.offset;
+		},
+		objectToQueryString(params) {
+			return qs.stringify(params, {
+				skipNulls,
+				arrayFormat: 'repeat',
+				addQueryPrefix: true,
+			});
+		},
+		queryStringToObject(string) {
+			return qs.parse(string);
+		},
+		getUrlQuery() {
+			return typeof window !== 'undefined'
+				? window.location.search.replace('?', '')
+				: '';
+		},
+		setUrlQuery() {
+			if (typeof window !== 'undefined') {
+				const { protocol, host, pathname } = window.location;
+				const newUrl = `${protocol}//${host}${pathname}${objectToQueryString(params)}`;
+
+				window.history.replaceState('', '', `${newUrl}`);
+			}
 		},
 	},
 };

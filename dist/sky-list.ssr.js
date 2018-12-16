@@ -15,6 +15,14 @@ var defaultOptions = {
 	listType: 'more',
 };
 
+function objectToQueryString(params) {
+	return qs.stringify(params, {
+		skipNulls: skipNulls,
+		arrayFormat: 'repeat',
+		addQueryPrefix: true,
+	});
+}
+
 function getQueryParams() {
 	if (typeof window !== 'undefined') {
 		var q = window.location.search.replace('?', '');
@@ -32,11 +40,7 @@ function setQueryParams(params, skipNulls) {
 		var protocol = ref.protocol;
 		var host = ref.host;
 		var pathname = ref.pathname;
-		var newUrl = protocol + "//" + host + pathname + (qs.stringify(params, {
-			skipNulls: skipNulls,
-			arrayFormat: 'repeat',
-			addQueryPrefix: true,
-		}));
+		var newUrl = protocol + "//" + host + pathname + (objectToQueryString(params));
 
 		window.history.replaceState('', '', ("" + newUrl));
 	}
@@ -81,9 +85,9 @@ var script = {
 					limit: this.options.limit || defaultOptions.limit,
 					offset: 0,
 				},
-				// previous: null,
 				url: getQueryParams(),
 			},
+			queryUrl: this.getUrlQuery(),
 			config: Object.assign(
 				{},
 				defaultOptions,
@@ -96,7 +100,7 @@ var script = {
 			},
 			data: {
 				items: [],
-				filters: null,
+				filters: {},
 				pagination: {
 					limit: null,
 					offset: null,
@@ -106,6 +110,9 @@ var script = {
 		};
 	},
 	computed: {
+		filterKeys: function filterKeys() {
+			return Object.keys(this.data.filters);
+		},
 		requestQuery: function requestQuery() {
 			var this$1 = this;
 
@@ -116,6 +123,7 @@ var script = {
 
 			var queryUrlKeys = Object.keys(this.queryParts.url);
 
+			//TODO: Finding url skrevne filter parametre bør skrives et andet sted hen.
 			if (!this.states.hasFetchedOnce && queryUrlKeys.length) {
 				var urlQueryFilters = queryUrlKeys
 					.filter(function (key) { return Object.keys(nonUrlQuery).join(' ').indexOf(key) === -1; })
@@ -174,7 +182,7 @@ var script = {
 		},
 	},
 	mounted: function mounted() {
-		// TODO: REFACTOR INFO MORE ELEGANT FORM
+		// TODO: Refactor more funktionalitet ind i en "more" mixin
 		// Do fetch on mount, if configured to or if initiated with valid query from url params
 		if (this.config.immediate || this.validQuery) {
 			!this.forceFetchFromOffsetZero
@@ -217,9 +225,11 @@ var script = {
 		},
 		requestHub: function requestHub(type) {
 			if (this.enableLiveSearch && this.validQuery) {
+				console.log('rh: a');
 				this.states.loading = true;
 				this.debounce({ cb: this.request, args: [type] });
 			} else if (!this.validQuery) {
+				console.log('rh: b');
 				// Clear request params from url
 				this.updateUrlParams({});
 			}
@@ -258,6 +268,8 @@ var script = {
 					if (!this$1.states.hasFetchedOnce) {
 						this$1.states.hasFetchedOnce = true;
 					}
+
+					this$1.queryUrl = this$1.objectToQueryString(params);
 				})
 				.catch(this.catchError);
 		},
@@ -345,6 +357,32 @@ var script = {
 			// Always fetch with the configured limit.
 			this.requestQuery.limit = this.config.limit;
 			this.requestQuery.offset = pagination.offset;
+		},
+		objectToQueryString: function objectToQueryString(params) {
+			return qs.stringify(params, {
+				skipNulls: skipNulls,
+				arrayFormat: 'repeat',
+				addQueryPrefix: true,
+			});
+		},
+		queryStringToObject: function queryStringToObject(string) {
+			return qs.parse(string);
+		},
+		getUrlQuery: function getUrlQuery() {
+			return typeof window !== 'undefined'
+				? window.location.search.replace('?', '')
+				: '';
+		},
+		setUrlQuery: function setUrlQuery() {
+			if (typeof window !== 'undefined') {
+				var ref = window.location;
+				var protocol = ref.protocol;
+				var host = ref.host;
+				var pathname = ref.pathname;
+				var newUrl = protocol + "//" + host + pathname + (objectToQueryString(params));
+
+				window.history.replaceState('', '', ("" + newUrl));
+			}
 		},
 	},
 };
