@@ -99,7 +99,10 @@ export default {
 		};
 	},
 	computed: {
-		filterKeys() {
+		parameterKeysString() {
+			return Object.keys(this.parameters).join(' ');
+		},
+		filterKeysString() {
 			// Kan bruges ved page load med query url
 			return this.data.filters.reduce((acc, cur) => {
 				acc.push(cur.alias);
