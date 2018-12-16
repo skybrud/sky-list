@@ -11,7 +11,7 @@ var defaultOptions = {
 
 function objectToQueryString(params) {
 	return qs.stringify(params, {
-		skipNulls: skipNulls,
+		skipNulls: true,
 		arrayFormat: 'repeat',
 		addQueryPrefix: true,
 	});
@@ -26,9 +26,7 @@ function getQueryParams() {
 	return {};
 }
 
-function setQueryParams(params, skipNulls) {
-	if ( skipNulls === void 0 ) skipNulls = true;
-
+function setQueryParams(params) {
 	if (typeof window !== 'undefined') {
 		var ref = window.location;
 		var protocol = ref.protocol;
@@ -108,37 +106,36 @@ var script = {
 			return Object.keys(this.data.filters);
 		},
 		requestQuery: function requestQuery() {
-			var this$1 = this;
-
-			var nonUrlQuery = Object.assign({},
+			return Object.assign({},
 				this.queryParts.parameters,
-				this.queryParts.pagination
+				this.queryParts.pagination,
+				this.queryParts.filters
 			);
 
 			var queryUrlKeys = Object.keys(this.queryParts.url);
 
 			//TODO: Finding url skrevne filter parametre bør skrives et andet sted hen.
-			if (!this.states.hasFetchedOnce && queryUrlKeys.length) {
-				var urlQueryFilters = queryUrlKeys
-					.filter(function (key) { return Object.keys(nonUrlQuery).join(' ').indexOf(key) === -1; })
-					.reduce(function (acc, cur) {
-						var curValue = this$1.queryParts.url[cur];
-						acc[cur] = Array.isArray(curValue)
-							? [].concat( curValue )
-							: [curValue];
+			// if (!this.states.hasFetchedOnce && queryUrlKeys.length) {
+			// 	const urlQueryFilters = queryUrlKeys
+			// 		.filter(key => Object.keys(nonUrlQuery).join(' ').indexOf(key) === -1)
+			// 		.reduce((acc, cur) => {
+			// 			const curValue = this.queryParts.url[cur];
+			// 			acc[cur] = Array.isArray(curValue)
+			// 				? [...curValue]
+			// 				: [curValue];
 
-						return acc;
-					}, {});
+			// 			return acc;
+			// 		}, {});
 
-				this.$set(this.queryParts, 'filters', urlQueryFilters);
+			// 	this.$set(this.queryParts, 'filters', urlQueryFilters);
 
-				return Object.assign({},
-					this.queryParts.url,
-					{ limit: this.queryParts.pagination.limit }
-				);
-			}
+			// 	return Object.assign({},
+			// 		this.queryParts.url,
+			// 		{ limit: this.queryParts.pagination.limit }
+			// 	);
+			// }
 
-			return nonUrlQuery;
+			// return nonUrlQuery;
 		},
 		validQuery: function validQuery() {
 			return (typeof this.validateQuery === 'function')
@@ -225,7 +222,7 @@ var script = {
 			} else if (!this.validQuery) {
 				console.log('rh: b');
 				// Clear request params from url
-				this.updateUrlParams({});
+				this.setUrlQuery('');
 			}
 		},
 		request: function request(type, params) {
@@ -264,6 +261,7 @@ var script = {
 					}
 
 					this$1.queryUrl = this$1.objectToQueryString(params);
+					this$1.setUrlQuery(this$1.queryUrl);
 				})
 				.catch(this.catchError);
 		},
@@ -283,9 +281,6 @@ var script = {
 			}
 
 			this.states.cancelToken = axios.CancelToken.source();
-
-			// Update url with request params
-			this.updateUrlParams(params);
 
 			return new Promise(function (resolve, reject) {
 				axios({
@@ -354,7 +349,7 @@ var script = {
 		},
 		objectToQueryString: function objectToQueryString(params) {
 			return qs.stringify(params, {
-				skipNulls: skipNulls,
+				skipNulls: true,
 				arrayFormat: 'repeat',
 				addQueryPrefix: true,
 			});
@@ -367,13 +362,13 @@ var script = {
 				? window.location.search.replace('?', '')
 				: '';
 		},
-		setUrlQuery: function setUrlQuery() {
+		setUrlQuery: function setUrlQuery(queryString) {
 			if (typeof window !== 'undefined') {
 				var ref = window.location;
 				var protocol = ref.protocol;
 				var host = ref.host;
 				var pathname = ref.pathname;
-				var newUrl = protocol + "//" + host + pathname + (objectToQueryString(params));
+				var newUrl = protocol + "//" + host + pathname + queryString;
 
 				window.history.replaceState('', '', ("" + newUrl));
 			}

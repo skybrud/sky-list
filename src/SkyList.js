@@ -11,7 +11,7 @@ const defaultOptions = {
 
 function objectToQueryString(params) {
 	return qs.stringify(params, {
-		skipNulls,
+		skipNulls: true,
 		arrayFormat: 'repeat',
 		addQueryPrefix: true,
 	});
@@ -26,7 +26,7 @@ function getQueryParams() {
 	return {};
 }
 
-function setQueryParams(params, skipNulls = true) {
+function setQueryParams(params) {
 	if (typeof window !== 'undefined') {
 		const { protocol, host, pathname } = window.location;
 		const newUrl = `${protocol}//${host}${pathname}${objectToQueryString(params)}`;
@@ -103,35 +103,36 @@ export default {
 			return Object.keys(this.data.filters);
 		},
 		requestQuery() {
-			const nonUrlQuery = Object.assign({},
+			return Object.assign({},
 				this.queryParts.parameters,
-				this.queryParts.pagination
+				this.queryParts.pagination,
+				this.queryParts.filters,
 			);
 
 			const queryUrlKeys = Object.keys(this.queryParts.url);
 
 			//TODO: Finding url skrevne filter parametre bør skrives et andet sted hen.
-			if (!this.states.hasFetchedOnce && queryUrlKeys.length) {
-				const urlQueryFilters = queryUrlKeys
-					.filter(key => Object.keys(nonUrlQuery).join(' ').indexOf(key) === -1)
-					.reduce((acc, cur) => {
-						const curValue = this.queryParts.url[cur];
-						acc[cur] = Array.isArray(curValue)
-							? [...curValue]
-							: [curValue];
+			// if (!this.states.hasFetchedOnce && queryUrlKeys.length) {
+			// 	const urlQueryFilters = queryUrlKeys
+			// 		.filter(key => Object.keys(nonUrlQuery).join(' ').indexOf(key) === -1)
+			// 		.reduce((acc, cur) => {
+			// 			const curValue = this.queryParts.url[cur];
+			// 			acc[cur] = Array.isArray(curValue)
+			// 				? [...curValue]
+			// 				: [curValue];
 
-						return acc;
-					}, {});
+			// 			return acc;
+			// 		}, {});
 
-				this.$set(this.queryParts, 'filters', urlQueryFilters);
+			// 	this.$set(this.queryParts, 'filters', urlQueryFilters);
 
-				return Object.assign({},
-					this.queryParts.url,
-					{ limit: this.queryParts.pagination.limit }
-				);
-			}
+			// 	return Object.assign({},
+			// 		this.queryParts.url,
+			// 		{ limit: this.queryParts.pagination.limit }
+			// 	);
+			// }
 
-			return nonUrlQuery;
+			// return nonUrlQuery;
 		},
 		validQuery() {
 			return (typeof this.validateQuery === 'function')
@@ -212,7 +213,7 @@ export default {
 			} else if (!this.validQuery) {
 				console.log('rh: b');
 				// Clear request params from url
-				this.updateUrlParams({});
+				this.setUrlQuery('');
 			}
 		},
 		request(type = 'new', params = this.requestQuery) {
@@ -246,6 +247,7 @@ export default {
 					}
 
 					this.queryUrl = this.objectToQueryString(params);
+					this.setUrlQuery(this.queryUrl);
 				})
 				.catch(this.catchError);
 		},
@@ -263,9 +265,6 @@ export default {
 			}
 
 			this.states.cancelToken = axios.CancelToken.source();
-
-			// Update url with request params
-			this.updateUrlParams(params);
 
 			return new Promise((resolve, reject) => {
 				axios({
@@ -330,7 +329,7 @@ export default {
 		},
 		objectToQueryString(params) {
 			return qs.stringify(params, {
-				skipNulls,
+				skipNulls: true,
 				arrayFormat: 'repeat',
 				addQueryPrefix: true,
 			});
@@ -343,10 +342,10 @@ export default {
 				? window.location.search.replace('?', '')
 				: '';
 		},
-		setUrlQuery() {
+		setUrlQuery(queryString) {
 			if (typeof window !== 'undefined') {
 				const { protocol, host, pathname } = window.location;
-				const newUrl = `${protocol}//${host}${pathname}${objectToQueryString(params)}`;
+				const newUrl = `${protocol}//${host}${pathname}${queryString}`;
 
 				window.history.replaceState('', '', `${newUrl}`);
 			}
