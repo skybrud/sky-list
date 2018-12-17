@@ -131,6 +131,9 @@ var script = {
 				this.queryParts.filters
 			);
 		},
+		requestString: function requestString() {
+			return this.objectToQueryString({ params: this.requestQuery });
+		},
 		validQuery: function validQuery() {
 			return (typeof this.validateQuery === 'function')
 				? this.validateQuery(this.requestQuery)
@@ -217,11 +220,9 @@ var script = {
 		},
 		requestHub: function requestHub(type) {
 			if (this.hasInitialQueryUrl || (this.enableLiveSearch && this.validQuery)) {
-				console.log('rh: a');
 				this.states.loading = true;
 				this.debounce({ cb: this.request, args: this.states.requestType });
 			} else if (!this.validQuery) {
-				console.log('rh: b');
 				// Clear request params from url
 				this.setUrlQuery('');
 			}
@@ -311,13 +312,13 @@ var script = {
 			var filters = result.filters;
 
 			switch(type) {
-				case 'new':
-					this.$set(this.data, 'items', data);
-					this.updateFilters(filters);
+				case 'append':
+					this.$set(this.data, 'items', this.data.items.concat( data));
 					break;
 
 				default:
-					this.$set(this.data, 'items', this.data.items.concat( data));
+					this.$set(this.data, 'items', data);
+					this.updateFilters(filters);
 					break;
 			}
 

@@ -125,6 +125,9 @@ export default {
 				this.queryParts.filters,
 			);
 		},
+		requestString() {
+			return this.objectToQueryString({ params: this.requestQuery });
+		},
 		validQuery() {
 			return (typeof this.validateQuery === 'function')
 				? this.validateQuery(this.requestQuery)
@@ -205,11 +208,9 @@ export default {
 		},
 		requestHub(type) {
 			if (this.hasInitialQueryUrl || (this.enableLiveSearch && this.validQuery)) {
-				console.log('rh: a');
 				this.states.loading = true;
 				this.debounce({ cb: this.request, args: this.states.requestType });
 			} else if (!this.validQuery) {
-				console.log('rh: b');
 				// Clear request params from url
 				this.setUrlQuery('');
 			}
@@ -290,13 +291,13 @@ export default {
 			const { pagination, data, filters } = result;
 
 			switch(type) {
-				case 'new':
-					this.$set(this.data, 'items', data);
-					this.updateFilters(filters);
+				case 'append':
+					this.$set(this.data, 'items', this.data.items.concat( data));
 					break;
 
 				default:
-					this.$set(this.data, 'items', this.data.items.concat( data));
+					this.$set(this.data, 'items', data);
+					this.updateFilters(filters);
 					break;
 			}
 
