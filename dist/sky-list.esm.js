@@ -1,7 +1,7 @@
 import axios from 'axios';
 import qs from 'qs';
 import debounce from 'debounce';
-import 'crypto';
+import 'lodash.isequal';
 
 var defaultOptions = {
 	api: '/umbraco/api/site/search/',
@@ -87,6 +87,7 @@ var script = {
 				hasFetchedOnce: false,
 				cancelToken: null,
 				loading: false,
+				requestType: 'new',
 			},
 			data: {
 				items: [],
@@ -142,14 +143,16 @@ var script = {
 		'queryParts.parameters': {
 			handler: function handler() {
 				console.log('QP parameters');
-				this.requestHub('new');
+				this.requestType = 'new';
+				// this.requestHub('new');
 			},
 			deep: true,
 		},
 		'queryParts.filters': {
 			handler: function handler() {
 				console.log('QP filters');
-				this.requestHub('filter');
+				this.requestType = 'filter';
+				// this.requestHub('filter');
 			},
 			deep: true,
 		},
@@ -160,7 +163,6 @@ var script = {
 		},
 	},
 	mounted: function mounted() {
-		console.log('initial query data', getQueryParams());
 		var initialData = getQueryParams();
 
 		if (this.forceFetchFromOffsetZero) {
@@ -207,7 +209,7 @@ var script = {
 			if (this.hasInitialQueryUrl || (this.enableLiveSearch && this.validQuery)) {
 				console.log('rh: a');
 				this.states.loading = true;
-				this.debounce({ cb: this.request, args: [type] });
+				this.debounce({ cb: this.request, args: this.states.requestType });
 			} else if (!this.validQuery) {
 				console.log('rh: b');
 				// Clear request params from url
@@ -314,8 +316,17 @@ var script = {
 			this.states.loading = false;
 		},
 		updateFilters: function updateFilters(filters) {
-			if (filters && filters.length) {
+			if (filters) {
 				this.$set(this.data, 'filters', filters);
+
+				this.$set(this.queryParts, 'filters', Object.assign({},
+					filters.reduce(function (acc, cur) {
+						acc[cur.alias] = [];
+
+						return acc;
+					}, {}),
+					this.queryParts.filters
+				));
 			}
 		},
 		updateUrlParams: function updateUrlParams(params) {
@@ -340,9 +351,9 @@ var script = {
 				addQueryPrefix: addQueryPrefix,
 			});
 		},
-		// queryStringToObject(string) {
-		// 	return qs.parse(string);
-		// },
+		queryStringToObject: function queryStringToObject(string) {
+			return qs.parse(string);
+		},
 		getUrlQuery: function getUrlQuery() {
 			return typeof window !== 'undefined'
 				? window.location.search.replace('?', '')

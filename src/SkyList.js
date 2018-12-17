@@ -1,7 +1,7 @@
 import axios from 'axios';
 import qs from 'qs';
 import debounce from 'debounce';
-import { timingSafeEqual } from 'crypto';
+import _isEqual from 'lodash.isequal';
 
 const defaultOptions = {
 	api: '/umbraco/api/site/search/',
@@ -87,6 +87,7 @@ export default {
 				hasFetchedOnce: false,
 				cancelToken: null,
 				loading: false,
+				requestType: 'new',
 			},
 			data: {
 				items: [],
@@ -142,14 +143,16 @@ export default {
 		'queryParts.parameters': {
 			handler() {
 				console.log('QP parameters');
-				this.requestHub('new');
+				this.requestType = 'new';
+				// this.requestHub('new');
 			},
 			deep: true,
 		},
 		'queryParts.filters': {
 			handler() {
 				console.log('QP filters');
-				this.requestHub('filter');
+				this.requestType = 'filter';
+				// this.requestHub('filter');
 			},
 			deep: true,
 		},
@@ -160,7 +163,6 @@ export default {
 		},
 	},
 	mounted() {
-		console.log('initial query data', getQueryParams());
 		const initialData = getQueryParams();
 
 		if (this.forceFetchFromOffsetZero) {
@@ -201,7 +203,7 @@ export default {
 			if (this.hasInitialQueryUrl || (this.enableLiveSearch && this.validQuery)) {
 				console.log('rh: a');
 				this.states.loading = true;
-				this.debounce({ cb: this.request, args: [type] });
+				this.debounce({ cb: this.request, args: this.states.requestType });
 			} else if (!this.validQuery) {
 				console.log('rh: b');
 				// Clear request params from url
@@ -299,8 +301,17 @@ export default {
 			this.states.loading = false;
 		},
 		updateFilters(filters) {
-			if (filters && filters.length) {
+			if (filters) {
 				this.$set(this.data, 'filters', filters);
+
+				this.$set(this.queryParts, 'filters', Object.assign({},
+					filters.reduce((acc, cur) => {
+						acc[cur.alias] = [];
+
+						return acc;
+					}, {}),
+					this.queryParts.filters,
+				));
 			}
 		},
 		updateUrlParams(params) {
@@ -320,9 +331,9 @@ export default {
 				addQueryPrefix,
 			});
 		},
-		// queryStringToObject(string) {
-		// 	return qs.parse(string);
-		// },
+		queryStringToObject(string) {
+			return qs.parse(string);
+		},
 		getUrlQuery() {
 			return typeof window !== 'undefined'
 				? window.location.search.replace('?', '')
