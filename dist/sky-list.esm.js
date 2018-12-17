@@ -1,7 +1,6 @@
 import axios from 'axios';
 import qs from 'qs';
 import debounce from 'debounce';
-import 'lodash.isequal';
 
 var defaultOptions = {
 	api: '/umbraco/api/site/search/',

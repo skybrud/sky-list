@@ -7,7 +7,6 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 var axios = _interopDefault(require('axios'));
 var qs = _interopDefault(require('qs'));
 var debounce = _interopDefault(require('debounce'));
-require('lodash.isequal');
 
 var defaultOptions = {
 	api: '/umbraco/api/site/search/',
