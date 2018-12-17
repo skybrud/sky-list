@@ -1,6 +1,7 @@
 import axios from 'axios';
 import qs from 'qs';
 import debounce from 'debounce';
+import { timingSafeEqual } from 'crypto';
 
 const defaultOptions = {
 	api: '/umbraco/api/site/search/',
@@ -237,7 +238,7 @@ export default {
 						this.states.hasFetchedOnce = true;
 					}
 
-					this.queryUrl = this.objectToQueryString(params);
+					this.queryUrl = this.objectToQueryString({ params, });
 					this.setUrlQuery(this.queryUrl);
 				})
 				.catch(this.catchError);
@@ -257,11 +258,17 @@ export default {
 
 			this.states.cancelToken = axios.CancelToken.source();
 
+			const transformedParams = this.transformParams(params);
+
 			return new Promise((resolve, reject) => {
 				axios({
 					url: this.config.api,
 					method: 'GET',
-					params: this.transformParams(params),
+					params: transformedParams,
+					paramsSerializer: this.objectToQueryString({
+						params: transformedParams,
+						addQueryPrefix: false
+					}),
 					cancelToken: this.states.cancelToken.token,
 				}).then((result) => {
 					if (result.data) {
@@ -306,21 +313,21 @@ export default {
 			this.queryParts.pagination.limit = this.config.limit;
 			this.queryParts.pagination.offset = pagination.offset;
 		},
-		objectToQueryString(params) {
+		objectToQueryString({ params, skipNulls = true, addQueryPrefix = true } = {}) {
 			return qs.stringify(params, {
-				skipNulls: true,
+				skipNulls,
 				arrayFormat: 'repeat',
-				addQueryPrefix: true,
+				addQueryPrefix,
 			});
 		},
 		// queryStringToObject(string) {
 		// 	return qs.parse(string);
 		// },
-		// getUrlQuery() {
-		// 	return typeof window !== 'undefined'
-		// 		? window.location.search.replace('?', '')
-		// 		: '';
-		// },
+		getUrlQuery() {
+			return typeof window !== 'undefined'
+				? window.location.search.replace('?', '')
+				: '';
+		},
 		setUrlQuery(queryString) {
 			if (typeof window !== 'undefined') {
 				const { protocol, host, pathname } = window.location;

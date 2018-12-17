@@ -7,6 +7,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 var axios = _interopDefault(require('axios'));
 var qs = _interopDefault(require('qs'));
 var debounce = _interopDefault(require('debounce'));
+require('crypto');
 
 var defaultOptions = {
 	api: '/umbraco/api/site/search/',
@@ -254,7 +255,7 @@ var script = {
 						this$1.states.hasFetchedOnce = true;
 					}
 
-					this$1.queryUrl = this$1.objectToQueryString(params);
+					this$1.queryUrl = this$1.objectToQueryString({ params: params, });
 					this$1.setUrlQuery(this$1.queryUrl);
 				})
 				.catch(this.catchError);
@@ -276,11 +277,17 @@ var script = {
 
 			this.states.cancelToken = axios.CancelToken.source();
 
+			var transformedParams = this.transformParams(params);
+
 			return new Promise(function (resolve, reject) {
 				axios({
 					url: this$1.config.api,
 					method: 'GET',
-					params: this$1.transformParams(params),
+					params: transformedParams,
+					paramsSerializer: this$1.objectToQueryString({
+						params: transformedParams,
+						addQueryPrefix: false
+					}),
 					cancelToken: this$1.states.cancelToken.token,
 				}).then(function (result) {
 					if (result.data) {
@@ -327,21 +334,26 @@ var script = {
 			this.queryParts.pagination.limit = this.config.limit;
 			this.queryParts.pagination.offset = pagination.offset;
 		},
-		objectToQueryString: function objectToQueryString(params) {
+		objectToQueryString: function objectToQueryString(ref) {
+			if ( ref === void 0 ) ref = {};
+			var params = ref.params;
+			var skipNulls = ref.skipNulls; if ( skipNulls === void 0 ) skipNulls = true;
+			var addQueryPrefix = ref.addQueryPrefix; if ( addQueryPrefix === void 0 ) addQueryPrefix = true;
+
 			return qs.stringify(params, {
-				skipNulls: true,
+				skipNulls: skipNulls,
 				arrayFormat: 'repeat',
-				addQueryPrefix: true,
+				addQueryPrefix: addQueryPrefix,
 			});
 		},
 		// queryStringToObject(string) {
 		// 	return qs.parse(string);
 		// },
-		// getUrlQuery() {
-		// 	return typeof window !== 'undefined'
-		// 		? window.location.search.replace('?', '')
-		// 		: '';
-		// },
+		getUrlQuery: function getUrlQuery() {
+			return typeof window !== 'undefined'
+				? window.location.search.replace('?', '')
+				: '';
+		},
 		setUrlQuery: function setUrlQuery(queryString) {
 			if (typeof window !== 'undefined') {
 				var ref = window.location;
