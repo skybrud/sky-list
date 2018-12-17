@@ -181,7 +181,7 @@ var script = {
 
 		if (Object.keys(initialData).length) {
 			this.hasInitialQueryUrl = true;
-			this.hydrateQueryParts(initialData);
+			this.hydrateQueryPartsWithUrlData(initialData);
 		} else if (this.config.immediate) {
 			this.request();
 		}
@@ -305,6 +305,8 @@ var script = {
 			var data = result.data;
 			var filters = result.filters;
 
+			console.log('setData');
+
 			switch(type) {
 				case 'append':
 					this.$set(this.data, 'items', this.data.items.concat( data));
@@ -375,24 +377,29 @@ var script = {
 				window.history.replaceState('', '', ("" + newUrl));
 			}
 		},
-		hydrateQueryParts: function hydrateQueryParts(data) {
+		hydrateQueryPartsWithUrlData: function hydrateQueryPartsWithUrlData(data) {
 			var this$1 = this;
 
-			var presumeItIsFilter = function (value) { return this$1.parametersKeysString.indexOf(value) === -1
-				&& value !== 'limit'
-				&& value !== 'offset'; };
+			var notPagination = function (value) { return value !== 'limit' && value !== 'offset'; };
 
-			var queryFilters = Object.keys(data).reduce(function (acc, cur) {
-				if (presumeItIsFilter(cur)) {
-					acc[cur] = Array.isArray(data[cur])
+			var hydrationData = Object.keys(data).reduce(function (acc, cur) {
+				if (this$1.parametersKeysString.indexOf(cur) !== -1) {
+					acc.parameters[cur] = data[cur];
+				} else if (notPagination(cur)) {
+					acc.filters[cur] = Array.isArray(data[cur])
 						? data[cur]
 						: [data[cur]];
 				}
 
 				return acc;
-			}, {});
+			},
+			{
+				parameters: {},
+				filters: {},
+			});
 
-			this.$set(this.queryParts, 'filters', queryFilters);
+			this.$set(this.queryParts, 'parameters', hydrationData.parameters);
+			this.$set(this.queryParts, 'filters', hydrationData.filters);
 		},
 	},
 };
