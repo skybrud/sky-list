@@ -278,10 +278,10 @@ var script = {
 					url: this$1.config.api,
 					method: 'GET',
 					params: transformedParams,
-					paramsSerializer: this$1.objectToQueryString({
+					paramsSerializer: function (transformedParams) { return this$1.objectToQueryString({
 						params: transformedParams,
 						addQueryPrefix: false
-					}),
+					}); },
 					cancelToken: this$1.states.cancelToken.token,
 				}).then(function (result) {
 					if (result.data) {

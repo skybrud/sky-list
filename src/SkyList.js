@@ -265,7 +265,7 @@ export default {
 					url: this.config.api,
 					method: 'GET',
 					params: transformedParams,
-					paramsSerializer: this.objectToQueryString({
+					paramsSerializer: transformedParams => this.objectToQueryString({
 						params: transformedParams,
 						addQueryPrefix: false
 					}),
