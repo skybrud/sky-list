@@ -146,19 +146,23 @@ var script = {
 		},
 	},
 	watch: {
+		requestString: function requestString(value, oldValue) {
+			console.log('RS', value !== oldValue);
+			if (value !== oldValue) {
+				this.requestHub(this.states.requestType);
+			}
+		},
 		'queryParts.parameters': {
 			handler: function handler() {
 				console.log('QP parameters');
-				this.requestType = 'new';
-				// this.requestHub('new');
+				this.states.requestType = 'new';
 			},
 			deep: true,
 		},
 		'queryParts.filters': {
 			handler: function handler() {
 				console.log('QP filters');
-				this.requestType = 'filter';
-				// this.requestHub('filter');
+				this.states.requestType = 'filter';
 			},
 			deep: true,
 		},
@@ -178,7 +182,7 @@ var script = {
 			);
 		}
 
-		if (initialData) {
+		if (Object.keys(initialData).length) {
 			this.hasInitialQueryUrl = true;
 			this.hydrateQueryParts(initialData);
 		} else if (this.config.immediate) {
@@ -258,7 +262,6 @@ var script = {
 					}
 
 					this$1.queryUrl = this$1.objectToQueryString({ params: params, });
-					this$1.setUrlQuery(this$1.queryUrl);
 				})
 				.catch(this.catchError);
 		},
@@ -278,6 +281,7 @@ var script = {
 			}
 
 			this.states.cancelToken = axios.CancelToken.source();
+			this.setUrlQuery(this.requestString);
 
 			var transformedParams = this.transformParams(params);
 
