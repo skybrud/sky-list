@@ -192,6 +192,16 @@ var script = {
 		}
 	},
 	methods: {
+		toggleFilterValue: function toggleFilterValue(name, value) {
+			var tempArray = [].concat( this.queryParts.filters[name] );
+			var valueIndex = tempArray.indexOf(value);
+
+			valueIndex === -1
+				? tempArray.push(value)
+				: tempArray.splice(valueIndex, 1);
+
+			this.$set(this.queryParts, 'filters', tempArray);
+		},
 		debounce: debounce(function(ref) {
 			var cb = ref.cb;
 			var args = ref.args;
@@ -415,7 +425,7 @@ var script = {
 var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:['sky-list', { loading : _vm.states.loading }]},[_vm._t("default",null,{query:{
 			parameters: _vm.queryParts.parameters,
 			filters: _vm.queryParts.filters,
-		},result:_vm.data.items,filters:_vm.data.filters,states:_vm.states,pagination:_vm.data.pagination,fetch:_vm.more})],2)};
+		},result:_vm.data.items,filters:_vm.data.filters,states:_vm.states,pagination:_vm.data.pagination,fetch:_vm.more,toggleFilter:_vm.toggleFilterValue})],2)};
 var __vue_staticRenderFns__ = [];
 
   /* style */
@@ -423,7 +433,7 @@ var __vue_staticRenderFns__ = [];
   /* scoped */
   var __vue_scope_id__ = undefined;
   /* module identifier */
-  var __vue_module_identifier__ = "data-v-bb6940a4";
+  var __vue_module_identifier__ = "data-v-365566a3";
   /* functional template */
   var __vue_is_functional_template__ = false;
   /* component normalizer */

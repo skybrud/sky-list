@@ -186,6 +186,16 @@ export default {
 		}
 	},
 	methods: {
+		toggleFilterValue(name, value) {
+			const tempArray = [...this.queryParts.filters[name]];
+			const valueIndex = tempArray.indexOf(value);
+
+			valueIndex === -1
+				? tempArray.push(value)
+				: tempArray.splice(valueIndex, 1);
+
+			this.$set(this.queryParts, 'filters', tempArray);
+		},
 		debounce: debounce(function({ cb, args }) {
 			cb(args);
 		}, 500),

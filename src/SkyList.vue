@@ -14,6 +14,7 @@
 			:states="states"
 			:pagination="data.pagination"
 			:fetch="more"
+			:toggleFilter="toggleFilterValue"
 		>
 		</slot>
 	</div>
