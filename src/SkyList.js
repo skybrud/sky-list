@@ -137,9 +137,6 @@ export default {
 				? this.liveSearch && this.states.hasFetchedOnce
 				: this.liveSearch;
 		},
-		forceFetchFromOffsetZero() {
-			return this.config.listType === 'more' && this.requestQuery.offset > 0;
-		},
 	},
 	watch: {
 		requestString: function requestString(value, oldValue) {
@@ -168,16 +165,10 @@ export default {
 	mounted() {
 		const initialData = getQueryParams();
 
-		if (this.forceFetchFromOffsetZero) {
-			Object.assign({},
-				this.queryParts.pagination,
-				{ limit: Number(this.requestQuery.offset) + Number(this.requestQuery.limit) }
-			);
-		}
-
 		if (Object.keys(initialData).length) {
-			this.hasInitialQueryUrl = true;
+			this.states.hasInitialQueryUrl = true;
 			this.hydrateQueryPartsWithUrlData(initialData);
+			this.requestHub('new');
 		} else if (this.config.immediate) {
 			this.request();
 		}
@@ -213,7 +204,7 @@ export default {
 			this.request('append');
 		},
 		requestHub(type) {
-			if (this.hasInitialQueryUrl || (this.enableLiveSearch && this.validQuery)) {
+			if (this.states.hasInitialQueryUrl || (this.enableLiveSearch && this.validQuery)) {
 				this.states.loading = true;
 				this.debounce({ cb: this.request, args: this.states.requestType });
 			} else if (!this.validQuery) {
