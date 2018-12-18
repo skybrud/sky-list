@@ -143,21 +143,18 @@ export default {
 	},
 	watch: {
 		requestString: function requestString(value, oldValue) {
-			console.log('RS', value !== oldValue);
 			if (value !== oldValue) {
 				this.requestHub(this.states.requestType);
 			}
 		},
 		'queryParts.parameters': {
 			handler() {
-				console.log('QP parameters');
 				this.states.requestType = 'new';
 			},
 			deep: true,
 		},
 		'queryParts.filters': {
 			handler() {
-				console.log('QP filters');
 				this.states.requestType = 'filter';
 			},
 			deep: true,
@@ -194,7 +191,7 @@ export default {
 				? tempArray.push(value)
 				: tempArray.splice(valueIndex, 1);
 
-			this.$set(this.queryParts, 'filters', tempArray);
+			this.$set(this.queryParts.filters, name, tempArray);
 		},
 		debounce: debounce(function({ cb, args }) {
 			cb(args);
@@ -298,8 +295,6 @@ export default {
 		},
 		setData(result, type) {
 			const { pagination, data, filters } = result;
-
-			console.log('setData');
 
 			switch(type) {
 				case 'append':

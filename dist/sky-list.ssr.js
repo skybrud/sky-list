@@ -149,21 +149,18 @@ var script = {
 	},
 	watch: {
 		requestString: function requestString(value, oldValue) {
-			console.log('RS', value !== oldValue);
 			if (value !== oldValue) {
 				this.requestHub(this.states.requestType);
 			}
 		},
 		'queryParts.parameters': {
 			handler: function handler() {
-				console.log('QP parameters');
 				this.states.requestType = 'new';
 			},
 			deep: true,
 		},
 		'queryParts.filters': {
 			handler: function handler() {
-				console.log('QP filters');
 				this.states.requestType = 'filter';
 			},
 			deep: true,
@@ -200,7 +197,7 @@ var script = {
 				? tempArray.push(value)
 				: tempArray.splice(valueIndex, 1);
 
-			this.$set(this.queryParts, 'filters', tempArray);
+			this.$set(this.queryParts.filters, name, tempArray);
 		},
 		debounce: debounce(function(ref) {
 			var cb = ref.cb;
@@ -319,8 +316,6 @@ var script = {
 			var pagination = result.pagination;
 			var data = result.data;
 			var filters = result.filters;
-
-			console.log('setData');
 
 			switch(type) {
 				case 'append':
