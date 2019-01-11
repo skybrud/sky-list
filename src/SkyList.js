@@ -159,7 +159,7 @@ export default {
 		'states.loading': function(value) {
 			this.$emit('isLoading', value);
 		},
-		'pagination.total': {
+		'data.pagination.total': {
 			handler(value) {
 				this.$emit('itemsCount', value)
 			},

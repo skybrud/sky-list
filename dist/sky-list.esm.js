@@ -159,7 +159,7 @@ var script = {
 		'states.loading': function(value) {
 			this.$emit('isLoading', value);
 		},
-		'pagination.total': {
+		'data.pagination.total': {
 			handler: function handler(value) {
 				this.$emit('itemsCount', value);
 			},
