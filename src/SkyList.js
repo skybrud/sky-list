@@ -157,9 +157,13 @@ export default {
 			deep: true,
 		},
 		'states.loading': function(value) {
-			value
-				? this.$emit('loadingBegin')
-				: this.$emit('loadingEnd');
+			this.$emit('isLoading', value);
+		},
+		'pagination.total': {
+			handler(value) {
+				this.$emit('itemsCount', value)
+			},
+			immediate: true,
 		},
 	},
 	mounted() {
