@@ -7,36 +7,11 @@ const defaultOptions = {
 	limit: 10,
 	immediate: false,
 	listType: 'more',
+	liveSearch: true,
 };
 
-// function objectToQueryString(params) {
-// 	return qs.stringify(params, {
-// 		skipNulls: true,
-// 		arrayFormat: 'repeat',
-// 		addQueryPrefix: true,
-// 	});
-// }
-
-function getQueryParams() {
-	if (typeof window !== 'undefined') {
-		const q = window.location.search.replace('?', '');
-		return qs.parse(q);
-	}
-
-	return {};
-}
-
-// function setQueryParams(params) {
-// 	if (typeof window !== 'undefined') {
-// 		const { protocol, host, pathname } = window.location;
-// 		const newUrl = `${protocol}//${host}${pathname}${objectToQueryString(params)}`;
-
-// 		window.history.replaceState('', '', `${newUrl}`);
-// 	}
-// }
-
 export default {
-	name: 'SkyList',
+	name: 'SkyListFacets',
 	props: {
 		// Set up parameters to v-model
 		parameters: {
@@ -49,12 +24,7 @@ export default {
 		},
 		validateQuery: {
 			type: Function,
-			required: true,
-			default: (query) => true,
-		},
-		liveSearch: {
-			type: Boolean,
-			default: true,
+			default: () => true,
 		},
 		transformParams: {
 			type: Function,
@@ -67,130 +37,144 @@ export default {
 	},
 	data() {
 		return {
-			queryParts: {
-				filters: {},
+			query: {
+				facets: {},
 				parameters: this.parameters,
 				pagination: {
 					limit: this.options.limit || defaultOptions.limit,
 					offset: 0,
 				},
 			},
-			queryUrl: this.getUrlQuery(),
-			config: Object.assign(
-				{},
-				defaultOptions,
-				this.options,
-			),
-			states: {
-				hasInitialQueryUrl: false,
-				hasFetchedOnce: false,
-				cancelToken: null,
-				loading: false,
-				requestType: 'new',
-			},
 			data: {
 				items: [],
-				filters: [],
 				pagination: {
 					limit: null,
 					offset: null,
 					total: null,
 				},
 			},
+			states: {
+				hasFetchedOnce: false,
+				cancelToken: null,
+				loading: false,
+			},
+			config: Object.assign(
+				{},
+				defaultOptions,
+				this.options,
+			),
 		};
 	},
+	watch: {
+		'query.parameters': {
+			handler() {
+				if (this.liveSearchEnabled) {
+					this.requestGate();
+				}
+			},
+			deep: true,
+		},
+		'states.loading': {
+			handler(value) {
+				this.$emit('isLoading', value);
+			},
+		},
+	},
 	computed: {
-		parametersKeysString() {
-			return Object.keys(this.parameters).join(' ');
+		validQuery() {
+			return (typeof this.validateQuery === 'function')
+				? !!this.validateQuery(this.requestQuery)
+				: !!this.validateQuery;
 		},
-		filterKeysString() {
-			// Kan bruges ved page load med query url
-			return this.data.filters.reduce((acc, cur) => {
-				acc.push(cur.alias);
-				return acc;
-			}, []).join(' ');
-		},
-		initialQueryData() {
-			const urlObject = getQueryParams();
-
-			return Object.keys(urlObject).length
-				? urlObject
-				: null;
+		liveSearchEnabled() {
+			return this.config.immediate
+				? this.config.liveSearch && this.states.hasFetchedOnce
+				: this.config.liveSearch;
 		},
 		requestQuery() {
 			return Object.assign({},
-				this.queryParts.parameters,
-				this.queryParts.pagination,
-				this.queryParts.filters,
+				this.query.parameters,
+				this.query.facets,
+				this.query.pagination,
 			);
 		},
-		requestString() {
+		urlQueryString() {
 			return this.objectToQueryString({ params: this.requestQuery });
 		},
-		validQuery() {
-			return (typeof this.validateQuery === 'function')
-				? this.validateQuery(this.requestQuery)
-				: this.validateQuery;
-		},
-		enableLiveSearch() {
-			return this.config.loadFetch
-				? this.liveSearch && this.states.hasFetchedOnce
-				: this.liveSearch;
-		},
 	},
-	watch: {
-		requestString: function requestString(value, oldValue) {
-			if (value !== oldValue) {
-				this.requestHub(this.states.requestType);
+	beforeMount() {
+		const urlObject = this.getQueryParams();
+		const urlObjectKeyArray = Object.keys(urlObject);
+
+		urlObjectKeyArray.forEach((key) => {
+			if (this.query.parameters[key] !== undefined) {
+				this.query.parameters[key] = urlObject[key];
+			} else if (this.query.pagination[key] !== undefined) {
+				this.query.pagination[key] = urlObject[key] * 1;
+			} else {
+				this.query.facets[key] = Array.isArray(urlObject[key])
+					? urlObject[key]
+					: [urlObject[key]];
 			}
-		},
-		'queryParts.parameters': {
-			handler() {
-				this.states.requestType = 'new';
-			},
-			deep: true,
-		},
-		'queryParts.filters': {
-			handler() {
-				this.states.requestType = 'filter';
-			},
-			deep: true,
-		},
-		'states.loading': function(value) {
-			this.$emit('isLoading', value);
-		},
-		'data.pagination.total': {
-			handler(value) {
-				this.$emit('itemsCount', value)
-			},
-			immediate: true,
-		},
+
+			if (!this.config.immediate) {
+				this.config.immediate = true;
+			}
+		});
 	},
 	mounted() {
-		const initialData = getQueryParams();
+		if (this.config.immediate) {
+			const shouldPrepend = this.query.pagination.offset
+				&& (this.config.listType === 'more'
+				|| this.config.listType === 'all');
 
-		if (Object.keys(initialData).length) {
-			this.states.hasInitialQueryUrl = true;
-			this.hydrateQueryPartsWithUrlData(initialData);
-			this.requestHub('new');
-		} else if (this.config.immediate) {
-			this.request();
+			if (shouldPrepend) {
+				const { offset, limit } = this.query.pagination;
+				this.query.pagination.limit = offset + limit;
+				this.query.pagination.offset = 0;
+			}
+
+			this.request({ params: this.requestQuery })
+				.then(() => {
+					if (shouldPrepend) {
+						const { limit } = this.query.pagination;
+						this.query.pagination.offset = limit - this.config.limit;
+						this.query.pagination.limit = this.config.limit;
+
+						this.setUrlQuery(this.urlQueryString);
+					}
+				});
 		}
 	},
 	methods: {
-		toggleFilterValue(name, value) {
-			const tempArray = [...this.queryParts.filters[name]];
-			const valueIndex = tempArray.indexOf(value);
-
-			valueIndex === -1
-				? tempArray.push(value)
-				: tempArray.splice(valueIndex, 1);
-
-			this.$set(this.queryParts.filters, name, tempArray);
-		},
-		debounce: debounce(function({ cb, args }) {
+		debounce: debounce(({ cb, args }) => {
 			cb(args);
 		}, 500),
+		requestGate({ type = 'new', params = this.requestQuery } = {}) {
+			if (this.validQuery) {
+				this.debounce({ cb: this.request, args: { params, type } });
+			} else {
+				this.resetQueryAndData();
+				this.setUrlQuery('');
+			}
+		},
+		resetQueryAndData() {
+			Object.keys(this.query.facets).forEach((key) => {
+				this.query.facets[key].splice(0);
+			});
+
+			this.query.pagination.limit = this.config.limit;
+			this.query.pagination.offset = 0;
+
+			this.data.items.splice(0);
+
+			this.data.pagination.limit = null;
+			this.data.pagination.offset = null;
+			this.data.pagination.total = null;
+		},
+		all() {
+			this.more(true);
+		},
 		more(all) {
 			const { limit, total, offset } = this.data.pagination;
 			const newPagination = {
@@ -199,38 +183,51 @@ export default {
 				total,
 			};
 
-			if (all) {
+			if (all === true) {
 				newPagination.limit = total - offset;
 			}
 
 			this.updatePaginationParams(newPagination);
 
-			this.request('append');
+			this.requestGate({ type: 'append' });
 		},
-		requestHub(type) {
-			if (this.states.hasInitialQueryUrl || (this.enableLiveSearch && this.validQuery)) {
-				this.states.loading = true;
-				this.debounce({ cb: this.request, args: this.states.requestType });
-			} else if (!this.validQuery) {
-				// Clear request params from url
-				this.setUrlQuery('');
+		isSelected(key, value) {
+			return this.query.facets[key].indexOf(`${value}`) !== -1;
+		},
+		toggleFacetValue(key, value) {
+			const tempArray = [...this.query.facets[key]];
+			const valueIndex = tempArray.indexOf(`${value}`);
+
+			valueIndex === -1
+				? tempArray.push(`${value}`)
+				: tempArray.splice(valueIndex, 1);
+
+			this.$set(this.query.facets, key, tempArray);
+
+			if (this.liveSearchEnabled) {
+				this.requestGate();
 			}
 		},
-		request(type = 'new', params = this.requestQuery) {
+		objectToQueryString({ params, skipNulls = true, addQueryPrefix = true } = {}) {
+			return qs.stringify(params, {
+				skipNulls,
+				arrayFormat: 'repeat',
+				addQueryPrefix,
+			});
+		},
+		request({ params = this.requestQuery, type = 'new' } = {}) {
 			this.states.loading = true;
 			const { total } = this.data.pagination;
 
-			this.fetch(params)
+			return this.fetch(params)
 				.then((result) => {
-					// const notFirstFetch = total !== null;
-					const totalChanged = total !== result.pagination.total;
 					const notNewRequest = type !== 'new';
-					const notFilterRequest = type !== 'filter';
-					const initiateNewFetch = notFilterRequest && notNewRequest && totalChanged;
+					const totalChanged = total !== result.pagination.total;
+					const initiateNewFetch = notNewRequest && totalChanged;
 
 					if (initiateNewFetch) {
 						// if total has changed refetch entire list and replace
-						console.log('refetch initiated');
+						console.log('[SkyList]: refetch initiated');
 						this.fetch(Object.assign({}, this.requestQuery, {
 							limit: this.config.limit,
 							offset: 0,
@@ -245,8 +242,6 @@ export default {
 					if (!this.states.hasFetchedOnce) {
 						this.states.hasFetchedOnce = true;
 					}
-
-					this.queryUrl = this.objectToQueryString({ params, });
 				})
 				.catch(this.catchError);
 		},
@@ -264,7 +259,8 @@ export default {
 			}
 
 			this.states.cancelToken = axios.CancelToken.source();
-			this.setUrlQuery(this.requestString);
+
+			this.setUrlQuery(this.urlQueryString);
 
 			const transformedParams = this.transformParams(params);
 
@@ -273,9 +269,9 @@ export default {
 					url: this.config.api,
 					method: 'GET',
 					params: transformedParams,
-					paramsSerializer: transformedParams => this.objectToQueryString({
-						params: transformedParams,
-						addQueryPrefix: false
+					paramsSerializer: transformedParameters => this.objectToQueryString({
+						params: transformedParameters,
+						addQueryPrefix: false,
 					}),
 					cancelToken: this.states.cancelToken.token,
 				}).then((result) => {
@@ -289,61 +285,30 @@ export default {
 			});
 		},
 		setData(result, type) {
-			const { pagination, data, filters } = result;
+			const { pagination, data, facets } = result;
 
-			switch(type) {
-				case 'append':
-					this.$set(this.data, 'items', [...this.data.items, ...data]);
-					break;
+			switch (type) {
+			case 'append':
+				this.$set(this.data, 'items', [...this.data.items, ...data]);
+				break;
 
-				default:
-					this.$set(this.data, 'items', data);
-					this.updateFilters(filters);
-					break;
+			default:
+				this.$set(this.data, 'items', data);
+				this.updateFacets(facets);
+				break;
 			}
 
 			this.updatePaginationParams(pagination);
 
 			this.states.loading = false;
 		},
-		updateFilters(filters) {
-			if (filters) {
-				this.$set(this.data, 'filters', filters);
-
-				this.$set(this.queryParts, 'filters', Object.assign({},
-					filters.reduce((acc, cur) => {
-						acc[cur.alias] = [];
-
-						return acc;
-					}, {}),
-					this.queryParts.filters,
-				));
+		getQueryParams() {
+			if (typeof window !== 'undefined') {
+				const q = window.location.search.replace('?', '');
+				return qs.parse(q);
 			}
-		},
-		updateUrlParams(params) {
-			setQueryParams(params);
-		},
-		updatePaginationParams(pagination) {
-			this.$set(this.data, 'pagination', pagination);
 
-			// Always fetch with the configured limit.
-			this.queryParts.pagination.limit = this.config.limit;
-			this.queryParts.pagination.offset = pagination.offset;
-		},
-		objectToQueryString({ params, skipNulls = true, addQueryPrefix = true } = {}) {
-			return qs.stringify(params, {
-				skipNulls,
-				arrayFormat: 'repeat',
-				addQueryPrefix,
-			});
-		},
-		queryStringToObject(string) {
-			return qs.parse(string);
-		},
-		getUrlQuery() {
-			return typeof window !== 'undefined'
-				? window.location.search.replace('?', '')
-				: '';
+			return {};
 		},
 		setUrlQuery(queryString) {
 			if (typeof window !== 'undefined') {
@@ -353,27 +318,28 @@ export default {
 				window.history.replaceState('', '', `${newUrl}`);
 			}
 		},
-		hydrateQueryPartsWithUrlData(data) {
-			const notPagination = value => value !== 'limit' && value !== 'offset';
+		updateFacets(facets) {
+			if (facets) {
+				this.$set(this.data, 'facets', facets);
 
-			const hydrationData = Object.keys(data).reduce((acc, cur) => {
-				if (this.parametersKeysString.indexOf(cur) !== -1) {
-					acc.parameters[cur] = data[cur];
-				} else if (notPagination(cur)) {
-					acc.filters[cur] = Array.isArray(data[cur])
-						? data[cur]
-						: [data[cur]];
-				}
+				this.states.facetsWatcherIsDisabled = true;
+				this.$set(this.query, 'facets', Object.assign({},
+					facets.reduce((acc, cur) => {
+						acc[cur.alias] = [];
 
-				return acc;
-			},
-			{
-				parameters: {},
-				filters: {},
+						return acc;
+					}, {}),
+					this.query.facets,
+				));
+				this.states.facetsWatcherIsDisabled = false;
+			}
+		},
+		updatePaginationParams(pagination) {
+			this.$set(this.data, 'pagination', pagination);
+			this.$set(this.query, 'pagination', {
+				limit: pagination.limit,
+				offset: pagination.offset,
 			});
-
-			this.$set(this.queryParts, 'parameters', hydrationData.parameters);
-			this.$set(this.queryParts, 'filters', hydrationData.filters);
 		},
 	},
 };

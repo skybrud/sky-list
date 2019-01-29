@@ -3,19 +3,28 @@
 
 
 <template>
-	<div :class="['sky-list', { loading : states.loading }]">
+	<div :class="[
+		'sky-list',
+		{ 'sky-list--loading' : states.loading },
+	]">
 		<slot
 			:query="{
-				parameters: queryParts.parameters,
-				filters: queryParts.filters,
+				parameters: query.parameters,
+				facets: query.facets,
 			}"
 			:result="data.items"
-			:filters="data.filters"
 			:states="states"
 			:pagination="data.pagination"
-			:fetch="more"
-			:toggleFilter="toggleFilterValue"
-		>
-		</slot>
+			:facets="{
+				toggle: toggleFacetValue,
+				isSelected: isSelected,
+				items: data.facets
+			}"
+			:request="{
+				submit: request,
+				more: more,
+				all: all,
+			}"
+		/>
 	</div>
 </template>
