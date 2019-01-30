@@ -17,7 +17,7 @@ var defaultOptions = {
 };
 
 var script = {
-	name: 'SkyListFacets',
+	name: 'SkyList',
 	props: {
 		// Set up parameters to v-model
 		parameters: {
@@ -53,6 +53,7 @@ var script = {
 			},
 			data: {
 				items: [],
+				facets: [],
 				pagination: {
 					limit: null,
 					offset: null,
@@ -216,18 +217,27 @@ var script = {
 
 			this.requestGate({ type: 'append' });
 		},
-		isSelected: function isSelected(key, value) {
-			return this.query.facets[key].indexOf(("" + value)) !== -1;
+		checkValue: function checkValue(key, value, queryPart) {
+			if ( queryPart === void 0 ) queryPart = 'facets';
+
+			return this.query[queryPart][key].indexOf(("" + value)) !== -1;
 		},
-		toggleFacetValue: function toggleFacetValue(key, value) {
-			var tempArray = [].concat( this.query.facets[key] );
+		setValue: function setValue(key, value, queryPart) {
+			if ( queryPart === void 0 ) queryPart = 'facets';
+
+			this.$set(this.query[queryPart], key, value);
+		},
+		toggleValue: function toggleValue(key, value, queryPart) {
+			if ( queryPart === void 0 ) queryPart = 'facets';
+
+			var tempArray = [].concat( this.query[queryPart][key] );
 			var valueIndex = tempArray.indexOf(("" + value));
 
 			valueIndex === -1
 				? tempArray.push(("" + value))
 				: tempArray.splice(valueIndex, 1);
 
-			this.$set(this.query.facets, key, tempArray);
+			this.$set(this.query[queryPart], key, tempArray);
 
 			if (this.liveSearchEnabled) {
 				this.requestGate();
@@ -365,7 +375,6 @@ var script = {
 			if (facets) {
 				this.$set(this.data, 'facets', facets);
 
-				this.states.facetsWatcherIsDisabled = true;
 				this.$set(this.query, 'facets', Object.assign({},
 					facets.reduce(function (acc, cur) {
 						acc[cur.alias] = [];
@@ -374,7 +383,6 @@ var script = {
 					}, {}),
 					this.query.facets
 				));
-				this.states.facetsWatcherIsDisabled = false;
 			}
 		},
 		updatePaginationParams: function updatePaginationParams(pagination) {
@@ -395,11 +403,10 @@ var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=
 	{ 'sky-list--loading' : _vm.states.loading } ]},[_vm._t("default",null,{query:{
 			parameters: _vm.query.parameters,
 			facets: _vm.query.facets,
-		},result:_vm.data.items,states:_vm.states,pagination:_vm.data.pagination,facets:{
-			toggle: _vm.toggleFacetValue,
-			isSelected: _vm.isSelected,
-			items: _vm.data.facets
-		},request:{
+		},result:_vm.data.items,states:_vm.states,pagination:_vm.data.pagination,action:{
+			toggleValue: _vm.toggleValue,
+			setValue: _vm.setValue,
+		},facets:_vm.data.facets,request:{
 			submit: _vm.request,
 			more: _vm.more,
 			all: _vm.all,
@@ -411,7 +418,7 @@ var __vue_staticRenderFns__ = [];
   /* scoped */
   var __vue_scope_id__ = undefined;
   /* module identifier */
-  var __vue_module_identifier__ = "data-v-1532700c";
+  var __vue_module_identifier__ = "data-v-663b9612";
   /* functional template */
   var __vue_is_functional_template__ = false;
   /* component normalizer */

@@ -11,7 +11,7 @@ const defaultOptions = {
 };
 
 export default {
-	name: 'SkyListFacets',
+	name: 'SkyList',
 	props: {
 		// Set up parameters to v-model
 		parameters: {
@@ -47,6 +47,7 @@ export default {
 			},
 			data: {
 				items: [],
+				facets: [],
 				pagination: {
 					limit: null,
 					offset: null,
@@ -191,18 +192,18 @@ export default {
 
 			this.requestGate({ type: 'append' });
 		},
-		isSelected(key, value) {
-			return this.query.facets[key].indexOf(`${value}`) !== -1;
+		setValue(key, value, queryPart = 'facets') {
+			this.$set(this.query[queryPart], key, value);
 		},
-		toggleFacetValue(key, value) {
-			const tempArray = [...this.query.facets[key]];
+		toggleValue(key, value, queryPart = 'facets') {
+			const tempArray = [...this.query[queryPart][key]];
 			const valueIndex = tempArray.indexOf(`${value}`);
 
 			valueIndex === -1
 				? tempArray.push(`${value}`)
 				: tempArray.splice(valueIndex, 1);
 
-			this.$set(this.query.facets, key, tempArray);
+			this.$set(this.query[queryPart], key, tempArray);
 
 			if (this.liveSearchEnabled) {
 				this.requestGate();
@@ -322,7 +323,6 @@ export default {
 			if (facets) {
 				this.$set(this.data, 'facets', facets);
 
-				this.states.facetsWatcherIsDisabled = true;
 				this.$set(this.query, 'facets', Object.assign({},
 					facets.reduce((acc, cur) => {
 						acc[cur.alias] = [];
@@ -331,7 +331,6 @@ export default {
 					}, {}),
 					this.query.facets,
 				));
-				this.states.facetsWatcherIsDisabled = false;
 			}
 		},
 		updatePaginationParams(pagination) {

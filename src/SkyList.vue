@@ -15,15 +15,15 @@
 			:result="data.items"
 			:states="states"
 			:pagination="data.pagination"
-			:facets="{
-				toggle: toggleFacetValue,
-				isSelected: isSelected,
-				items: data.facets
+			:action="{
+				toggleValue,
+				setValue,
 			}"
+			:facets="data.facets"
 			:request="{
 				submit: request,
-				more: more,
-				all: all,
+				more,
+				all,
 			}"
 		/>
 	</div>
