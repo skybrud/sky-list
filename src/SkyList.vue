@@ -16,14 +16,14 @@
 			:states="states"
 			:pagination="data.pagination"
 			:action="{
-				toggleValue,
-				setValue,
+				toggleValue: toggleValue,
+				setValue: setValue,
 			}"
 			:facets="data.facets"
 			:request="{
 				submit: request,
-				more,
-				all,
+				more: more,
+				all: alle,
 			}"
 		/>
 	</div>

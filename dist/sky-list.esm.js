@@ -211,11 +211,6 @@ var script = {
 
 			this.requestGate({ type: 'append' });
 		},
-		checkValue: function checkValue(key, value, queryPart) {
-			if ( queryPart === void 0 ) queryPart = 'facets';
-
-			return this.query[queryPart][key].indexOf(("" + value)) !== -1;
-		},
 		setValue: function setValue(key, value, queryPart) {
 			if ( queryPart === void 0 ) queryPart = 'facets';
 
@@ -403,7 +398,7 @@ var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=
 		},facets:_vm.data.facets,request:{
 			submit: _vm.request,
 			more: _vm.more,
-			all: _vm.all,
+			all: _vm.alle,
 		}})],2)};
 var __vue_staticRenderFns__ = [];
 

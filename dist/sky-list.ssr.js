@@ -217,11 +217,6 @@ var script = {
 
 			this.requestGate({ type: 'append' });
 		},
-		checkValue: function checkValue(key, value, queryPart) {
-			if ( queryPart === void 0 ) queryPart = 'facets';
-
-			return this.query[queryPart][key].indexOf(("" + value)) !== -1;
-		},
 		setValue: function setValue(key, value, queryPart) {
 			if ( queryPart === void 0 ) queryPart = 'facets';
 
@@ -409,7 +404,7 @@ var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=
 		},facets:_vm.data.facets,request:{
 			submit: _vm.request,
 			more: _vm.more,
-			all: _vm.all,
+			all: _vm.alle,
 		}})],2)};
 var __vue_staticRenderFns__ = [];
 
@@ -418,7 +413,7 @@ var __vue_staticRenderFns__ = [];
   /* scoped */
   var __vue_scope_id__ = undefined;
   /* module identifier */
-  var __vue_module_identifier__ = "data-v-663b9612";
+  var __vue_module_identifier__ = "data-v-caabfff6";
   /* functional template */
   var __vue_is_functional_template__ = false;
   /* component normalizer */
