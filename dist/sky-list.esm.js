@@ -398,7 +398,7 @@ var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=
 		},facets:_vm.data.facets,request:{
 			submit: _vm.request,
 			more: _vm.more,
-			all: _vm.alle,
+			all: _vm.all,
 		}})],2)};
 var __vue_staticRenderFns__ = [];
 

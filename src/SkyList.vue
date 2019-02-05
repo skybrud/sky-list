@@ -23,7 +23,7 @@
 			:request="{
 				submit: request,
 				more: more,
-				all: alle,
+				all: all,
 			}"
 		/>
 	</div>
