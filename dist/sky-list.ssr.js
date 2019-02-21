@@ -59,6 +59,8 @@ var script = {
 					offset: null,
 					total: null,
 				},
+				meta: null,
+				misc: null,
 			},
 			states: {
 				hasFetchedOnce: false,
@@ -331,6 +333,8 @@ var script = {
 			var pagination = result.pagination;
 			var data = result.data;
 			var facets = result.facets;
+			var misc = result.misc;
+			var meta = result.meta;
 
 			switch (type) {
 			case 'append':
@@ -344,6 +348,9 @@ var script = {
 			}
 
 			this.updatePaginationParams(pagination);
+
+			this.updateMisc(misc);
+			this.updateMeta(meta);
 
 			this.states.loading = false;
 		},
@@ -387,6 +394,12 @@ var script = {
 				offset: pagination.offset,
 			});
 		},
+		updateMeta: function updateMeta(meta) {
+			this.$set(this.data, 'meta', meta);
+		},
+		updateMisc: function updateMisc(misc) {
+			this.$set(this.data, 'misc', misc);
+		},
 	},
 };
 
@@ -398,6 +411,12 @@ var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=
 	{ 'sky-list--loading' : _vm.states.loading } ]},[_vm._t("default",null,{query:{
 			parameters: _vm.query.parameters,
 			facets: _vm.query.facets,
+		},data:{
+			misc: _vm.data.misc,
+			meta: _vm.data.meta,
+			items: _vm.data.items,
+			pagination: _vm.data.pagination,
+			facets: _vm.data.facets,
 		},result:_vm.data.items,states:_vm.states,pagination:_vm.data.pagination,action:{
 			toggleValue: _vm.toggleValue,
 			setValue: _vm.setValue,
@@ -413,7 +432,7 @@ var __vue_staticRenderFns__ = [];
   /* scoped */
   var __vue_scope_id__ = undefined;
   /* module identifier */
-  var __vue_module_identifier__ = "data-v-88af6c68";
+  var __vue_module_identifier__ = "data-v-38040c23";
   /* functional template */
   var __vue_is_functional_template__ = false;
   /* component normalizer */

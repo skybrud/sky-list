@@ -12,6 +12,13 @@
 				parameters: query.parameters,
 				facets: query.facets,
 			}"
+			:data="{
+				misc: data.misc,
+				meta: data.meta,
+				items: data.items,
+				pagination: data.pagination,
+				facets: data.facets,
+			}"
 			:result="data.items"
 			:states="states"
 			:pagination="data.pagination"

@@ -53,6 +53,8 @@ export default {
 					offset: null,
 					total: null,
 				},
+				meta: null,
+				misc: null,
 			},
 			states: {
 				hasFetchedOnce: false,
@@ -286,7 +288,7 @@ export default {
 			});
 		},
 		setData(result, type) {
-			const { pagination, data, facets } = result;
+			const { pagination, data, facets, misc, meta } = result;
 
 			switch (type) {
 			case 'append':
@@ -300,6 +302,9 @@ export default {
 			}
 
 			this.updatePaginationParams(pagination);
+
+			this.updateMisc(misc);
+			this.updateMeta(meta);
 
 			this.states.loading = false;
 		},
@@ -339,6 +344,12 @@ export default {
 				limit: pagination.limit,
 				offset: pagination.offset,
 			});
+		},
+		updateMeta(meta) {
+			this.$set(this.data, 'meta', meta);
+		},
+		updateMisc(misc) {
+			this.$set(this.data, 'misc', misc);
 		},
 	},
 };
