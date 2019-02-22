@@ -148,8 +148,11 @@ var script = {
 					if (shouldPrepend) {
 						var ref = this$1.query.pagination;
 						var limit = ref.limit;
+
 						this$1.query.pagination.offset = limit - this$1.config.limit;
 						this$1.query.pagination.limit = this$1.config.limit;
+						this$1.data.pagination.offset = limit - this$1.config.limit;
+						this$1.data.pagination.limit = this$1.config.limit;
 
 						this$1.setUrlQuery(this$1.urlQueryString);
 					}
@@ -411,10 +414,10 @@ var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=
 			items: _vm.data.items,
 			pagination: _vm.data.pagination,
 			facets: _vm.data.facets,
-		},result:_vm.data.items,states:_vm.states,pagination:_vm.data.pagination,action:{
+		},states:_vm.states,action:{
 			toggleValue: _vm.toggleValue,
 			setValue: _vm.setValue,
-		},facets:_vm.data.facets,request:{
+		},request:{
 			submit: _vm.request,
 			more: _vm.more,
 			all: _vm.all,

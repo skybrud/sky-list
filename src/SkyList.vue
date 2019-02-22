@@ -19,14 +19,11 @@
 				pagination: data.pagination,
 				facets: data.facets,
 			}"
-			:result="data.items"
 			:states="states"
-			:pagination="data.pagination"
 			:action="{
 				toggleValue: toggleValue,
 				setValue: setValue,
 			}"
-			:facets="data.facets"
 			:request="{
 				submit: request,
 				more: more,

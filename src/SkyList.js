@@ -141,8 +141,11 @@ export default {
 				.then(() => {
 					if (shouldPrepend) {
 						const { limit } = this.query.pagination;
+
 						this.query.pagination.offset = limit - this.config.limit;
 						this.query.pagination.limit = this.config.limit;
+						this.data.pagination.offset = limit - this.config.limit;
+						this.data.pagination.limit = this.config.limit;
 
 						this.setUrlQuery(this.urlQueryString);
 					}
