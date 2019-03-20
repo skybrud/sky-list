@@ -8,6 +8,7 @@ var defaultOptions = {
 	immediate: false,
 	listType: 'more',
 	liveSearch: true,
+	omitInUrl: [],
 };
 
 var script = {
@@ -102,7 +103,10 @@ var script = {
 			);
 		},
 		urlQueryString: function urlQueryString() {
-			return this.objectToQueryString({ params: this.requestQuery });
+			return this.removeUrlParts(
+				this.objectToQueryString({ params: this.requestQuery }),
+				this.config.omitInUrl
+			);
 		},
 	},
 	beforeMount: function beforeMount() {
@@ -236,6 +240,14 @@ var script = {
 			if (this.liveSearchEnabled) {
 				this.requestGate();
 			}
+		},
+		removeUrlParts: function removeUrlParts(target, unwantedParameters) {
+			var wantedParts = target
+				.substring(1)
+				.split('&')
+				.filter(function (part) { return unwantedParameters.indexOf(part.split('=')[0]) === -1; });
+
+			return ("?" + (wantedParts.join('&')));
 		},
 		objectToQueryString: function objectToQueryString(ref) {
 			if ( ref === void 0 ) ref = {};

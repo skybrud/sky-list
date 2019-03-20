@@ -8,6 +8,7 @@ const defaultOptions = {
 	immediate: false,
 	listType: 'more',
 	liveSearch: true,
+	omitInUrl: [],
 };
 
 export default {
@@ -102,7 +103,10 @@ export default {
 			);
 		},
 		urlQueryString() {
-			return this.objectToQueryString({ params: this.requestQuery });
+			return this.removeUrlParts(
+				this.objectToQueryString({ params: this.requestQuery }),
+				this.config.omitInUrl,
+			);
 		},
 	},
 	beforeMount() {
@@ -213,6 +217,14 @@ export default {
 			if (this.liveSearchEnabled) {
 				this.requestGate();
 			}
+		},
+		removeUrlParts(target, unwantedParameters) {
+			const wantedParts = target
+				.substring(1)
+				.split('&')
+				.filter(part => unwantedParameters.indexOf(part.split('=')[0]) === -1);
+
+			return `?${wantedParts.join('&')}`;
 		},
 		objectToQueryString({ params, skipNulls = true, addQueryPrefix = true } = {}) {
 			return qs.stringify(params, {
