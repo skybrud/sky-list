@@ -168,6 +168,13 @@ export default {
 				this.setUrlQuery('');
 			}
 		},
+		resetPagination() {
+			this.updatePaginationParams({
+				limit: this.config.limit,
+				offset: 0,
+				total: this.data.total,
+			});
+		},
 		resetQueryAndData() {
 			Object.keys(this.query.facets).forEach((key) => {
 				this.query.facets[key].splice(0);

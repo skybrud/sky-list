@@ -182,6 +182,13 @@ var script = {
 				this.setUrlQuery('');
 			}
 		},
+		resetPagination: function resetPagination() {
+			this.updatePaginationParams({
+				limit: this.config.limit,
+				offset: 0,
+				total: this.data.total,
+			});
+		},
 		resetQueryAndData: function resetQueryAndData() {
 			var this$1 = this;
 
@@ -429,6 +436,8 @@ var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=
 		},states:_vm.states,action:{
 			toggleValue: _vm.toggleValue,
 			setValue: _vm.setValue,
+		},resets:{
+			pagination: _vm.resetPagination,
 		},request:{
 			submit: _vm.request,
 			more: _vm.more,

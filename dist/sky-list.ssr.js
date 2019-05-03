@@ -188,6 +188,13 @@ var script = {
 				this.setUrlQuery('');
 			}
 		},
+		resetPagination: function resetPagination() {
+			this.updatePaginationParams({
+				limit: this.config.limit,
+				offset: 0,
+				total: this.data.total,
+			});
+		},
 		resetQueryAndData: function resetQueryAndData() {
 			var this$1 = this;
 
@@ -435,6 +442,8 @@ var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=
 		},states:_vm.states,action:{
 			toggleValue: _vm.toggleValue,
 			setValue: _vm.setValue,
+		},resets:{
+			pagination: _vm.resetPagination,
 		},request:{
 			submit: _vm.request,
 			more: _vm.more,
@@ -447,7 +456,7 @@ var __vue_staticRenderFns__ = [];
   /* scoped */
   var __vue_scope_id__ = undefined;
   /* module identifier */
-  var __vue_module_identifier__ = "data-v-4dc11410";
+  var __vue_module_identifier__ = "data-v-f515980c";
   /* functional template */
   var __vue_is_functional_template__ = false;
   /* component normalizer */

@@ -24,6 +24,9 @@
 				toggleValue: toggleValue,
 				setValue: setValue,
 			}"
+			:resets="{
+				pagination: resetPagination,
+			}"
 			:request="{
 				submit: request,
 				more: more,
